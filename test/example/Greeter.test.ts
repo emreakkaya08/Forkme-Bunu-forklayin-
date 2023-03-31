@@ -1,19 +1,28 @@
 import { expect } from 'chai';
-import { ethers } from 'hardhat';
+import { Contract } from 'ethers';
+import { ethers, upgrades } from 'hardhat';
 
 describe('Greeter', function () {
   it("Should return the new greeting once it's changed", async function () {
+    let contract: Contract;
     const Greeter = await ethers.getContractFactory('Greeter');
-    const greeter = await Greeter.deploy('Hello, world!');
-    await greeter.deployed();
+    contract = await upgrades.deployProxy(Greeter, ['Hello, world!']);
+    await contract.deployed();
 
-    expect(await greeter.greet()).to.equal('Hello, world!');
+    expect(await contract.greet()).to.equal('Hello, world!');
 
-    const setGreetingTx = await greeter.setGreeting('Hola, mundo!');
+    const [owner] = await ethers.getSigners();
+    await expect(contract.connect(owner).setGreeting('Hola, mundo!'))
+      .to.emit(contract, 'GreetingChanged')
+      .withArgs(owner.address, 'Hola, mundo!');
+
+    expect(await contract.greet()).to.equal('Hola, mundo!');
+
+    const setGreetingTx = await contract.setGreeting('Hello, world!');
 
     // wait until the transaction is mined
     await setGreetingTx.wait();
 
-    expect(await greeter.greet()).to.equal('Hola, mundo!');
+    expect(await contract.greet()).to.equal('Hello, world!');
   });
 });
