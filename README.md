@@ -28,7 +28,7 @@ npm install
 
 The project structure is as follows
 
-```shell
+```bash
 xyprotocol/
 ├── contracts          --- Contract source code directory, mainly store *.sol contract files
 │   ├── HelloWorld.sol
