@@ -50,10 +50,12 @@ xyprotocol/
 Root directory add ```.env```  file 
 
 ```shell
-ARBITRUM_TESTNET_URL='https://rinkeby.arbitrum.io/rpc'
-ARBITRUM_TESTNET_DEPLOYER_PRIVATE_KEY='ddf32a25932****************************'
-ETH_TESTNET_URL='https://testnet.goerli.mudit.blog/'
-ETH_TESTNET_DEPLOYER_PRIVATE_KEY='ddf32a25932****************************'
+ARBITRUM_TESTNET_URL='https://endpoints.omniatech.io/v1/arbitrum/goerli/public'
+ARBITRUM_TESTNET_DEPLOYER_PRIVATE_KEY='0xddf32a25932****************************'
+ETH_TESTNET_URL='https://rpc.ankr.com/eth_goerli'
+ETH_TESTNET_DEPLOYER_PRIVATE_KEY='0xddf32a25932****************************'
+ZKSYNC_ERA_TESTNET_URL="https://testnet.era.zksync.dev"
+ZKSYNC_ERA_TESTNET_DEPLOYER_PRIVATE_KEY="0xddf32a25932****************************"
 ```
 
 Running Test Locally (Recommend)
