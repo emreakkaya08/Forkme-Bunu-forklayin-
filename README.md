@@ -47,6 +47,15 @@ xyprotocol/
 
 ## - Automated testing
 
+Root directory add ```.env```  file 
+
+```shell
+ARBITRUM_TESTNET_URL='https://rinkeby.arbitrum.io/rpc'
+ARBITRUM_TESTNET_DEPLOYER_PRIVATE_KEY='ddf32a25932****************************'
+ETH_TESTNET_URL='https://testnet.goerli.mudit.blog/'
+ETH_TESTNET_DEPLOYER_PRIVATE_KEY='ddf32a25932****************************'
+```
+
 Running Test Locally (Recommend)
 
 ```shell
