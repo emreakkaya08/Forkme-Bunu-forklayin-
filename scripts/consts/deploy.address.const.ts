@@ -6,11 +6,13 @@ type ContractDeployAddress = string | null;
 interface ContractDeployAddressInterface {
   XToken?: ContractDeployAddress;
   YToken?: ContractDeployAddress;
+  Greeter?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   XToken: '0xaaa',
   YToken: '0xbbb',
+  Greeter: null,
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};

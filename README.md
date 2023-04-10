@@ -128,3 +128,9 @@ contracts/
 Copy the files in the `abi/` directory to the corresponding project for use
 
 About the `abi/` directory, you can also use the `npm run compile` command to generate the `abi/` directory, and then copy the files in the `abi/` directory to the corresponding project for use.
+
+### fork chain to local
+
+```shell
+npx ganache-cli --fork https://rpc.ankr.com/eth_goerli/ --networkId 1337
+```
