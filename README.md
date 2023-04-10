@@ -4,6 +4,11 @@
 
 ### eth mainnet
 
+### eth testnet
+
+- `XToken`: `0x??`
+  - [bscscan](https://bscscan.com/address/0x??)
+
 ## how to develop and test
 
 ### Principle of development
@@ -47,7 +52,7 @@ xyprotocol/
 
 ## - Automated testing
 
-Root directory add ```.env```  file 
+Root directory add ```.env```  file
 
 ```shell
 ARBITRUM_TESTNET_URL='https://endpoints.omniatech.io/v1/arbitrum/goerli/public'
@@ -64,8 +69,10 @@ Running Test Locally (Recommend)
 npx hardhat test
 ```
 
+Running Test On special test case
+
 ```shell
-npx hardhat test --grep one
+npx hardhat test --grep describeName
 ```
 
 Running Test On Polygon Testnet
@@ -79,7 +86,7 @@ npx hardhat test --network mumbai
 ### Deploy contract to testnet or mainnet
 
 ```shell
-npx hardhat run scripts/HelloWorld-deploy.ts --network mumbai
+npx hardhat run --network mumbai scripts/HelloWorld-deploy.ts
 ```
 
 ```shell
@@ -93,7 +100,7 @@ npx hardhat run --network bsc_testnet filePath
 HelloWorld deployed to:0x3F0528D040f31ace17a0c733469145928b9C88a4
 ```
 
-Record `0x3F0528D040f31ace17a0c733469145928b9C88a4` to any place you like, which is convenient for the `game-service-contract` service to call.
+Record `0x3F0528D040f31ace17a0c733469145928b9C88a4` to any place you like, which is convenient for the other service to call.
 
 ### Compile contract ABI
 
@@ -121,3 +128,9 @@ contracts/
 Copy the files in the `abi/` directory to the corresponding project for use
 
 About the `abi/` directory, you can also use the `npm run compile` command to generate the `abi/` directory, and then copy the files in the `abi/` directory to the corresponding project for use.
+
+### fork chain to local
+
+```shell
+npx ganache-cli --fork https://rpc.ankr.com/eth_goerli/ --networkId 1337
+```

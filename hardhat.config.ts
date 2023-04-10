@@ -44,6 +44,12 @@ module.exports = {
       gasPrice: 50000000000,
       accounts: [`0x${ETH_TESTNET_DEPLOYER_PRIVATE_KEY}`],
     },
+    zksync_era_testnet: {
+      url: ZKSYNC_ERA_TESTNET_URL,
+      chainId: 280,
+      gasPrice: 50000000000,
+      accounts: [`0x${ZKSYNC_ERA_TESTNET_DEPLOYER_PRIVATE_KEY}`],
+    },
   },
   mocha: {
     timeout: 2 * 60 * 1000,
