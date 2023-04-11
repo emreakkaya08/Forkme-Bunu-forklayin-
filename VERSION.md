@@ -12,3 +12,7 @@
 
 1. add contract deploy example method
 2. modify README.md, add command for forking local chain
+
+#### 0.1.0.20230411.1
+
+1. implement XToken ERC20 contract
