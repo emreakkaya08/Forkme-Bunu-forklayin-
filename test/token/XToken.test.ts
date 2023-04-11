@@ -38,13 +38,13 @@ describe("XToken", function () {
 
     it("should allow burning by BURN_X_ROLE", async function () {
         const amount = ethers.utils.parseEther("100");
-        const [mintXRole, burnXRole] = await ethers.getSigners();
+        const [mintXRole] = await ethers.getSigners();
         await contract.connect(mintXRole).continueMinting(amount);
         console.log('mint 100 balanceof :' + await contract.balanceOf(await mintXRole.getAddress()));
 
         await contract.connect(mintXRole).burn(amount);
         console.log('burn 100 balanceof :' + await contract.balanceOf(await mintXRole.getAddress()));
-        expect(await contract.balanceOf(await burnXRole.getAddress())).to.equal(0);
+        expect(await contract.balanceOf(await mintXRole.getAddress())).to.equal(0);
     });
 
     it("should allow transfer of tokens", async function () {
