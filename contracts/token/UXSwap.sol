@@ -24,8 +24,6 @@ contract UXSwap is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    // the role that used for swap
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     IERC20 public usdt;
     StableTokenX public xToken;
@@ -61,7 +59,6 @@ contract UXSwap is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-        _grantRole(ADMIN_ROLE, msg.sender);
 
         usdt = IERC20(_usdt);
         xToken = StableTokenX(_xToken);
@@ -76,6 +73,9 @@ contract UXSwap is
 
         // transfer the USDT from the user to this contract
         usdt.safeTransferFrom(msg.sender, address(this), amount);
+
+        // todo
+        xToken.approve(address(this), amount);
 
         // mint the equivalent amount of XToken to the user
         xToken.mint(msg.sender, amount);
