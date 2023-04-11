@@ -16,8 +16,11 @@ describe('StableTokenX', () => {
     await contract.deployed();
   });
 
-  it('contract to be defined', () => {
+  it('contract to be defined', async () => {
     expect(contract).to.be.instanceOf(Contract);
+    expect(await contract.name()).to.equal('StableTokenX');
+    expect(await contract.symbol()).to.equal('STX');
+    expect(await contract.decimals()).to.equal(18);
   });
 
   it('StableTokenX mint test', async () => {
