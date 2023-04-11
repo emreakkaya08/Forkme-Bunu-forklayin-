@@ -44,7 +44,7 @@ contract StableTokenX is
     }
 
     function initialize() public initializer {
-        __ERC20_init("StableTokenX", "STX");
+        __ERC20_init("XToken", "X");
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
