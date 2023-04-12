@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
-import "./StableTokenX.sol";
+import "../core/interface/IERCMINTExt20.sol";
 
 contract TokenDeposit is
     Initializable,
@@ -20,8 +20,6 @@ contract TokenDeposit is
     ReentrancyGuardUpgradeable,
     VersionUpgradeable
 {
-    using SafeERC20 for IERC20;
-
     // the role that can pause the contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
@@ -29,7 +27,7 @@ contract TokenDeposit is
     // the role that used for withdraw token
     bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
-    StableTokenX public xToken;
+    IERCMINTExt20 public xToken;
 
     event WithdrawERC20(
         IERC20Upgradeable indexed token,
@@ -75,7 +73,7 @@ contract TokenDeposit is
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
 
-        xToken = StableTokenX(_xToken);
+        xToken = IERCMINTExt20(_xToken);
     }
 
     function depositERC20(
