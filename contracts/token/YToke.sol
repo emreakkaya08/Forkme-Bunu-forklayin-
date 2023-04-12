@@ -8,6 +8,12 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
 
+/**
+ * @title YToken
+ * @author
+ * @notice YToken is a ERC20 token with pausable, upgradable, and versionable features.
+ * 总数为 1000000000000000000000000000, 18位小数
+ */
 contract YToken is
     Initializable,
     PausableUpgradeable,
@@ -30,6 +36,7 @@ contract YToken is
 
     function initialize() public initializer {
         __ERC20_init("YToken", "Y");
+        _mint(msg.sender, 100000000 * (10 ** decimals())); //指定总数 1 亿
         __Pausable_init();
         __AccessControl_init();
         __VersionUpgradeable_init();
@@ -39,10 +46,6 @@ contract YToken is
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
         _grantRole(Y_ADMIN_ROLE, msg.sender);
-    }
-
-    function mint(uint256 amount) public whenNotPaused onlyRole(Y_ADMIN_ROLE) {
-        _mint(msg.sender, amount);
     }
 
     /**

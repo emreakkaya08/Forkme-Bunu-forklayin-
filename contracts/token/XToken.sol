@@ -8,6 +8,12 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
 
+/**
+ * @title XToken
+ * @author 
+ * @notice XToken is a stable ERC20 token with pausable, upgradable, and versionable features.
+ * 总数无限制，18位小数
+ */
 contract XToken is
     Initializable,
     PausableUpgradeable,
