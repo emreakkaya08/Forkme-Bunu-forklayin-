@@ -42,13 +42,16 @@ describe('TokenDeposit', () => {
     );
 
     await usdt.connect(from).approve(contract.address, swapAmount);
-    await contract.connect(from).depositERC20(usdt.address, swapAmount);
+    await expect(contract.connect(from).depositERC20(usdt.address, swapAmount))
+      .to.emit(contract, 'DepositERC20')
+      .withArgs(from.address, swapAmount, swapAmount);
 
     expect(await usdt.balanceOf(contract.address)).to.equal(swapAmount);
 
     expect(await usdt.balanceOf(from.address)).to.equal(
       uAmount.sub(swapAmount)
     );
+
     expect(await xToken.balanceOf(from.address)).to.equal(swapAmount);
 
     const reason = `AccessControl: account ${ethers.utils

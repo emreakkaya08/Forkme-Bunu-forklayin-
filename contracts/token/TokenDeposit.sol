@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
-import "../core/interface/IERCMINTExt20.sol";
+import "../core/contract-upgradeable/interface/IERCMINTExt20.sol";
 
 contract TokenDeposit is
     Initializable,
@@ -35,7 +35,7 @@ contract TokenDeposit is
         uint256 amount
     );
 
-    event DepotisERC20(
+    event DepositERC20(
         address indexed user,
         uint256 amount,
         uint256 xTokenAmount
@@ -76,30 +76,49 @@ contract TokenDeposit is
         xToken = IERCMINTExt20(_xToken);
     }
 
+    function _checkTokenAllowance(
+        IERC20Upgradeable token
+    ) internal pure returns (bool) {
+        return true;
+    }
+
+    function _calculateMintAmountByTokenAmount(
+        IERC20Upgradeable token,
+        uint256 amount
+    ) internal pure returns (uint256) {
+        return amount;
+    }
+
     function depositERC20(
         IERC20Upgradeable token,
         uint256 amount
     ) public payable nonReentrant whenNotPaused {
+        require(_checkTokenAllowance(token), "token is not allowed to deposit");
+
         IERC20Upgradeable erc20Token = IERC20Upgradeable(token);
+
+        address toAddress = _msgSender();
 
         // make sure the user has approved the transfer of USDT to this contract
         require(
-            erc20Token.allowance(msg.sender, address(this)) >= amount,
+            erc20Token.allowance(toAddress, address(this)) >= amount,
             "Must approve ERC20Token first"
         );
 
         // transfer the USDT from the user to this contract
         SafeERC20Upgradeable.safeTransferFrom(
             erc20Token,
-            msg.sender,
+            toAddress,
             address(this),
             amount
         );
 
-        // mint the equivalent amount of XToken to the user
-        xToken.mint(msg.sender, amount);
+        uint256 mintAmount = _calculateMintAmountByTokenAmount(token, amount);
 
-        emit DepotisERC20(msg.sender, msg.value, amount);
+        // mint the equivalent amount of XToken to the user
+        xToken.mint(toAddress, mintAmount);
+
+        emit DepositERC20(toAddress, amount, mintAmount);
     }
 
     function withdrawERC20(
