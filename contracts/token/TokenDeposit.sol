@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
-import "../core/interface/IERCMINTExt20.sol";
+import "../core/interface/erc/IERC5679Ext20.sol";
 
 contract TokenDeposit is
     Initializable,
@@ -27,7 +27,7 @@ contract TokenDeposit is
     // the role that used for withdraw token
     bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
-    IERCMINTExt20 public xToken;
+    IERC5679Ext20 public xToken;
 
     event WithdrawERC20(
         IERC20Upgradeable indexed token,
@@ -73,7 +73,7 @@ contract TokenDeposit is
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
 
-        xToken = IERCMINTExt20(_xToken);
+        xToken = IERC5679Ext20(_xToken);
     }
 
     function depositERC20(
