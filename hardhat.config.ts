@@ -13,6 +13,8 @@ const {
   ETH_TESTNET_DEPLOYER_PRIVATE_KEY,
   ZKSYNC_ERA_TESTNET_URL,
   ZKSYNC_ERA_TESTNET_DEPLOYER_PRIVATE_KEY,
+  BSC_TESTNET_URL,
+  BSC_TESTNET_DEPLOYER_PRIVATE_KEY,
 } = process.env;
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -33,6 +35,12 @@ module.exports = {
   solidity: '0.8.9',
 
   networks: {
+    bsc_testnet: {
+      url: BSC_TESTNET_URL,
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: [`0x${BSC_TESTNET_DEPLOYER_PRIVATE_KEY}`],
+    },
     arbitrum_testnet: {
       url: ARBITRUM_TESTNET_URL,
       chainId: 421613,
