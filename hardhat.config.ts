@@ -35,7 +35,8 @@ module.exports = {
   solidity: '0.8.9',
 
   networks: {
-    bsc_testnet: {
+    // use bsctest as dev env, goerli eth is so expensive
+    eth_testnet: {
       url: BSC_TESTNET_URL,
       chainId: 97,
       gasPrice: 20000000000,
@@ -46,7 +47,7 @@ module.exports = {
       chainId: 421613,
       accounts: [`0x${ARBITRUM_TESTNET_DEPLOYER_PRIVATE_KEY}`],
     },
-    eth_testnet: {
+    eth_testnet_bak: {
       url: ETH_TESTNET_URL,
       chainId: 5,
       gasPrice: 50000000000,

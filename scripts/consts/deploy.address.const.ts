@@ -6,12 +6,16 @@ type ContractDeployAddress = string | null;
 interface ContractDeployAddressInterface {
   XToken?: ContractDeployAddress;
   YToken?: ContractDeployAddress;
+  StableTokenX?: ContractDeployAddress;
+  TokenDeposit?: ContractDeployAddress;
   Greeter?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   XToken: '0xaaa',
   YToken: '0xbbb',
+  StableTokenX: '0x51e49799490A4469fb73edFC09822b3b566cE445',
+  TokenDeposit: '0x6550755AEE41CC87E72A849Fdf9022aa74DEC1F4',
   Greeter: null,
 };
 

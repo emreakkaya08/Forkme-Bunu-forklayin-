@@ -25,3 +25,7 @@
 
 1. change UXSwap contract to TokenDeposit contract
 2. add withdraw method to TokenDeposit contract
+
+#### 0.1.0.20230412.2
+
+1. deploy StableTokenX and DepositToken contract

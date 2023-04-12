@@ -27,6 +27,7 @@ describe('TokenDeposit', () => {
     const usdt = await upgrades.deployProxy(MockUsdt, []);
     await usdt.deployed();
 
+    // grant contract MINTER_ROLE
     xToken.grantRole(xToken.MINTER_ROLE(), contract.address);
 
     const [owner, from, withdrawRole, withdrawTo] = await ethers.getSigners();
