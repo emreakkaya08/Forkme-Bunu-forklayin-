@@ -20,3 +20,8 @@
 #### 0.1.0.20230411.2
 
 1. implement UXSwap contract
+
+#### 0.1.0.20230412.1
+
+1. change UXSwap contract to TokenDeposit contract
+2. add withdraw method to TokenDeposit contract

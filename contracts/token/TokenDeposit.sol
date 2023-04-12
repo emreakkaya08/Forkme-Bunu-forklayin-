@@ -8,14 +8,16 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
 import "./StableTokenX.sol";
 
-contract UXSwap is
+contract TokenDeposit is
     Initializable,
     AccessControlEnumerableUpgradeable,
     PausableUpgradeable,
     UUPSUpgradeable,
+    ReentrancyGuardUpgradeable,
     VersionUpgradeable
 {
     using SafeERC20 for IERC20;
@@ -24,11 +26,22 @@ contract UXSwap is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    // the role that used for withdraw token
+    bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
-    IERC20 public usdt;
     StableTokenX public xToken;
 
-    event Swapped(address indexed user, uint256 amount, uint256 xTokenAmount);
+    event WithdrawERC20(
+        IERC20Upgradeable indexed token,
+        address indexed to,
+        uint256 amount
+    );
+
+    event DepotisERC20(
+        address indexed user,
+        uint256 amount,
+        uint256 xTokenAmount
+    );
 
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -43,7 +56,7 @@ contract UXSwap is
     ) internal override onlyRole(UPGRADER_ROLE) {}
 
     function _version() internal pure virtual override returns (uint256) {
-        return 1;
+        return 2;
     }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -51,35 +64,52 @@ contract UXSwap is
         _disableInitializers();
     }
 
-    function initialize(address _usdt, address _xToken) public initializer {
+    function initialize(address _xToken) public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
+        __VersionUpgradeable_init();
+        __ReentrancyGuard_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
 
-        usdt = IERC20(_usdt);
         xToken = StableTokenX(_xToken);
     }
 
-    function swap(uint256 amount) public payable {
+    function depositERC20(
+        IERC20Upgradeable token,
+        uint256 amount
+    ) public payable nonReentrant whenNotPaused {
+        IERC20Upgradeable erc20Token = IERC20Upgradeable(token);
+
         // make sure the user has approved the transfer of USDT to this contract
         require(
-            usdt.allowance(msg.sender, address(this)) >= amount,
-            "Must approve USDT first"
+            erc20Token.allowance(msg.sender, address(this)) >= amount,
+            "Must approve ERC20Token first"
         );
 
         // transfer the USDT from the user to this contract
-        usdt.safeTransferFrom(msg.sender, address(this), amount);
-
-        // todo
-        xToken.approve(address(this), amount);
+        SafeERC20Upgradeable.safeTransferFrom(
+            erc20Token,
+            msg.sender,
+            address(this),
+            amount
+        );
 
         // mint the equivalent amount of XToken to the user
         xToken.mint(msg.sender, amount);
 
-        emit Swapped(msg.sender, msg.value, amount);
+        emit DepotisERC20(msg.sender, msg.value, amount);
+    }
+
+    function withdrawERC20(
+        IERC20Upgradeable token,
+        address to,
+        uint256 value
+    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
+        SafeERC20Upgradeable.safeTransfer(token, to, value);
+        emit WithdrawERC20(token, to, value);
     }
 }

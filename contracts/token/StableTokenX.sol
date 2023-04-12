@@ -35,7 +35,7 @@ contract StableTokenX is
     ) internal override onlyRole(UPGRADER_ROLE) {}
 
     function _version() internal pure virtual override returns (uint256) {
-        return 1;
+        return 2;
     }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -47,6 +47,7 @@ contract StableTokenX is
         __ERC20_init("XToken", "X");
         __AccessControlEnumerable_init();
         __Pausable_init();
+        __VersionUpgradeable_init();
         __UUPSUpgradeable_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
