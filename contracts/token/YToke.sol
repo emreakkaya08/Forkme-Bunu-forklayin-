@@ -32,6 +32,7 @@ contract YToken is
         __ERC20_init("YToken", "Y");
         __Pausable_init();
         __AccessControl_init();
+        __VersionUpgradeable_init();
         __UUPSUpgradeable_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
