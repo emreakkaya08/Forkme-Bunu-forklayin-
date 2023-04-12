@@ -8,7 +8,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
 
-contract XToken is
+contract YToken is
     Initializable,
     PausableUpgradeable,
     UUPSUpgradeable,
@@ -20,8 +20,8 @@ contract XToken is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    // the role that used for mint X
-    bytes32 public constant X_ADMIN_ROLE = keccak256("X_ADMIN_ROLE");
+    // the role that used for mint Y
+    bytes32 public constant Y_ADMIN_ROLE = keccak256("Y_ADMIN_ROLE");
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -29,7 +29,7 @@ contract XToken is
     }
 
     function initialize() public initializer {
-        __ERC20_init("XToken", "X");
+        __ERC20_init("YToken", "Y");
         __Pausable_init();
         __AccessControl_init();
         __UUPSUpgradeable_init();
@@ -37,10 +37,10 @@ contract XToken is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-        _grantRole(X_ADMIN_ROLE, msg.sender);
+        _grantRole(Y_ADMIN_ROLE, msg.sender);
     }
 
-    function mint(uint256 amount) public whenNotPaused onlyRole(X_ADMIN_ROLE) {
+    function mint(uint256 amount) public whenNotPaused onlyRole(Y_ADMIN_ROLE) {
         _mint(msg.sender, amount);
     }
 

@@ -29,7 +29,7 @@ describe("XToken", function () {
     it("should allow minting by MINT_X_ROLE", async function () {
         const amount = ethers.utils.parseEther("100");
         const [mintXRole] = await ethers.getSigners();
-        await contract.connect(mintXRole).continueMinting(amount);
+        await contract.connect(mintXRole).mint(amount);
         expect(await contract.balanceOf(await mintXRole.getAddress())).to.equal(amount);
     });
 });
