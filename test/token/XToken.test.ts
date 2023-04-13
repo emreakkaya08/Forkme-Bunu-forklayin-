@@ -30,6 +30,8 @@ describe("XToken", function () {
         const amount = ethers.utils.parseEther("100");
         const [mintXRole] = await ethers.getSigners();
         await contract.connect(mintXRole).mint(amount);
+        console.log("mintXRole: ", await mintXRole.getAddress());
+        console.log("contract balanceof: ", await contract.balanceOf(await mintXRole.getAddress()));
         expect(await contract.balanceOf(await mintXRole.getAddress())).to.equal(amount);
     });
 });
