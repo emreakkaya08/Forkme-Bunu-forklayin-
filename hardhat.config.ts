@@ -33,7 +33,7 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: '0.8.17',
+  solidity: '0.8.9',
 
   networks: {
     // use bsctest as dev env, goerli eth is so expensive
