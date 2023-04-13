@@ -6,6 +6,7 @@ import { ethers, upgrades } from 'hardhat';
 describe('XYSwap', function () {
   let contract: Contract; // XYSwap
   let yToken: Contract;
+  const conversionRate = 2;
 
   const WITHDRAW = ethers.utils.solidityKeccak256(['string'], ['WITHDRAW']);
 
@@ -17,12 +18,25 @@ describe('XYSwap', function () {
     await yToken.deployed();
 
     console.log('owner Y init amount: ', await yToken.balanceOf(owner.address));
-    const XYSwap = await ethers.getContractFactory('XYSwap');
+    const XYSwap = await ethers.getContractFactory('XYSwap',owner);
     contract = await upgrades.deployProxy(XYSwap, [
-      yToken.address,
-      2,
+      yToken.address
     ]);
     await contract.deployed();
+  });
+
+  it('should return the correct conversion rate', async function () {
+    const returnedConversionRate = await contract.getConversionRate();
+    expect(returnedConversionRate).to.equal(conversionRate);
+  });
+
+  it('should set the conversion rate correctly', async function () {
+    const [owner] = await ethers.getSigners();
+    const newConversionRate = 3;
+    await contract.connect(owner).setConversionRate(newConversionRate);
+
+    const returnedConversionRate = await contract.getConversionRate();
+    expect(returnedConversionRate).to.equal(newConversionRate);
   });
 
   it('contract to be defined', async () => {
@@ -56,7 +70,7 @@ describe('XYSwap', function () {
     await xToken.connect(from).approve(contract.address, swapAmount);
 
     // approve YToken to contract
-    await yToken.approve(contract.address, swapAmount.mul(2));
+    await yToken.approve(contract.address, swapAmount.mul(conversionRate));
 
     //contract X --> Y
     await contract.connect(from).XConversionY(xToken.address, swapAmount);
@@ -65,7 +79,7 @@ describe('XYSwap', function () {
       'contract X amount: ',
       await xToken.balanceOf(contract.address)
     );
-    
+
     console.log(
       'contract y amount: ',
       await yToken.balanceOf(contract.address)
@@ -86,7 +100,7 @@ describe('XYSwap', function () {
     console.log('from yTokenBalance', yTokenBalance);
 
     //比较 contract 里的 YToken 数量和转移的 X * 费率一致
-    expect(await yToken.balanceOf(contract.address)).to.equal(swapAmount.mul(2));
+    expect(await yToken.balanceOf(contract.address)).to.equal(swapAmount.mul(conversionRate));
 
     // withdrawRole 里面没有 WITHDRAW 权限
     const reason = `AccessControl: account ${ethers.utils

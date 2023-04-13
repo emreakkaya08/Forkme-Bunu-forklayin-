@@ -28,14 +28,17 @@ contract XYSwap is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    // the role that used for minting the token
+
     bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
     bytes32 public constant TRANSFUL = keccak256("TRANSFUL");
 
+    bytes32 public constant SET_CONVERSION_RATE =
+        keccak256("SET_CONVERSION_RATE");
+
     ERC20Upgradeable public yToken;
 
-    uint public conversionRate;
+    uint8 private conversionRate;
 
     event WithdrawERC20(
         IERC20Upgradeable indexed token,
@@ -71,8 +74,7 @@ contract XYSwap is
     }
 
     function initialize(
-        address _yToken,
-        uint _conversionRate
+        address _yToken
     ) public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
@@ -83,9 +85,10 @@ contract XYSwap is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(SET_CONVERSION_RATE, msg.sender);
 
         yToken = ERC20Upgradeable(_yToken);
-        conversionRate = _conversionRate;
+        conversionRate = 2;
     }
 
     function _checkTokenAllowance(
@@ -117,7 +120,7 @@ contract XYSwap is
             xAmount
         );
 
-        //转移 Y 给调用地址
+        // transfer the Y to the user
         uint256 yAmount = xAmount * conversionRate;
         SafeERC20Upgradeable.safeTransferFrom(
             yToken,
@@ -135,5 +138,15 @@ contract XYSwap is
     ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
         SafeERC20Upgradeable.safeTransfer(token, to, value);
         emit WithdrawERC20(token, to, value);
+    }
+
+    function getConversionRate() public view returns (uint8) {
+        return conversionRate;
+    }
+
+    function setConversionRate(
+        uint8 _conversionRate
+    ) public whenNotPaused onlyRole(SET_CONVERSION_RATE) {
+        conversionRate = _conversionRate;
     }
 }
