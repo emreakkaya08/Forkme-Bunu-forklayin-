@@ -15,7 +15,6 @@ import "../core/contract-upgradeable/VersionUpgradeable.sol";
 /**
  * @title XYSwap
  * @author
- * @notice 用于作为 X 转移为 Y 的中间合约
  */
 contract XYSwap is
     Initializable,
