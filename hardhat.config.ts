@@ -2,6 +2,7 @@ import '@nomiclabs/hardhat-waffle';
 import 'dotenv/config';
 import { task } from 'hardhat/config';
 
+import '@nomiclabs/hardhat-solhint';
 import '@openzeppelin/hardhat-defender';
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-abi-exporter';
@@ -32,7 +33,7 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: '0.8.9',
+  solidity: '0.8.17',
 
   networks: {
     // use bsctest as dev env, goerli eth is so expensive
