@@ -17,27 +17,9 @@ describe('XYSwap', function () {
     await yToken.deployed();
 
     console.log('owner Y init amount: ', await yToken.balanceOf(owner.address));
-
-    // mint 10% YToken to address
-    const yTokenAddress = ethers.utils.getAddress(
-      '0x1234567890123456789012345678901234567890'
-    );
-    const yTokenAccountAmount = ethers.utils.parseEther('10000000');
-    await yToken.approve(yTokenAddress, yTokenAccountAmount);
-    yToken.transfer(yTokenAddress, yTokenAccountAmount, {
-      from: owner.address,
-    });
-
-    console.log('owner Y amount: ', await yToken.balanceOf(owner.address));
-    console.log(
-      'yTokenAccountAddress  YToken amount: ',
-      await yToken.balanceOf(yTokenAddress)
-    );
-
     const XYSwap = await ethers.getContractFactory('XYSwap');
     contract = await upgrades.deployProxy(XYSwap, [
       yToken.address,
-      yTokenAddress,
       2,
     ]);
     await contract.deployed();
@@ -55,7 +37,7 @@ describe('XYSwap', function () {
     await xToken.deployed();
 
     //  mint 100 XToken to contract
-    const xTokenAmount = ethers.utils.parseEther('333');
+    const xTokenAmount = ethers.utils.parseEther('100');
     await xToken.connect(from).mint(xTokenAmount);
 
     console.log('xTokenAmount: ', xTokenAmount);
@@ -70,17 +52,8 @@ describe('XYSwap', function () {
       ethers.utils.parseEther('0')
     );
 
-    // from 'from' 20 XToken to contract
+    //授权 XTOKEN
     await xToken.connect(from).approve(contract.address, swapAmount);
-    await xToken.connect(from).transfer(contract.address, swapAmount);
-    console.log(
-      'to contract  X amount: ',
-      await xToken.balanceOf(contract.address)
-    );
-    console.log(
-      'current contract  Y amount: ',
-      await yToken.balanceOf(contract.address)
-    );
 
     // approve YToken to contract
     await yToken.approve(contract.address, swapAmount.mul(2));
@@ -92,14 +65,28 @@ describe('XYSwap', function () {
       'contract X amount: ',
       await xToken.balanceOf(contract.address)
     );
+    
+    console.log(
+      'contract y amount: ',
+      await yToken.balanceOf(contract.address)
+    );
+
     expect(await xToken.balanceOf(contract.address)).to.equal(swapAmount);
+
+    console.log('from x amount', await xToken.balanceOf(from.address));
+    console.log('from y amount', await yToken.balanceOf(from.address));
+
     expect(await xToken.balanceOf(from.address)).to.equal(
       xTokenAmount.sub(swapAmount)
     );
 
-    // contract 里面的 YToken 增加 40个
-    const yTokenBalance = await yToken.balanceOf(contract.address);
-    expect(yTokenBalance).to.equal(swapAmount.mul(2));
+    // from 里的 YToken 是当前 Y Token 余额
+    const yTokenBalance = await yToken.balanceOf(from.address);
+
+    console.log('from yTokenBalance', yTokenBalance);
+
+    //比较 contract 里的 YToken 数量和转移的 X * 费率一致
+    expect(await yToken.balanceOf(contract.address)).to.equal(swapAmount.mul(2));
 
     // withdrawRole 里面没有 WITHDRAW 权限
     const reason = `AccessControl: account ${ethers.utils

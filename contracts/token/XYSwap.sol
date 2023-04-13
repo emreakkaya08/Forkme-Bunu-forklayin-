@@ -35,8 +35,6 @@ contract XYSwap is
 
     ERC20Upgradeable public yToken;
 
-    address public yTokenAccount;
-
     uint public conversionRate;
 
     event WithdrawERC20(
@@ -74,7 +72,6 @@ contract XYSwap is
 
     function initialize(
         address _yToken,
-        address _yTokenAccount,
         uint _conversionRate
     ) public initializer {
         __AccessControlEnumerable_init();
@@ -88,7 +85,6 @@ contract XYSwap is
         _grantRole(UPGRADER_ROLE, msg.sender);
 
         yToken = ERC20Upgradeable(_yToken);
-        yTokenAccount = _yTokenAccount;
         conversionRate = _conversionRate;
     }
 
@@ -121,13 +117,12 @@ contract XYSwap is
             xAmount
         );
 
-        //转移 Y 给调用地址,X:Y比例暂定 1:2
+        //转移 Y 给调用地址
         uint256 yAmount = xAmount * conversionRate;
-        yToken.approve(yTokenAccount, yAmount);
         SafeERC20Upgradeable.safeTransferFrom(
             yToken,
             toAddress,
-            yTokenAccount,
+            address(this),
             yAmount
         );
         emit DepositERC20(toAddress, xAmount, yAmount);
