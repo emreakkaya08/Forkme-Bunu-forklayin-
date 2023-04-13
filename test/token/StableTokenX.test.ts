@@ -18,8 +18,8 @@ describe('StableTokenX', () => {
 
   it('contract to be defined', async () => {
     expect(contract).to.be.instanceOf(Contract);
-    expect(await contract.name()).to.equal('XToken');
-    expect(await contract.symbol()).to.equal('X');
+    expect(await contract.name()).to.equal('StableTokenX');
+    expect(await contract.symbol()).to.equal('STX');
     expect(await contract.decimals()).to.equal(18);
   });
 
