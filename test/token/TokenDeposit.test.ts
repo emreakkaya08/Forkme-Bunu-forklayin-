@@ -27,11 +27,12 @@ describe('TokenDeposit', () => {
     const usdt = await upgrades.deployProxy(MockUsdt, []);
     await usdt.deployed();
 
-    xToken.grantRole(xToken.MINTER_ROLE(), contract.address);
+    // grant contract MINTER_ROLE
+    await xToken.grantRole(ethers.utils.id('MINTER_ROLE'), contract.address);
 
     const [owner, from, withdrawRole, withdrawTo] = await ethers.getSigners();
     const uAmount = ethers.utils.parseEther('100');
-    usdt.mint(from.address, uAmount);
+    await usdt.mint(from.address, uAmount);
 
     expect(await usdt.balanceOf(from.address)).to.equal(uAmount);
 
