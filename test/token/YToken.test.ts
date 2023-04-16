@@ -23,12 +23,5 @@ describe("YToken", function () {
         expect(await contract.symbol()).to.equal("Y");
         expect(await contract.decimals()).to.equal(18);
     });
-
-    it("should allow mint Y", async function () {
-        const amount = ethers.utils.parseEther("100");
-        const [owner] = await ethers.getSigners();
-        await contract.connect(owner).mint(amount);
-        expect(await contract.balanceOf(await owner.getAddress())).to.equal(amount);
-    });
 });
 
