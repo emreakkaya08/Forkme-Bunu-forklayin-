@@ -13,7 +13,7 @@ describe('XYSwap', function () {
   beforeEach(async function () {
     // deploy YToken
     const [owner] = await ethers.getSigners();
-    const YToken = await ethers.getContractFactory('YToken', owner);
+    const YToken = await ethers.getContractFactory('YToken');
     yToken = await upgrades.deployProxy(YToken);
     await yToken.deployed();
 
@@ -46,7 +46,7 @@ describe('XYSwap', function () {
   it('should deposit ERC20 and receive Y Token', async function () {
     // deploy XToken
     const [from, withdrawRole, withdrawTo] = await ethers.getSigners();
-    const XTokenFactory = await ethers.getContractFactory('XToken', from);
+    const XTokenFactory = await ethers.getContractFactory('XToken');
     const xToken = await upgrades.deployProxy(XTokenFactory);
     await xToken.deployed();
 

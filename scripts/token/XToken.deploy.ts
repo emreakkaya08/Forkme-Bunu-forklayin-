@@ -2,14 +2,14 @@
 import { ContractDeployAddress } from '../consts/deploy.address.const';
 import {
     deployUpgradeProxy,
-    deployUpgradeUpdateWithProposal,
+    deployUpgradeUpdate,
 } from '../utils/deploy.util';
 
 async function main() {
     const contractAddress = ContractDeployAddress.XToken;
     const DeployContractName = 'XToken';
     if (contractAddress) {
-        const contract = await deployUpgradeUpdateWithProposal(
+        const contract = await deployUpgradeUpdate(
             DeployContractName,
             contractAddress
         );
