@@ -12,8 +12,8 @@ interface ContractDeployAddressInterface {
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
-  XToken: '0xaaa',
-  YToken: '0xbbb',
+  XToken: '0x9389023C56ed52f0Da18571500149d50430e7a1A',
+  YToken: '0xa5bb1f61C8CFc133Bea27127565eB21B2C458CC3',
   StableTokenX: '0x51e49799490A4469fb73edFC09822b3b566cE445',
   TokenDeposit: '0x6550755AEE41CC87E72A849Fdf9022aa74DEC1F4',
   Greeter: null,

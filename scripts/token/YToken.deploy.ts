@@ -6,8 +6,8 @@ import {
 } from '../utils/deploy.util';
 
 async function main() {
-    const contractAddress = ContractDeployAddress.XToken;
-    const DeployContractName = 'XToken';
+    const contractAddress = ContractDeployAddress.YToken;
+    const DeployContractName = 'YToken';
     if (contractAddress) {
         const contract = await deployUpgradeUpdate(
             DeployContractName,

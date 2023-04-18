@@ -84,13 +84,14 @@ npx hardhat test --network mumbai
 ## Deployment
 
 ### Deploy contract to testnet or mainnet
+CD Root directory
 
 ```shell
-npx hardhat run --network mumbai scripts/HelloWorld-deploy.ts
+npx hardhat run --network mumbai ./scripts/HelloWorld-deploy.ts
 ```
 
 ```shell
-npx hardhat run --network bsc_testnet scripts/HelloWorld-deploy.ts
+npx hardhat run --network bsc_testnet ./scripts/HelloWorld-deploy.ts
 npx hardhat run --network bsc_testnet filePath
 ```
 
