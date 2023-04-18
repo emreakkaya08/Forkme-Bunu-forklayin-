@@ -11,6 +11,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
 import "../core/contract-upgradeable/interface/IERCMINTExt20.sol";
+import "../core/contract-upgradeable/interface/ITreasury.sol";
 
 contract TokenDeposit is
     Initializable,
@@ -28,6 +29,7 @@ contract TokenDeposit is
     bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
     IERCMINTExt20 public xToken;
+    ITreasury public treasury;
 
     event WithdrawERC20(
         IERC20Upgradeable indexed token,
@@ -62,7 +64,7 @@ contract TokenDeposit is
         _disableInitializers();
     }
 
-    function initialize(address _xToken) public initializer {
+    function initialize(address _xToken, address _treasury) public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
@@ -74,12 +76,7 @@ contract TokenDeposit is
         _grantRole(UPGRADER_ROLE, msg.sender);
 
         xToken = IERCMINTExt20(_xToken);
-    }
-
-    function _checkTokenAllowance(
-        IERC20Upgradeable token
-    ) internal pure returns (bool) {
-        return true;
+        treasury = ITreasury(_treasury);
     }
 
     function _calculateMintAmountByTokenAmount(
@@ -93,40 +90,14 @@ contract TokenDeposit is
         IERC20Upgradeable token,
         uint256 amount
     ) public payable nonReentrant whenNotPaused {
-        require(_checkTokenAllowance(token), "token is not allowed to deposit");
-
-        IERC20Upgradeable erc20Token = IERC20Upgradeable(token);
-
         address toAddress = _msgSender();
-
-        // make sure the user has approved the transfer of USDT to this contract
-        require(
-            erc20Token.allowance(toAddress, address(this)) >= amount,
-            "Must approve ERC20Token first"
-        );
-
-        // transfer the USDT from the user to this contract
-        SafeERC20Upgradeable.safeTransferFrom(
-            erc20Token,
-            toAddress,
-            address(this),
-            amount
-        );
-
+        // transfer the USDT from the user to treasury contract
+        treasury.depositERC20(token, amount);
         uint256 mintAmount = _calculateMintAmountByTokenAmount(token, amount);
 
         // mint the equivalent amount of XToken to the user
         xToken.mint(toAddress, mintAmount);
 
         emit DepositERC20(toAddress, amount, mintAmount);
-    }
-
-    function withdrawERC20(
-        IERC20Upgradeable token,
-        address to,
-        uint256 value
-    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
-        SafeERC20Upgradeable.safeTransfer(token, to, value);
-        emit WithdrawERC20(token, to, value);
     }
 }
