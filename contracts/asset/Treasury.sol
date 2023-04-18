@@ -10,7 +10,6 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 contract Treasury is
     Initializable,
@@ -26,6 +25,8 @@ contract Treasury is
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     // the role that used for withdraw the token
     bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
+
+    mapping(address => uint256) public balances;
 
     event DepositERC20(address indexed user, uint256 amount);
 
@@ -56,18 +57,17 @@ contract Treasury is
         _disableInitializers();
     }
 
-    mapping(address => uint256) public balances;
-
-    function initialize(address _token) public initializer {
+    function initialize() public initializer {
         __AccessControl_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         __VersionUpgradeable_init();
 
+        _grantRole(WITHDRAW, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-        _grantRole(WITHDRAW, msg.sender);
+
     }
 
     function _checkTokenAllowance(

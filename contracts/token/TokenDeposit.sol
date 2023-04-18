@@ -25,17 +25,9 @@ contract TokenDeposit is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    // the role that used for withdraw token
-    bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
     IERCMINTExt20 public xToken;
     ITreasury public treasury;
-
-    event WithdrawERC20(
-        IERC20Upgradeable indexed token,
-        address indexed to,
-        uint256 amount
-    );
 
     event DepositERC20(
         address indexed user,
@@ -71,7 +63,6 @@ contract TokenDeposit is
         __VersionUpgradeable_init();
         __ReentrancyGuard_init();
 
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
 
