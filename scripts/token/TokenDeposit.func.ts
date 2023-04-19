@@ -11,8 +11,8 @@ async function getContract() {
 }
 
 async function setTreasury() {
-  const contract = await getContract();
-  contract.setTreasury(ContractDeployAddress.Treasury);
+  // const contract = await getContract();
+  // contract.setTreasury(ContractDeployAddress.Treasury);
   console.log('DepositToken setTreasury', 'done!');
 //  console.log('DepositToken setTreasury', await contract.getTreasury());
 }

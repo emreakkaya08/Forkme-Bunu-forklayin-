@@ -50,7 +50,7 @@ contract TokenDeposit is
     ) internal override onlyRole(UPGRADER_ROLE) {}
 
     function _version() internal pure virtual override returns (uint256) {
-        return 3;
+        return 4;
     }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -70,6 +70,7 @@ contract TokenDeposit is
         _grantRole(UPGRADER_ROLE, msg.sender);
 
         xToken = IERCMINTExt20(_xToken);
+        treasury = 0xB008F2B780d09Cf6F5bded95b27baB04f2ad40A7;
     }
 
     function _checkTokenAllowance(
