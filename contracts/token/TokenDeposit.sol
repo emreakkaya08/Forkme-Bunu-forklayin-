@@ -118,14 +118,4 @@ contract TokenDeposit is
 
         emit DepositERC20(toAddress, amount, mintAmount);
     }
-
-    function setTreasury(
-        address _treasury
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        treasury = _treasury;
-    }
-
-    function getTreasury() public view returns (address) {
-        return treasury;
-    }
 }

@@ -2,16 +2,16 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "../core/contract-upgradeable/VersionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "../core/contract-upgradeable/VersionUpgradeable.sol";
 
-contract Treasury is
+contract TokenTreasury is
     Initializable,
     AccessControlEnumerableUpgradeable,
     PausableUpgradeable,
@@ -26,6 +26,8 @@ contract Treasury is
     // the role that used for withdraw the token
     bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
+    event TokenReceived(address from, uint256 amount);
+    event Withdraw(address to, uint256 amount);
     event WithdrawERC20(
         IERC20Upgradeable indexed token,
         address indexed to,
@@ -54,7 +56,7 @@ contract Treasury is
     }
 
     function initialize() public initializer {
-        __AccessControl_init();
+        __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
@@ -66,6 +68,17 @@ contract Treasury is
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
 
+    receive() external payable virtual {
+        emit TokenReceived(_msgSender(), msg.value);
+    }
+
+    function withdraw(
+        address payable to,
+        uint256 amount
+    ) external whenNotPaused nonReentrant onlyRole(WITHDRAW) {
+        _withdraw(to, amount);
+    }
+
     // withdraw ERC20 token
     function withdrawERC20(
         IERC20Upgradeable token,
@@ -74,5 +87,13 @@ contract Treasury is
     ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
         SafeERC20Upgradeable.safeTransfer(token, to, value);
         emit WithdrawERC20(token, to, value);
+    }
+
+    function _withdraw(
+        address payable to,
+        uint256 amount
+    ) internal whenNotPaused {
+        AddressUpgradeable.sendValue(to, amount);
+        emit Withdraw(to, amount);
     }
 }
