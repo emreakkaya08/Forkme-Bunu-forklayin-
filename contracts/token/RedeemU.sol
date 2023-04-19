@@ -5,6 +5,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
@@ -17,7 +18,8 @@ contract RedeemU is
     PausableUpgradeable,
     UUPSUpgradeable,
     ReentrancyGuardUpgradeable,
-    VersionUpgradeable
+    VersionUpgradeable,
+    ERC20BurnableUpgradeable
 {
     // the role that can pause the contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -53,6 +55,7 @@ contract RedeemU is
     }
 
     function initialize() public initializer {
+        __ERC20Burnable_init();
         __AccessControl_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
@@ -100,8 +103,8 @@ contract RedeemU is
     }
 
     function burnXY(uint _amountX, uint _amountY) internal onlyRole(REDDEM) {
-        IERC20Upgradeable xToken = IERC20Upgradeable(xToken);
-        IERC20Upgradeable yToken = IERC20Upgradeable(yToken);
+        ERC20BurnableUpgradeable xToken = ERC20BurnableUpgradeable(xToken);
+        ERC20BurnableUpgradeable yToken = ERC20BurnableUpgradeable(yToken);
         require(
             xToken.allowance(msg.sender, address(this)) >= _amountX,
             "Must approve XToken first"
@@ -112,7 +115,7 @@ contract RedeemU is
             "Must approve YToken first"
         );
         // burn X
-        xToken._burn(_amountX);
+        xToken.burn(_amountX);
 
         // burn Y
         yToken.burn(_amountY);
