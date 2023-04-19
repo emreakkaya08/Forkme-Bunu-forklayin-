@@ -1,5 +1,8 @@
-import { ContractDeployAddress } from '../consts/deploy.address.const';
-import { deployUpgradeProxy, deployUpgradeUpdate } from '../utils/deploy.util';
+import { ContractDeployAddress } from '../../consts/deploy.address.const';
+import {
+  deployUpgradeProxy,
+  deployUpgradeUpdate,
+} from '../../utils/deploy.util';
 
 async function main() {
   const contractAddress = ContractDeployAddress.StableTokenX;

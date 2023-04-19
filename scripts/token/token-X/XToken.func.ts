@@ -1,10 +1,10 @@
 import { ethers } from 'hardhat';
-import { ContractDeployAddress } from '../consts/deploy.address.const';
+import { ContractDeployAddress } from '../../consts/deploy.address.const';
 
 async function getContract() {
   const contract = await ethers.getContractAt(
-    'StableTokenX',
-    ContractDeployAddress.StableTokenX
+    'XToken',
+    ContractDeployAddress.XToken
   );
   const [owner] = await ethers.getSigners();
 
@@ -16,7 +16,7 @@ async function grantRole() {
 
   //grant minter role to default caller
   const tx = await contract.grantRole(
-    ethers.utils.id('MINTER_ROLE'),
+    ethers.utils.id('X_ADMIN_ROLE'),
     ContractDeployAddress.TokenDeposit
   );
   const receipt = await tx.wait();
