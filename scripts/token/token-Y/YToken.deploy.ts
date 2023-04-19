@@ -1,9 +1,12 @@
-import { ContractDeployAddress } from '../consts/deploy.address.const';
-import { deployUpgradeProxy, deployUpgradeUpdate } from '../utils/deploy.util';
+import { ContractDeployAddress } from '../../consts/deploy.address.const';
+import {
+  deployUpgradeProxy,
+  deployUpgradeUpdate,
+} from '../../utils/deploy.util';
 
 async function main() {
-  const contractAddress = ContractDeployAddress.StableTokenX;
-  const DeployContractName = 'StableTokenX';
+  const contractAddress = ContractDeployAddress.YToken;
+  const DeployContractName = 'YToken';
   if (contractAddress) {
     const contract = await deployUpgradeUpdate(
       DeployContractName,

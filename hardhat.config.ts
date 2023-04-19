@@ -16,18 +16,8 @@ const {
   ZKSYNC_ERA_TESTNET_DEPLOYER_PRIVATE_KEY,
   BSC_TESTNET_URL,
   BSC_TESTNET_DEPLOYER_PRIVATE_KEY,
-} = process.env
+} = process.env;
 
-console.log({
-  ARBITRUM_TESTNET_URL,
-  ARBITRUM_TESTNET_DEPLOYER_PRIVATE_KEY,
-  ETH_TESTNET_URL,
-  ETH_TESTNET_DEPLOYER_PRIVATE_KEY,
-  ZKSYNC_ERA_TESTNET_URL,
-  ZKSYNC_ERA_TESTNET_DEPLOYER_PRIVATE_KEY,
-  BSC_TESTNET_URL,
-  BSC_TESTNET_DEPLOYER_PRIVATE_KEY,
-})
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
