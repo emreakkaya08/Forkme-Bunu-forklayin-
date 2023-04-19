@@ -50,7 +50,7 @@ contract TokenDeposit is
     ) internal override onlyRole(UPGRADER_ROLE) {}
 
     function _version() internal pure virtual override returns (uint256) {
-        return 2;
+        return 3;
     }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -121,5 +121,9 @@ contract TokenDeposit is
         address _treasury
     ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         treasury = _treasury;
+    }
+
+    function getTreasury() public view returns (address) {
+        return treasury;
     }
 }

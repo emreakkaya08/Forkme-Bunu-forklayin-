@@ -18,7 +18,7 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   StableTokenX: '0x51e49799490A4469fb73edFC09822b3b566cE445',
   TokenDeposit: '0x6550755AEE41CC87E72A849Fdf9022aa74DEC1F4',
   Greeter: null,
-  Treasury: null,
+  Treasury: '0xB008F2B780d09Cf6F5bded95b27baB04f2ad40A7',
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
