@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 
 import "./XYGameUSDT.sol";
 
@@ -14,6 +15,7 @@ contract USDTFaucet is
     Initializable,
     PausableUpgradeable,
     AccessControlUpgradeable,
+    VersionUpgradeable,
     UUPSUpgradeable
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -38,8 +40,9 @@ contract USDTFaucet is
     }
 
     function initialize(XYGameUSDT _xygameUSDT) public initializer {
+        __AccessControlEnumerable_init();
         __Pausable_init();
-        __AccessControl_init();
+        __VersionUpgradeable_init();
         __UUPSUpgradeable_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -49,6 +52,10 @@ contract USDTFaucet is
 
         xygameUSDT = _xygameUSDT;
         faucetAmount = 100 ether;
+    }
+
+    function _version() internal pure virtual override returns (uint256) {
+        return 2;
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {
