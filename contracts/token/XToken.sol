@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -10,7 +10,7 @@ import "../core/contract-upgradeable/VersionUpgradeable.sol";
 
 /**
  * @title XToken
- * @author 
+ * @author
  * @notice XToken is a stable ERC20 token with pausable, upgradable, and versionable features.
  * 总数无限制，18位小数
  */
