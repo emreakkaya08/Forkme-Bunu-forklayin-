@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
@@ -14,7 +14,7 @@ import "./XYGameUSDT.sol";
 contract USDTFaucet is
     Initializable,
     PausableUpgradeable,
-    AccessControlUpgradeable,
+    AccessControlEnumerableUpgradeable,
     VersionUpgradeable,
     UUPSUpgradeable
 {
@@ -55,7 +55,7 @@ contract USDTFaucet is
     }
 
     function _version() internal pure virtual override returns (uint256) {
-        return 2;
+        return 1;
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {
