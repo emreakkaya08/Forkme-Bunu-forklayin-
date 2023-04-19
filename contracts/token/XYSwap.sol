@@ -13,7 +13,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
 
 /**
- * @title XYSwap
+ * @title XYSwap  discard
  * @author
  */
 contract XYSwap is

@@ -29,11 +29,7 @@ contract TokenDeposit is
 
     IERCMINTExt20 public xToken;
 
-    event WithdrawERC20(
-        IERC20Upgradeable indexed token,
-        address indexed to,
-        uint256 amount
-    );
+    address public treasury;
 
     event DepositERC20(
         address indexed user,
@@ -54,7 +50,7 @@ contract TokenDeposit is
     ) internal override onlyRole(UPGRADER_ROLE) {}
 
     function _version() internal pure virtual override returns (uint256) {
-        return 2;
+        return 4;
     }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -74,6 +70,7 @@ contract TokenDeposit is
         _grantRole(UPGRADER_ROLE, msg.sender);
 
         xToken = IERCMINTExt20(_xToken);
+        treasury = 0xB008F2B780d09Cf6F5bded95b27baB04f2ad40A7;
     }
 
     function _checkTokenAllowance(
@@ -105,11 +102,11 @@ contract TokenDeposit is
             "Must approve ERC20Token first"
         );
 
-        // transfer the USDT from the user to this contract
+        // transfer the USDT from the user to treasury contract
         SafeERC20Upgradeable.safeTransferFrom(
             erc20Token,
             toAddress,
-            address(this),
+            treasury,
             amount
         );
 
@@ -121,12 +118,13 @@ contract TokenDeposit is
         emit DepositERC20(toAddress, amount, mintAmount);
     }
 
-    function withdrawERC20(
-        IERC20Upgradeable token,
-        address to,
-        uint256 value
-    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
-        SafeERC20Upgradeable.safeTransfer(token, to, value);
-        emit WithdrawERC20(token, to, value);
+    function setTreasury(
+        address _treasury
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        treasury = _treasury;
+    }
+
+    function getTreasury() public view returns (address) {
+        return treasury;
     }
 }

@@ -11,6 +11,7 @@ interface ContractDeployAddressInterface {
   StableTokenX?: ContractDeployAddress;
   TokenDeposit?: ContractDeployAddress;
   Greeter?: ContractDeployAddress;
+  Treasury?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
@@ -21,6 +22,7 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   XYGameUSDT: '0xf3e54ed5E6BAFd203bCc4316663bAe0Bf0100811',
   USDTFaucet: '0x861eC40cF915A2036617272a81ed16b339952E51',
   Greeter: null,
+  Treasury: '0xB008F2B780d09Cf6F5bded95b27baB04f2ad40A7',
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
