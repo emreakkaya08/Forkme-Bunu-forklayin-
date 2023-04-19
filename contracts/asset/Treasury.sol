@@ -26,10 +26,6 @@ contract Treasury is
     // the role that used for withdraw the token
     bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
-    mapping(address => uint256) public balances;
-
-    event DepositERC20(address indexed user, uint256 amount);
-
     event WithdrawERC20(
         IERC20Upgradeable indexed token,
         address indexed to,
@@ -64,46 +60,10 @@ contract Treasury is
         __ReentrancyGuard_init();
         __VersionUpgradeable_init();
 
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(WITHDRAW, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-
-    }
-
-    function _checkTokenAllowance(
-        IERC20Upgradeable token
-    ) internal pure returns (bool) {
-        return true;
-    }
-
-    // deposit ERC20 token
-    function depositERC20(
-        IERC20Upgradeable _ERC20Token,
-        uint256 amount
-    ) public payable nonReentrant whenNotPaused {
-        require(
-            _checkTokenAllowance(_ERC20Token),
-            "token is not allowed to deposit"
-        );
-        IERC20Upgradeable erc20Token = IERC20Upgradeable(_ERC20Token);
-
-        address toAddress = _msgSender();
-
-        // make sure the user has approved the transfer of USDT to this contract
-        require(
-            erc20Token.allowance(toAddress, address(this)) >= amount,
-            "Must approve ERC20Token first"
-        );
-
-        // transfer the USDT from the user to this contract
-        SafeERC20Upgradeable.safeTransferFrom(
-            erc20Token,
-            toAddress,
-            address(this),
-            amount
-        );
-        balances[toAddress] += amount;
-        emit DepositERC20(toAddress, amount);
     }
 
     // withdraw ERC20 token
@@ -113,11 +73,6 @@ contract Treasury is
         uint256 value
     ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
         SafeERC20Upgradeable.safeTransfer(token, to, value);
-        balances[msg.sender] -= value;
         emit WithdrawERC20(token, to, value);
-    }
-
-    function getBalance() public view returns (uint256) {
-        return balances[msg.sender];
     }
 }
