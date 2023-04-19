@@ -3,16 +3,18 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 
 contract XYGameUSDT is
     Initializable,
     ERC20Upgradeable,
     PausableUpgradeable,
-    AccessControlUpgradeable,
-    UUPSUpgradeable
+    AccessControlEnumerableUpgradeable,
+    UUPSUpgradeable,
+    VersionUpgradeable
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -25,8 +27,9 @@ contract XYGameUSDT is
 
     function initialize() public initializer {
         __ERC20_init("XYGame-USDT", "XYUSDT");
+        __AccessControlEnumerable_init();
         __Pausable_init();
-        __AccessControl_init();
+        __VersionUpgradeable_init();
         __UUPSUpgradeable_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -42,6 +45,10 @@ contract XYGameUSDT is
 
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
+    }
+
+    function _version() internal pure virtual override returns (uint256) {
+        return 1;
     }
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
