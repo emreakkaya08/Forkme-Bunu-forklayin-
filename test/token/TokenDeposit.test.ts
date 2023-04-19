@@ -64,7 +64,7 @@ describe('TokenDeposit', () => {
         .withdrawERC20(usdt.address, withdrawTo.address, swapAmount)
     ).to.be.revertedWith(reason);
 
-    contract.grantRole(WITHDRAW, withdrawRole.address);
+    await contract.grantRole(WITHDRAW, withdrawRole.address);
     await expect(
       contract
         .connect(withdrawRole)
