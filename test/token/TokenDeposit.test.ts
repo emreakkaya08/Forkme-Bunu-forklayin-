@@ -40,7 +40,7 @@ describe('TokenDeposit', () => {
       'Token not supported'
     );
     const [owner, addr1] = await ethers.getSigners();
-    const rate = ethers.utils.parseEther('1');
+    const rate = 1;
 
     const role = ethers.utils.id('ADMIN');
     const revert = `AccessControl: account ${ethers.utils
@@ -61,7 +61,7 @@ describe('TokenDeposit', () => {
   });
 
   it('TokenDeposit DepositERC20 test', async () => {
-    const rate = ethers.utils.parseEther('1');
+    const rate = 1;
     await contract.addExchangeRate(usdt.address, rate);
 
     // grant contract MINTER_ROLE

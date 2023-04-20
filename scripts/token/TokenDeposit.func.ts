@@ -15,7 +15,7 @@ async function addExchangeRate() {
   const contract = await getContract();
 
   //grant minter role to default caller
-  const rate = ethers.utils.parseEther('1');
+  const rate = 1;
   const tx = await contract.addExchangeRate(
     ContractDeployAddress.XYGameUSDT,
     rate
