@@ -4,40 +4,70 @@ import { ethers, upgrades } from 'hardhat';
 
 describe('TokenDeposit', () => {
   let contract: Contract;
-  let xToken: Contract;
-  let treasury: Contract;
+  let tokenTreasury: Contract;
+  let cenoToken: Contract;
   let usdt: Contract;
 
   const WITHDRAW = ethers.utils.solidityKeccak256(['string'], ['WITHDRAW']);
 
   beforeEach(async () => {
-    const XToken = await ethers.getContractFactory('StableTokenX');
-    xToken = await upgrades.deployProxy(XToken, []);
-    await xToken.deployed();
+    const CenoToken = await ethers.getContractFactory('StableTokenX');
+    cenoToken = await upgrades.deployProxy(CenoToken, []);
+    await cenoToken.deployed();
+
+    const TokenTreasury = await ethers.getContractFactory('TokenTreasury');
+    tokenTreasury = await upgrades.deployProxy(TokenTreasury, []);
+    await tokenTreasury.deployed();
 
     const TokenDeposit = await ethers.getContractFactory('TokenDeposit');
-    contract = await upgrades.deployProxy(TokenDeposit, [xToken.address]);
+    contract = await upgrades.deployProxy(TokenDeposit, [
+      cenoToken.address,
+      tokenTreasury.address,
+    ]);
     await contract.deployed();
 
-    const TreasuryContractFactory = await ethers.getContractFactory('Treasury');
-    treasury = await upgrades.deployProxy(TreasuryContractFactory);
-    await treasury.deployed();
-
-    const MockUsdt = await ethers.getContractFactory('StableTokenX');
-    usdt = await upgrades.deployProxy(MockUsdt, []);
+    const USDTContract = await ethers.getContractFactory('XYGameUSDT');
+    usdt = await upgrades.deployProxy(USDTContract, []);
     await usdt.deployed();
-
-    contract.setTreasury(treasury.address);
   });
 
   it('contract to be defined', async () => {
     expect(contract).to.be.instanceOf(Contract);
   });
 
-  it('USDT to xToken and balance to treasury and check treasury withdraw', async () => {
-    await xToken.grantRole(ethers.utils.id('MINTER_ROLE'), contract.address);
-    const [from, withdrawRole, withdrawTo] = await ethers.getSigners();
+  it('TokenDeposit addExchangeRate test', async () => {
+    await expect(contract.getExchangeRate(usdt.address)).to.be.revertedWith(
+      'Token not supported'
+    );
+    const [owner, addr1] = await ethers.getSigners();
+    const rate = ethers.utils.parseEther('1');
 
+    const role = ethers.utils.id('ADMIN');
+    const revert = `AccessControl: account ${ethers.utils
+      .getAddress(addr1.address)
+      .toLowerCase()} is missing role ${role}`;
+    await expect(
+      contract.connect(addr1).addExchangeRate(usdt.address, rate)
+    ).to.be.revertedWith(revert);
+
+    await contract.grantRole(role, addr1.address);
+    await contract.connect(addr1).addExchangeRate(usdt.address, rate);
+
+    expect(await contract.getExchangeRate(usdt.address)).to.equal(rate);
+
+    await expect(
+      contract.connect(addr1).addExchangeRate(usdt.address, rate)
+    ).to.be.revertedWith('Token already exists');
+  });
+
+  it('TokenDeposit DepositERC20 test', async () => {
+    const rate = ethers.utils.parseEther('1');
+    await contract.addExchangeRate(usdt.address, rate);
+
+    // grant contract MINTER_ROLE
+    await cenoToken.grantRole(ethers.utils.id('MINTER_ROLE'), contract.address);
+
+    const [owner, from] = await ethers.getSigners();
     const uAmount = ethers.utils.parseEther('100');
     await usdt.mint(from.address, uAmount);
 
@@ -45,57 +75,23 @@ describe('TokenDeposit', () => {
 
     const swapAmount = ethers.utils.parseEther('20');
 
-    expect(await usdt.balanceOf(contract.address)).to.equal(
-      ethers.utils.parseEther('0')
-    );
-
-    expect(await usdt.balanceOf(treasury.address)).to.equal(
-      ethers.utils.parseEther('0')
-    );
-
-    console.log('treasury balance : ', await usdt.balanceOf(treasury.address));
+    const emptyAmount = ethers.utils.parseEther('0');
+    expect(await usdt.balanceOf(contract.address)).to.equal(emptyAmount);
 
     await usdt.connect(from).approve(contract.address, swapAmount);
     await expect(contract.connect(from).depositERC20(usdt.address, swapAmount))
       .to.emit(contract, 'DepositERC20')
-      .withArgs(from.address, swapAmount, swapAmount);
+      .withArgs(from.address, swapAmount, swapAmount.mul(rate));
 
-    console.log('await depositERC20  treasury balance : ', await usdt.balanceOf(treasury.address));
-
-    expect(await usdt.balanceOf(treasury.address)).to.equal(swapAmount);
+    expect(await usdt.balanceOf(contract.address)).to.equal(emptyAmount);
+    expect(await usdt.balanceOf(tokenTreasury.address)).to.equal(swapAmount);
 
     expect(await usdt.balanceOf(from.address)).to.equal(
       uAmount.sub(swapAmount)
     );
 
-    expect(await xToken.balanceOf(from.address)).to.equal(swapAmount);
-
-    //check treasury withdraw
-    const reason = `AccessControl: account ${ethers.utils
-      .getAddress(withdrawRole.address)
-      .toLowerCase()} is missing role ${WITHDRAW}`;
-    await expect(
-      treasury
-        .connect(withdrawRole)
-        .withdrawERC20(usdt.address, withdrawTo.address, swapAmount)
-    ).to.be.revertedWith(reason);
-    console.log('treasury withdraw missing role,  treasury balance : ', await usdt.balanceOf(treasury.address));
-
-    treasury.grantRole(WITHDRAW, withdrawRole.address);
-    await expect(
-      treasury
-        .connect(withdrawRole)
-        .withdrawERC20(usdt.address, withdrawTo.address, swapAmount)
-    )
-      .to.emit(treasury, 'WithdrawERC20')
-      .withArgs(usdt.address, withdrawTo.address, swapAmount);
-
-    console.log('treasury withdraw finshed,  treasury balance : ', await usdt.balanceOf(treasury.address));
-
-    expect(await usdt.balanceOf(treasury.address)).to.equal(
-      ethers.utils.parseEther('0')
+    expect(await cenoToken.balanceOf(from.address)).to.equal(
+      swapAmount.mul(rate)
     );
-
-    expect(await usdt.balanceOf(withdrawTo.address)).to.equal(swapAmount);
   });
 });
