@@ -23,16 +23,8 @@ contract TokenTreasury is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    // the role that used for withdraw the token
-    bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
     event TokenReceived(address from, uint256 amount);
-    event Withdraw(address to, uint256 amount);
-    event WithdrawERC20(
-        IERC20Upgradeable indexed token,
-        address indexed to,
-        uint256 amount
-    );
 
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -63,37 +55,11 @@ contract TokenTreasury is
         __VersionUpgradeable_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(WITHDRAW, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
 
     receive() external payable virtual {
         emit TokenReceived(_msgSender(), msg.value);
-    }
-
-    function withdraw(
-        address payable to,
-        uint256 amount
-    ) external whenNotPaused nonReentrant onlyRole(WITHDRAW) {
-        _withdraw(to, amount);
-    }
-
-    // withdraw ERC20 token
-    function withdrawERC20(
-        IERC20Upgradeable token,
-        address to,
-        uint256 value
-    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
-        SafeERC20Upgradeable.safeTransfer(token, to, value);
-        emit WithdrawERC20(token, to, value);
-    }
-
-    function _withdraw(
-        address payable to,
-        uint256 amount
-    ) internal whenNotPaused {
-        AddressUpgradeable.sendValue(to, amount);
-        emit Withdraw(to, amount);
     }
 }
