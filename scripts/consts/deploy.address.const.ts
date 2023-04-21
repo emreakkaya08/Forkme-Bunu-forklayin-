@@ -12,6 +12,7 @@ interface ContractDeployAddressInterface {
   TokenDeposit?: ContractDeployAddress;
   Greeter?: ContractDeployAddress;
   TokenTreasury?: ContractDeployAddress;
+  RedeemU?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
@@ -23,6 +24,7 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   USDTFaucet: '0x861eC40cF915A2036617272a81ed16b339952E51',
   Greeter: null,
   TokenTreasury: '0xCA7BE8Ad675e77B8edF0D40ceE28bB4d3dC93E38',
+  RedeemU: '0xaA71fe67B4c503ec5541661BBe16F9a03988019E',
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
