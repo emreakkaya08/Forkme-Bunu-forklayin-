@@ -26,8 +26,6 @@ contract RedeemU is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    // the role that used for withdraw the token
-    bytes32 public constant REDDEM = keccak256("REDDEM");
 
     address public treasury;
     address public xToken;
@@ -65,7 +63,6 @@ contract RedeemU is
         __VersionUpgradeable_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(REDDEM, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
@@ -73,7 +70,7 @@ contract RedeemU is
     function redeemERC20(
         uint256 _amountX,
         IERC20Upgradeable usdt
-    ) public whenNotPaused nonReentrant onlyRole(REDDEM) {
+    ) public whenNotPaused nonReentrant {
         IERC20Upgradeable u = IERC20Upgradeable(usdt);
         // check amount
         // example 1 X = 2 Y
@@ -106,10 +103,7 @@ contract RedeemU is
         emit RedeemRC20(usdt, _amountX, reddemAmount);
     }
 
-    function burnXY(
-        uint256 _amountX,
-        uint256 _amountY
-    ) internal onlyRole(REDDEM) {
+    function burnXY(uint256 _amountX, uint256 _amountY) internal {
         IERC20Upgradeable x_token = IERC20Upgradeable(xToken);
         IERC20Upgradeable y_token = IERC20Upgradeable(yToken);
         ERC20BurnableUpgradeable burnXToken = ERC20BurnableUpgradeable(

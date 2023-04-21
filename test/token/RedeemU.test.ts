@@ -9,9 +9,6 @@ describe("RedeemU", () => {
   let treasury: Contract;
   let mockUSDT: Contract;
 
-
-  const REDDEM = ethers.utils.solidityKeccak256(['string'], ['REDDEM']);
-
   beforeEach(async () => {
     const RedeemU = await ethers.getContractFactory("RedeemU");
     redeemU = await upgrades.deployProxy(RedeemU, []);
@@ -32,13 +29,6 @@ describe("RedeemU", () => {
     const MockUsdt = await ethers.getContractFactory('StableTokenX');
     mockUSDT = await upgrades.deployProxy(MockUsdt, []);
     await mockUSDT.deployed();
-  });
-
-  it("Should set correct roles", async () => {
-    const [owner, addr1, addr2] = await ethers.getSigners();
-    expect(await redeemU.hasRole(REDDEM, owner.address)).to.equal(true);
-    expect(await redeemU.hasRole(REDDEM, addr1.address)).to.equal(false);
-    expect(await redeemU.hasRole(REDDEM, addr2.address)).to.equal(false);
   });
 
   it("Should set tokens correctly", async () => {
@@ -80,10 +70,6 @@ describe("RedeemU", () => {
     await mockYToken.connect(addr1).approve(redeemU.address, ethers.utils.parseEther("2"));
     //授权 redeemU 合约可以操作treasury 的 USDT 10个
     treasury.approve(mockUSDT.address, redeemU.address, ethers.utils.parseEther("10"));
-
-
-    // 赋予提款角色给addr1
-    await redeemU.grantRole(REDDEM, addr1.address);
 
     // addr1提款9个X代币和2个Y代币, 目前 1X=2Y 此参数是提取 10USDT
     await redeemU.connect(addr1).redeemERC20(ethers.utils.parseEther("9"), mockUSDT.address);
