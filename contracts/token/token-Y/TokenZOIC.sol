@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 
-contract ZOICToken is
+contract TokenZOIC is
     Initializable,
     ERC20Upgradeable,
     AccessControlEnumerableUpgradeable,
@@ -38,7 +38,7 @@ contract ZOICToken is
     }
 
     function initialize(address _zoicCoffer) public initializer {
-        __ERC20_init("ZOICToken", "ZOIC");
+        __ERC20_init("TokenZOIC", "ZOIC");
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();

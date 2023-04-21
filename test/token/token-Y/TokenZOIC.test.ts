@@ -2,36 +2,36 @@ import { expect } from 'chai';
 import { Contract } from 'ethers';
 import { ethers, upgrades } from 'hardhat';
 
-describe('ZOICToken', async () => {
+describe('TokenZOIC', async () => {
   let contract: Contract;
-  let zoicCoffer: Contract;
+  let tokenZoicCoffer: Contract;
 
   beforeEach(async () => {
     const ZOICTokenCoffer = await ethers.getContractFactory('TokenCoffer');
-    zoicCoffer = await upgrades.deployProxy(ZOICTokenCoffer, []);
-    await zoicCoffer.deployed();
+    tokenZoicCoffer = await upgrades.deployProxy(ZOICTokenCoffer, []);
+    await tokenZoicCoffer.deployed();
 
-    const ZOICTokenContract = await ethers.getContractFactory('ZOICToken');
-    contract = await upgrades.deployProxy(ZOICTokenContract, [
-      zoicCoffer.address,
+    const TokenZOICContract = await ethers.getContractFactory('TokenZOIC');
+    contract = await upgrades.deployProxy(TokenZOICContract, [
+      tokenZoicCoffer.address,
     ]);
     await contract.deployed();
   });
 
-  it('ZOICToken Test', async () => {
+  it('TokenZOIC Test', async () => {
     expect(contract).to.be.instanceOf(Contract);
-    expect(await contract.name()).to.equal('ZOICToken');
+    expect(await contract.name()).to.equal('TokenZOIC');
     expect(await contract.symbol()).to.equal('ZOIC');
     expect(await contract.decimals()).to.equal(18);
   });
 
-  it('ZOICToken Balance test', async () => {
+  it('TokenZOIC Balance test', async () => {
     const balanceContract = await contract.balanceOf(contract.address);
     console.log('balanceContract', balanceContract);
     expect(await contract.balanceOf(contract.address)).to.equal(
       ethers.utils.parseEther('0')
     );
-    expect(await contract.balanceOf(zoicCoffer.address)).to.equal(
+    expect(await contract.balanceOf(tokenZoicCoffer.address)).to.equal(
       ethers.utils.parseEther('204800000')
     );
   });
