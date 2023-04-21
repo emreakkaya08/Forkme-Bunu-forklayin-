@@ -25,17 +25,19 @@ contract TokenDeposit is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    // the role that used for withdraw token
-    bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
+    // admin role
+    bytes32 public constant ADMIN = keccak256("ADMIN");
 
-    IERCMINTExt20 public xToken;
+    IERCMINTExt20 public cenoToken;
 
-    address public treasury;
+    address public treasuryAddress;
+
+    mapping(address => uint256) exchangeRates;
 
     event DepositERC20(
         address indexed user,
         uint256 amount,
-        uint256 xTokenAmount
+        uint256 cenoTokenAmount
     );
 
     function pause() public onlyRole(PAUSER_ROLE) {
@@ -51,7 +53,7 @@ contract TokenDeposit is
     ) internal override onlyRole(UPGRADER_ROLE) {}
 
     function _version() internal pure virtual override returns (uint256) {
-        return 4;
+        return 1;
     }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -59,7 +61,10 @@ contract TokenDeposit is
         _disableInitializers();
     }
 
-    function initialize(address _xToken) public initializer {
+    function initialize(
+        address _cenoToken,
+        address _treasuryAddress
+    ) public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
@@ -69,63 +74,63 @@ contract TokenDeposit is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(ADMIN, msg.sender);
 
-        xToken = IERCMINTExt20(_xToken);
-        treasury = 0xB008F2B780d09Cf6F5bded95b27baB04f2ad40A7;
+        cenoToken = IERCMINTExt20(_cenoToken);
+        treasuryAddress = _treasuryAddress;
     }
 
-    function _checkTokenAllowance(
-        IERC20Upgradeable token
-    ) internal pure returns (bool) {
-        return true;
+    function addExchangeRate(
+        address tokenAddress,
+        uint256 rate
+    ) public whenNotPaused nonReentrant onlyRole(ADMIN) {
+        require(tokenAddress != address(0), "Token address cannot be zero");
+        require(rate > 0, "Exchange rate must be greater than 0");
+        require(exchangeRates[tokenAddress] == 0, "Token already exists");
+
+        exchangeRates[tokenAddress] = rate;
     }
 
-    function _calculateMintAmountByTokenAmount(
-        IERC20Upgradeable token,
-        uint256 amount
-    ) internal pure returns (uint256) {
-        return amount;
+    function getExchangeRate(
+        address tokenAddress
+    ) public view returns (uint256) {
+        require(tokenAddress != address(0), "Token address cannot be zero");
+        require(exchangeRates[tokenAddress] != 0, "Token not supported");
+
+        return exchangeRates[tokenAddress];
     }
 
     function depositERC20(
-        IERC20Upgradeable token,
+        address tokenAddress,
         uint256 amount
     ) public payable nonReentrant whenNotPaused {
-        require(_checkTokenAllowance(token), "token is not allowed to deposit");
+        uint256 rate = exchangeRates[tokenAddress];
 
-        IERC20Upgradeable erc20Token = IERC20Upgradeable(token);
+        require(rate != 0, "Token not supported");
 
-        address toAddress = _msgSender();
+        IERC20Upgradeable erc20Token = IERC20Upgradeable(tokenAddress);
+
+        address cenoToAddr = _msgSender();
 
         // make sure the user has approved the transfer of USDT to this contract
         require(
-            erc20Token.allowance(toAddress, address(this)) >= amount,
+            erc20Token.allowance(cenoToAddr, address(this)) >= amount,
             "Must approve ERC20Token first"
         );
 
         // transfer the USDT from the user to treasury contract
         SafeERC20Upgradeable.safeTransferFrom(
             erc20Token,
-            toAddress,
-            treasury,
+            cenoToAddr,
+            treasuryAddress,
             amount
         );
 
-        uint256 mintAmount = _calculateMintAmountByTokenAmount(token, amount);
+        uint256 mintAmount = amount * rate;
 
-        // mint the equivalent amount of XToken to the user
-        xToken.mint(toAddress, mintAmount);
+        // mint the equivalent amount of cenoToken to the user
+        cenoToken.mint(cenoToAddr, mintAmount);
 
-        emit DepositERC20(toAddress, amount, mintAmount);
-    }
-
-    function setTreasury(
-        address _treasury
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        treasury = _treasury;
-    }
-
-    function getTreasury() public view returns (address) {
-        return treasury;
+        emit DepositERC20(cenoToAddr, amount, mintAmount);
     }
 }

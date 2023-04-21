@@ -2,16 +2,16 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "../core/contract-upgradeable/VersionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "../core/contract-upgradeable/VersionUpgradeable.sol";
 
-contract Treasury is
+contract TokenTreasury is
     Initializable,
     AccessControlEnumerableUpgradeable,
     PausableUpgradeable,
@@ -23,14 +23,8 @@ contract Treasury is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    // the role that used for withdraw the token
-    bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
-    event WithdrawERC20(
-        IERC20Upgradeable indexed token,
-        address indexed to,
-        uint256 amount
-    );
+    event TokenReceived(address from, uint256 amount);
 
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -54,25 +48,18 @@ contract Treasury is
     }
 
     function initialize() public initializer {
-        __AccessControl_init();
+        __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         __VersionUpgradeable_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(WITHDRAW, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
 
-    // withdraw ERC20 token
-    function withdrawERC20(
-        IERC20Upgradeable token,
-        address to,
-        uint256 value
-    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
-        SafeERC20Upgradeable.safeTransfer(token, to, value);
-        emit WithdrawERC20(token, to, value);
+    receive() external payable virtual {
+        emit TokenReceived(_msgSender(), msg.value);
     }
 }
