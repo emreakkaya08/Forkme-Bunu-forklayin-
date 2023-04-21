@@ -51,7 +51,6 @@ describe("RedeemU", () => {
   it("Should reddem ERC20 tokens correctly", async () => {
     const [owner, addr1, addr2] = await ethers.getSigners();
     // 设置roles和tokens
-    console.log('111');
     await redeemU.setTokens(treasury.address, mockXToken.address, mockYToken.address);
 
     //mockUSDT 先 mint 2000个
@@ -76,10 +75,10 @@ describe("RedeemU", () => {
     console.log('X balance: ', await mockXToken.balanceOf(addr1.address));
     console.log('Y balance: ', await mockYToken.balanceOf(addr1.address));
 
-    // addr1向mockXToken和mockYToken分别授予100X,Y
+    // addr1向mockXToken和mockYToken分别授予9X,2Y
     await mockXToken.connect(addr1).approve(redeemU.address, ethers.utils.parseEther("9"));
     await mockYToken.connect(addr1).approve(redeemU.address, ethers.utils.parseEther("2"));
-    //授权 redeemU 合约可以操作treasury 的 USDT 
+    //授权 redeemU 合约可以操作treasury 的 USDT 10个
     treasury.approve(mockUSDT.address, redeemU.address, ethers.utils.parseEther("10"));
 
 
