@@ -11,18 +11,18 @@ interface ContractDeployAddressInterface {
   StableTokenX?: ContractDeployAddress;
   TokenDeposit?: ContractDeployAddress;
   Greeter?: ContractDeployAddress;
-  Treasury?: ContractDeployAddress;
+  TokenTreasury?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   XToken: '0x9389023C56ed52f0Da18571500149d50430e7a1A',
   YToken: '0xa5bb1f61C8CFc133Bea27127565eB21B2C458CC3',
   StableTokenX: '0x51e49799490A4469fb73edFC09822b3b566cE445',
-  TokenDeposit: '0x6550755AEE41CC87E72A849Fdf9022aa74DEC1F4',
+  TokenDeposit: '0xC077028f5396bd89f5FA1eB36772809974A51F10',
   XYGameUSDT: '0xf3e54ed5E6BAFd203bCc4316663bAe0Bf0100811',
   USDTFaucet: '0x861eC40cF915A2036617272a81ed16b339952E51',
   Greeter: null,
-  Treasury: '0xB008F2B780d09Cf6F5bded95b27baB04f2ad40A7',
+  TokenTreasury: '0xCA7BE8Ad675e77B8edF0D40ceE28bB4d3dC93E38',
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
