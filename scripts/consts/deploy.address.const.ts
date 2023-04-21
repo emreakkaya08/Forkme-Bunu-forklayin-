@@ -10,10 +10,12 @@ interface ContractDeployAddressInterface {
   XYGameUSDT?: ContractDeployAddress;
   USDTFaucet?: ContractDeployAddress;
   StableTokenX?: ContractDeployAddress;
-  ZOICToken?: ContractDeployAddress;
+  TokenZOIC?: ContractDeployAddress;
   TokenDeposit?: ContractDeployAddress;
   TokenTreasury?: ContractDeployAddress;
   RedeemU?: ContractDeployAddress;
+
+  TokenZOICCoffer?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
@@ -23,10 +25,12 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   XToken: '0x9389023C56ed52f0Da18571500149d50430e7a1A',
   YToken: '0xa5bb1f61C8CFc133Bea27127565eB21B2C458CC3',
   StableTokenX: '0x51e49799490A4469fb73edFC09822b3b566cE445',
-  ZOICToken: null,
+  TokenZOIC: null,
   TokenDeposit: '0xC077028f5396bd89f5FA1eB36772809974A51F10',
   TokenTreasury: '0xCA7BE8Ad675e77B8edF0D40ceE28bB4d3dC93E38',
   RedeemU: '0xaA71fe67B4c503ec5541661BBe16F9a03988019E',
+
+  TokenZOICCoffer: null,
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
