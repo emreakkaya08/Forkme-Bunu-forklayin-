@@ -12,6 +12,7 @@ import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 contract TokenCoffer is
     Initializable,
     AccessControlEnumerableUpgradeable,
+    ReentrancyGuardUpgradeable,
     PausableUpgradeable,
     UUPSUpgradeable,
     VersionUpgradeable
