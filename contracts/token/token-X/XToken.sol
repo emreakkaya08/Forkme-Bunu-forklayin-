@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "../../core/contract-upgradeable/VersionUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 
 /**
  * @title XToken
@@ -20,7 +21,8 @@ contract XToken is
     UUPSUpgradeable,
     AccessControlUpgradeable,
     VersionUpgradeable,
-    ERC20Upgradeable
+    ERC20Upgradeable,
+    ERC20BurnableUpgradeable
 {
     // the role that can pause the contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -37,6 +39,7 @@ contract XToken is
     function initialize() public initializer {
         __ERC20_init("XToken", "X");
         __Pausable_init();
+        __ERC20Burnable_init();
         __AccessControl_init();
         __VersionUpgradeable_init();
         __UUPSUpgradeable_init();
