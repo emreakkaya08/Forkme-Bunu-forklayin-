@@ -23,6 +23,7 @@ contract TokenTreasury is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant APPROVE = keccak256("APPROVE");
 
     event TokenReceived(address from, uint256 amount);
 
@@ -57,9 +58,31 @@ contract TokenTreasury is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(APPROVE, msg.sender);
     }
 
     receive() external payable virtual {
         emit TokenReceived(_msgSender(), msg.value);
+    }
+
+    function approve(
+        address tokenAddress,
+        address spender,
+        uint256 amount
+    ) external onlyRole(APPROVE) {
+        require(amount > 0, "Amount must be greater than zero");
+
+        // Verify and type-check the input parameters
+        require(tokenAddress != address(0), "Invalid token address");
+        require(spender != address(0), "Invalid spender address");
+
+        IERC20Upgradeable token = IERC20Upgradeable(tokenAddress);
+
+        // Check if account has sufficient balance before approving
+        uint256 senderBalance = token.balanceOf(msg.sender);
+        require(senderBalance >= amount, "Insufficient balance");
+
+        // Approve the specified spender to transfer tokens
+        token.approve(spender, amount);
     }
 }

@@ -11,6 +11,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract RedeemU is
     Initializable,
@@ -31,8 +32,9 @@ contract RedeemU is
     address public treasury;
     address public xToken;
     address public yToken;
+    using SafeMath for uint256;
 
-    event ReddemRC20(
+    event RedeemRC20(
         IERC20Upgradeable indexed token,
         uint256 _amountX,
         uint256 reddemAmount
@@ -68,24 +70,26 @@ contract RedeemU is
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
 
-    function reddemERC20(
-        uint _amountX,
+    function redeemERC20(
+        uint256 _amountX,
         IERC20Upgradeable usdt
     ) public whenNotPaused nonReentrant onlyRole(REDDEM) {
         IERC20Upgradeable u = IERC20Upgradeable(usdt);
         // check amount
         // example 1 X = 2 Y
         require(_amountX > 0, "Amount must be greater than 0");
-        uint256 _amountY = (((_amountX * 10) / 9) / 10) * 2;
+        uint256 _amountY = (((_amountX.mul(10)).div(9)).div(10)).mul(2);
 
-        uint256 reddemAmount = (_amountX * 10) / 9;
+        uint256 reddemAmount = _amountX.mul(10).div(9);
 
         require(treasury != address(0), "Treasury not set");
         require(xToken != address(0), "XToken not set");
         require(yToken != address(0), "YToken not set");
+        require(u.balanceOf(treasury) >= reddemAmount, "Not enough USDT");
+
         require(
-            u.balanceOf(treasury) >= reddemAmount,
-            "Not enough U"
+            u.allowance(treasury, address(this)) >= reddemAmount,
+            "Must approve treasury USDT first"
         );
 
         // 90% X and 10 % Y burn
@@ -99,26 +103,40 @@ contract RedeemU is
             reddemAmount
         );
 
-        emit ReddemRC20(usdt, _amountX, reddemAmount);
+        emit RedeemRC20(usdt, _amountX, reddemAmount);
     }
 
-    function burnXY(uint _amountX, uint _amountY) internal onlyRole(REDDEM) {
-        ERC20BurnableUpgradeable xToken = ERC20BurnableUpgradeable(xToken);
-        ERC20BurnableUpgradeable yToken = ERC20BurnableUpgradeable(yToken);
+    function burnXY(
+        uint256 _amountX,
+        uint256 _amountY
+    ) internal onlyRole(REDDEM) {
+        IERC20Upgradeable x_token = IERC20Upgradeable(xToken);
+        IERC20Upgradeable y_token = IERC20Upgradeable(yToken);
+        ERC20BurnableUpgradeable burnXToken = ERC20BurnableUpgradeable(
+            address(x_token)
+        );
+        ERC20BurnableUpgradeable burnYToken = ERC20BurnableUpgradeable(
+            address(y_token)
+        );
         require(
-            xToken.allowance(msg.sender, address(this)) >= _amountX,
+            x_token.allowance(msg.sender, address(this)) >= _amountX,
             "Must approve XToken first"
         );
 
         require(
-            yToken.allowance(msg.sender, address(this)) >= _amountY,
+            y_token.allowance(msg.sender, address(this)) >= _amountY,
             "Must approve YToken first"
         );
+
+        require(x_token.balanceOf(msg.sender) >= _amountX, "Not enough XToken");
+
+        require(y_token.balanceOf(msg.sender) >= _amountY, "Not enough XToken");
+
         // burn X
-        xToken.burn(_amountX);
+        burnXToken.burnFrom(msg.sender, _amountX);
 
         // burn Y
-        yToken.burn(_amountY);
+        burnYToken.burnFrom(msg.sender, _amountY);
     }
 
     function setTokens(
