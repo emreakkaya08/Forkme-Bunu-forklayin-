@@ -18,14 +18,19 @@ async function transferZOICToVestingWallet() {
     return;
   }
 
+  const zoicToken = await getContract(
+    'TokenZOIC',
+    ContractDeployAddress.TokenZOIC
+  );
+
   const year1VestingByTimeWallet = await getContract(
     'VestingByTimeWallet',
     ContractDeployAddress.Year1VestingByTimeWallet
   );
-  const balance = await year1VestingByTimeWallet.balanceOf(
-    ContractDeployAddress.TokenZOIC
+  const balance = await zoicToken.balanceOf(
+    ContractDeployAddress.Year1VestingByTimeWallet
   );
-  if (balance.gt(0)) {
+  if (balance.gt(ethers.utils.parseEther('0'))) {
     console.log(
       'the first year vesting wallet has withdrawn, now balance is',
       balance
@@ -40,16 +45,17 @@ async function transferZOICToVestingWallet() {
     ContractDeployAddress.ZOICTokenCoffer
   );
 
+  const [owned] = await ethers.getSigners();
   //grant minter role to default caller
   const tx = await zoicTokenCoffer.grantRole(
     ethers.utils.id('WITHDRAW'),
-    ContractDeployAddress.Year1VestingByTimeWallet
+    owned.address
   );
   const receipt = await tx.wait();
   console.log(receipt);
 
-  const txWithdraw = zoicTokenCoffer
-    .connect(ContractDeployAddress.Year1VestingByTimeWallet)
+  const txWithdraw = await zoicTokenCoffer
+    .connect(owned)
     .withdrawERC20(
       ContractDeployAddress.TokenZOIC,
       year1VestingByTimeWallet.address,
@@ -59,7 +65,7 @@ async function transferZOICToVestingWallet() {
   console.log(receiptWithdraw);
   console.log(
     'the first year vesting wallet balance',
-    await year1VestingByTimeWallet.balanceOf(ContractDeployAddress.TokenZOIC)
+    await zoicToken.balanceOf(ContractDeployAddress.Year1VestingByTimeWallet)
   );
 }
 

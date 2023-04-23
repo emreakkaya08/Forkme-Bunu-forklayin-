@@ -43,7 +43,7 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   TeamTokenCoffer: '0x8348cbd49B64d85a8488e40D8Efc7B76EEFa0fa1',
 
   TokenCofferPaymentSplitter: '0x4d76295B951342DF124e264bd6d9a77B2a962072',
-  Year1VestingByTimeWallet: null,
+  Year1VestingByTimeWallet: '0x38A6DFa6DB41B8B1851b058e26F74305044199ed',
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
