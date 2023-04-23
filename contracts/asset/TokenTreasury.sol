@@ -19,13 +19,18 @@ contract TokenTreasury is
     ReentrancyGuardUpgradeable,
     VersionUpgradeable
 {
-    // the role that can pause the contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
     bytes32 public constant APPROVE = keccak256("APPROVE");
 
     event TokenReceived(address from, uint256 amount);
+    event Withdraw(address to, uint256 amount);
+    event WithdrawERC20(
+        IERC20Upgradeable indexed token,
+        address indexed to,
+        uint256 amount
+    );
 
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -84,5 +89,22 @@ contract TokenTreasury is
 
         // Approve the specified spender to transfer tokens
         token.approve(spender, amount);
+    }
+
+    function withdraw(
+        address payable to,
+        uint256 amount
+    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
+        AddressUpgradeable.sendValue(to, amount);
+        emit Withdraw(to, amount);
+    }
+
+    function withdrawERC20(
+        IERC20Upgradeable token,
+        address to,
+        uint256 value
+    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
+        SafeERC20Upgradeable.safeTransfer(token, to, value);
+        emit WithdrawERC20(token, to, value);
     }
 }
