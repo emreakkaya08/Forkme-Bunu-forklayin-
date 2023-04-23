@@ -12,6 +12,7 @@ import "../core/contract-upgradeable/VersionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "../asset/TokenTreasury.sol";
 
 contract RedeemU is
     Initializable,
@@ -27,9 +28,9 @@ contract RedeemU is
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
-    address public treasury;
     address public xToken;
     address public yToken;
+    TokenTreasury tokenTreasury;
     using SafeMath for uint256;
 
     event RedeemRC20(
@@ -54,7 +55,7 @@ contract RedeemU is
         return 1;
     }
 
-    function initialize() public initializer {
+    function initialize(address _tokenTreasury) public initializer {
         __ERC20Burnable_init();
         __AccessControl_init();
         __Pausable_init();
@@ -65,6 +66,7 @@ contract RedeemU is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+        tokenTreasury = TokenTreasury(payable(_tokenTreasury));
     }
 
     function redeemERC20(
@@ -77,30 +79,17 @@ contract RedeemU is
         require(_amountX > 0, "Amount must be greater than 0");
         uint256 _amountY = (((_amountX.mul(10)).div(9)).div(10)).mul(2);
 
-        uint256 reddemAmount = _amountX.mul(10).div(9);
+        uint256 redeemAmount = _amountX.mul(10).div(9);
 
-        require(treasury != address(0), "Treasury not set");
         require(xToken != address(0), "XToken not set");
         require(yToken != address(0), "YToken not set");
-        require(u.balanceOf(treasury) >= reddemAmount, "Not enough USDT");
-
-        require(
-            u.allowance(treasury, address(this)) >= reddemAmount,
-            "Must approve treasury USDT first"
-        );
 
         // 90% X and 10 % Y burn
         burnXY(_amountX, _amountY);
 
-        // transfer U to User
-        SafeERC20Upgradeable.safeTransferFrom(
-            u,
-            treasury,
-            msg.sender,
-            reddemAmount
-        );
+        tokenTreasury.withdrawERC20(u, msg.sender, redeemAmount);
 
-        emit RedeemRC20(usdt, _amountX, reddemAmount);
+        emit RedeemRC20(usdt, _amountX, redeemAmount);
     }
 
     function burnXY(uint256 _amountX, uint256 _amountY) internal {
@@ -138,7 +127,6 @@ contract RedeemU is
         address _xToken,
         address _yToken
     ) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        treasury = _treasury;
         xToken = _xToken;
         yToken = _yToken;
     }

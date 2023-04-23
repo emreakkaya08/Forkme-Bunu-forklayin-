@@ -80,8 +80,28 @@ describe('TokenTreasury', async () => {
     expect(
       await contract
         .connect(addr1)
+        .withdrawERC20(
+          usdt.address,
+          addr1.address,
+          ethers.utils.parseEther('0')
+        )
+    )
+      .to.emit(contract, 'WithdrawERC20')
+      .withArgs(usdt.address, addr1.address, ethers.utils.parseEther('0'));
+
+    await expect(
+      contract
+        .connect(addr1)
+        .withdrawERC20(usdt.address, addr1.address, usdtAmount.mul(2))
+    ).to.be.revertedWith('ERC20: transfer amount exceeds balance');
+
+    expect(
+      await contract
+        .connect(addr1)
         .withdrawERC20(usdt.address, addr1.address, usdtAmount)
-    );
+    )
+      .to.emit(contract, 'WithdrawERC20')
+      .withArgs(usdt.address, addr1.address, usdtAmount);
 
     expect(await usdt.balanceOf(addr1.address)).to.equal(
       balanceBefore.sub(usdtAmount).add(usdtAmount)
