@@ -5,7 +5,7 @@ import {
 } from '../../utils/deploy.util';
 
 async function main() {
-  const contractAddress = ContractDeployAddress.TokenZOICCoffer;
+  const contractAddress = ContractDeployAddress.ZOICTokenCoffer;
   const DeployContractName = 'TokenCoffer';
   if (contractAddress) {
     const contract = await deployUpgradeUpdate(
