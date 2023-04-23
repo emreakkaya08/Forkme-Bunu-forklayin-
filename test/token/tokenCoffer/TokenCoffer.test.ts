@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Contract } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { ethers, upgrades } from 'hardhat';
 
 describe('TokenCoffer', async () => {
@@ -13,6 +13,10 @@ describe('TokenCoffer', async () => {
 
   it('TokenCoffer Test', async () => {
     expect(contract).to.be.instanceOf(Contract);
+  });
+
+  it('TokenCoffer version', async () => {
+    expect(await contract.version()).to.instanceOf(BigNumber);
   });
 
   it('TokenCoffer Withdraw test', async () => {
@@ -35,6 +39,7 @@ describe('TokenCoffer', async () => {
       .getAddress(addr1.address)
       .toLowerCase()} is missing role ${withdrawRole}`;
 
+    // withdraw eth
     await expect(
       contract.connect(addr1).withdraw(addr1.address, withdrawAmount)
     ).to.be.revertedWith(revertReason);
@@ -44,9 +49,14 @@ describe('TokenCoffer', async () => {
       contract.connect(addr1).withdraw(addr1.address, withdrawAmount)
     ).to.be.revertedWith('Address: insufficient balance');
 
-    await contract
-      .connect(addr1)
-      .withdrawERC20(zoicContract.address, owner.address, withdrawAmount);
+    // withdraw erc20
+    await expect(
+      contract
+        .connect(addr1)
+        .withdrawERC20(zoicContract.address, owner.address, withdrawAmount)
+    )
+      .emit(contract, 'WithdrawERC20')
+      .withArgs(zoicContract.address, owner.address, withdrawAmount);
     expect(await zoicContract.balanceOf(owner.address)).to.equal(
       withdrawAmount
     );
