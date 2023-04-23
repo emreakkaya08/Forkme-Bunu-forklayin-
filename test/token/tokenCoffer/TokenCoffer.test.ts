@@ -22,8 +22,9 @@ describe('TokenCoffer', async () => {
     ]);
     await zoicContract.deployed();
 
+    const totalAmount = ethers.utils.parseEther('204800000');
     expect(await zoicContract.balanceOf(contract.address)).to.equal(
-      ethers.utils.parseEther('204800000')
+      totalAmount
     );
 
     const withdrawRole = ethers.utils.id('WITHDRAW');
@@ -42,5 +43,16 @@ describe('TokenCoffer', async () => {
     await expect(
       contract.connect(addr1).withdraw(addr1.address, withdrawAmount)
     ).to.be.revertedWith('Address: insufficient balance');
+
+    await contract
+      .connect(addr1)
+      .withdrawERC20(zoicContract.address, owner.address, withdrawAmount);
+    expect(await zoicContract.balanceOf(owner.address)).to.equal(
+      withdrawAmount
+    );
+
+    expect(await zoicContract.balanceOf(contract.address)).to.equal(
+      totalAmount.sub(withdrawAmount)
+    );
   });
 });
