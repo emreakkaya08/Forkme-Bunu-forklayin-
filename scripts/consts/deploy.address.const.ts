@@ -16,6 +16,10 @@ interface ContractDeployAddressInterface {
   RedeemU?: ContractDeployAddress;
 
   TokenZOICCoffer?: ContractDeployAddress;
+  GameTokenCoffer?: ContractDeployAddress;
+  PoolTokenCoffer?: ContractDeployAddress;
+  VaultTokenCoffer?: ContractDeployAddress;
+  TeamTokenCoffer?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
@@ -31,6 +35,10 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   RedeemU: '0xaA71fe67B4c503ec5541661BBe16F9a03988019E',
 
   TokenZOICCoffer: '0x199D69090b609175770920cEb056c65822F71529',
+  GameTokenCoffer: '0xc64c53Bc7047e3caE33F1b175e6261754F96e5F3',
+  PoolTokenCoffer: '0x6a8424a3e8b9d0bFfFB910f264C2fdD66D9D3ecf',
+  VaultTokenCoffer: '0xcCC65943a9fd1125F2717549Ba810279450607B9',
+  TeamTokenCoffer: '0x8348cbd49B64d85a8488e40D8Efc7B76EEFa0fa1',
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
