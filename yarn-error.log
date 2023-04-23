@@ -1,0 +1,83 @@
+Arguments: 
+  /usr/local/bin/node /usr/local/bin/yarn add zksync-web3
+
+PATH: 
+  /Library/Frameworks/Python.framework/Versions/3.10/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Users/liushuheng/Documents/GitHub/XYProtocol/node_modules/.bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.12.1
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: aborted
+      at connResetException (node:internal/errors:711:14)
+      at TLSSocket.socketCloseListener (node:_http_client:454:19)
+      at TLSSocket.emit (node:events:525:35)
+      at node:net:313:12
+      at TCP.done (node:_tls_wrap:587:7)
+
+npm manifest: 
+  {
+    "name": "xy-protocol-contracts",
+    "version": "0.1.0",
+    "description": "start here!",
+    "main": "index.js",
+    "scripts": {
+      "test": "npx hardhat test",
+      "test:grep": "npx hardhat test --grep",
+      "compile": "rm -rf ./abi && npx hardhat export-abi && cp -R third_party_abi ./abi/contracts && find ./abi/contracts -name '*.json'|xargs -I file npx abi-types-generator file --provider=ethers_v5",
+      "deploy": "npx hardhat run --network"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/XYOrigin/XYProtocol.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+      "url": "https://github.com/XYOrigin/XYProtocol/issues"
+    },
+    "homepage": "https://github.com/XYOrigin/XYProtocol#readme",
+    "devDependencies": {
+      "@nomiclabs/hardhat-ethers": "^2.0.6",
+      "@nomiclabs/hardhat-etherscan": "^3.0.3",
+      "@nomiclabs/hardhat-solhint": "^3.0.1",
+      "@nomiclabs/hardhat-waffle": "^2.0.3",
+      "@openzeppelin/hardhat-defender": "^1.8.1",
+      "@openzeppelin/hardhat-upgrades": "^1.18.0",
+      "@types/chai": "^4.3.1",
+      "@types/jest": "^27.5.1",
+      "@types/mocha": "^9.1.1",
+      "@types/node": "^17.0.35",
+      "chai": "^4.3.6",
+      "ethereum-abi-types-generator": "^1.3.2",
+      "ethereum-waffle": "~4.0.10",
+      "ethers": "^5.6.6",
+      "hardhat": "^2.13.0",
+      "hardhat-abi-exporter": "^2.10.1",
+      "random": "^3.0.6",
+      "ts-jest": "^28.0.2",
+      "ts-node": "^10.8.0",
+      "typechain": "^3.0.0",
+      "typescript": "^4.7.2"
+    },
+    "dependencies": {
+      "@arbitrum/sdk": "^3.1.2",
+      "@chainlink/contracts": "^0.4.1",
+      "@openzeppelin/contracts": "^4.8.0",
+      "@openzeppelin/contracts-upgradeable": "^4.8.0",
+      "dotenv": "^16.0.1",
+      "merkletreejs": "^0.3.2"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
