@@ -124,5 +124,9 @@ describe('VestingByTimeWallet', async () => {
         startTimestamp + duringTimestamp
       )
     ).to.equal(total);
+
+    expect(
+      await contract['releasable(address)'](zoicToken.address)
+    ).to.greaterThan(ethers.utils.parseEther('0'));
   });
 });
