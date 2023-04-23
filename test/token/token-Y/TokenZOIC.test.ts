@@ -26,8 +26,6 @@ describe('TokenZOIC', async () => {
   });
 
   it('TokenZOIC Balance test', async () => {
-    const balanceContract = await contract.balanceOf(contract.address);
-    console.log('balanceContract', balanceContract);
     expect(await contract.balanceOf(contract.address)).to.equal(
       ethers.utils.parseEther('0')
     );

@@ -32,7 +32,7 @@ contract TokenDeposit is
 
     address public treasuryAddress;
 
-    mapping(address => uint256) exchangeRates;
+    mapping(address => uint256) private exchangeRates;
 
     event DepositERC20(
         address indexed user,

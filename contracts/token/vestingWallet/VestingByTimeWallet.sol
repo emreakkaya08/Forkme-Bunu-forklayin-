@@ -51,7 +51,6 @@ contract VestingByTimeWallet is
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
-        __VersionUpgradeable_init();
 
         __VestingByTimeBlockWallet_init(
             beneficiaryAddress,
