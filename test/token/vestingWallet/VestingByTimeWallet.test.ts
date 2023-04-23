@@ -1,3 +1,4 @@
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { expect } from 'chai';
 import { BigNumber, Contract } from 'ethers';
 import { ethers, upgrades } from 'hardhat';
@@ -9,6 +10,8 @@ describe('VestingByTimeWallet', async () => {
 
   let zoicTokenCoffer: Contract;
   let zoicToken: Contract;
+
+  let releaseToAddress: SignerWithAddress = null;
 
   let zoicTokenAmount = 204800000;
   let initRate = 0.5075;
@@ -23,6 +26,7 @@ describe('VestingByTimeWallet', async () => {
 
   beforeEach(async () => {
     const [owner, addr1] = await ethers.getSigners();
+    releaseToAddress = addr1;
 
     startTimestamp = Math.floor(new Date().getTime() / 1000);
     // duringTimestamp set during 6 years
@@ -32,7 +36,7 @@ describe('VestingByTimeWallet', async () => {
       'VestingByTimeWallet'
     );
     contract = await upgrades.deployProxy(VestingByTimeWalletContract, [
-      addr1.address,
+      releaseToAddress.address,
       startTimestamp,
       duringTimestamp,
     ]);
@@ -124,8 +128,18 @@ describe('VestingByTimeWallet', async () => {
         startTimestamp + duringTimestamp
       )
     ).to.equal(total);
-    expect(await contract['releasable(address)'](zoicToken.address)).to.be.gt(
-      ethers.utils.parseEther('0')
+    const releasable = await contract['releasable(address)'](zoicToken.address);
+    expect(releasable).to.be.gt(ethers.utils.parseEther('0'));
+
+    await expect(contract['release(address)'](zoicToken.address)).to.emit(
+      contract,
+      'ERC20Released'
     );
+
+    const balance = await zoicToken.balanceOf(releaseToAddress.address);
+    expect(balance).to.be.gt(ethers.utils.parseEther('0'));
+
+    const released = await contract['released(address)'](zoicToken.address);
+    expect(released).to.equal(balance);
   });
 });
