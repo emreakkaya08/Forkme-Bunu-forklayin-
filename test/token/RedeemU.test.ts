@@ -43,7 +43,7 @@ describe("RedeemU", () => {
     it("Should reddem ERC20 tokens correctly", async () => {
         const [owner, addr1, addr2] = await ethers.getSigners();
         // 设置roles和tokens
-        await redeemU.setTokens(treasury.address, mockXToken.address, mockYToken.address);
+        await redeemU.setTokens(mockXToken.address, mockYToken.address);
 
         //mockUSDT 先 mint 2000个
         await mockUSDT.mint(owner.address, ethers.utils.parseEther('2000'));
