@@ -23,7 +23,7 @@ contract TokenTreasury is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    bytes32 public constant APPROVE = keccak256("APPROVE");
+    bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
 
     event TokenReceived(address from, uint256 amount);
 
@@ -43,6 +43,12 @@ contract TokenTreasury is
         return 1;
     }
 
+    event WithdrawERC20(
+        IERC20Upgradeable indexed token,
+        address indexed to,
+        uint256 amount
+    );
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -58,31 +64,25 @@ contract TokenTreasury is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-        _grantRole(APPROVE, msg.sender);
+        _grantRole(WITHDRAW, msg.sender);
     }
 
     receive() external payable virtual {
         emit TokenReceived(_msgSender(), msg.value);
     }
 
-    function approve(
-        address tokenAddress,
-        address spender,
+    // withdraw ERC20 token
+    function withdrawERC20(
+        IERC20Upgradeable tokenAddress,
+        address to,
         uint256 amount
-    ) external onlyRole(APPROVE) {
+    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
         require(amount > 0, "Amount must be greater than zero");
-
-        // Verify and type-check the input parameters
-        require(tokenAddress != address(0), "Invalid token address");
-        require(spender != address(0), "Invalid spender address");
-
         IERC20Upgradeable token = IERC20Upgradeable(tokenAddress);
-
-        // Check if account has sufficient balance before approving
-        uint256 senderBalance = token.balanceOf(msg.sender);
+        
+        uint256 senderBalance = token.balanceOf(address(this));
         require(senderBalance >= amount, "Insufficient balance");
-
-        // Approve the specified spender to transfer tokens
-        token.approve(spender, amount);
+        SafeERC20Upgradeable.safeTransfer(token, to, amount);
+        emit WithdrawERC20(token, to, amount);
     }
 }
