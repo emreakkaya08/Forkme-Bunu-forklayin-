@@ -3,6 +3,10 @@ import { expect } from 'chai';
 import { BigNumber, Contract } from 'ethers';
 import { ethers, upgrades } from 'hardhat';
 
+const ONE_YEAR = 365 * 24 * 60 * 60;
+
+const now = () => Math.floor(new Date().getTime() / 1000);
+
 describe('VestingByTimeWallet', async () => {
   let contract: Contract;
   let startTimestamp: number;
@@ -28,9 +32,9 @@ describe('VestingByTimeWallet', async () => {
     const [owner, addr1] = await ethers.getSigners();
     releaseToAddress = addr1;
 
-    startTimestamp = Math.floor(new Date().getTime() / 1000);
+    startTimestamp = now();
     // duringTimestamp set during 6 years
-    duringTimestamp = 6 * 365 * 24 * 60 * 60;
+    duringTimestamp = 6 * ONE_YEAR;
 
     const VestingByTimeWalletContract = await ethers.getContractFactory(
       'VestingByTimeWallet'
@@ -110,7 +114,6 @@ describe('VestingByTimeWallet', async () => {
       ethers.utils.parseEther('0')
     );
 
-    await zoicTokenCoffer.connect(addr1);
     await zoicTokenCoffer.grantRole(ethers.utils.id('WITHDRAW'), addr1.address);
 
     // transfer zoic to vest
@@ -141,5 +144,64 @@ describe('VestingByTimeWallet', async () => {
 
     const released = await contract['released(address)'](zoicToken.address);
     expect(released).to.equal(balance);
+  });
+
+  describe('VestingByTimeWallet distribute tokens', async () => {
+    it('distribute all tokens', async () => {
+      const total = await zoicToken.balanceOf(zoicTokenCoffer.address);
+
+      const [owned, addr1, addr2] = await ethers.getSigners();
+      const startTime = now();
+
+      await zoicTokenCoffer.grantRole(
+        ethers.utils.id('WITHDRAW'),
+        addr1.address
+      );
+
+      const VestingByTimeWalletContract = await ethers.getContractFactory(
+        'VestingByTimeWallet'
+      );
+      const firstYear = await upgrades.deployProxy(
+        VestingByTimeWalletContract,
+        [addr2.address, startTime, ONE_YEAR]
+      );
+      await firstYear.deployed();
+      await zoicTokenCoffer
+        .connect(addr1)
+        .withdrawERC20(
+          zoicToken.address,
+          firstYear.address,
+          ethers.utils.parseEther(releaseList[0].toString())
+        );
+
+      const secondYear = await upgrades.deployProxy(
+        VestingByTimeWalletContract,
+        [addr2.address, startTime + ONE_YEAR, ONE_YEAR]
+      );
+      await secondYear.deployed();
+      await zoicTokenCoffer
+        .connect(addr1)
+        .withdrawERC20(
+          zoicToken.address,
+          secondYear.address,
+          ethers.utils.parseEther(releaseList[1].toString())
+        );
+
+      expect(await zoicToken.balanceOf(zoicTokenCoffer.address)).to.equal(
+        ethers.utils
+          .parseEther(zoicTokenAmount.toString())
+          .sub(ethers.utils.parseEther(releaseList[0].toString()))
+          .sub(ethers.utils.parseEther(releaseList[1].toString()))
+      );
+      const firstYearReleasable = await firstYear['releasable(address)'](
+        zoicToken.address
+      );
+      expect(firstYearReleasable).to.be.gt(ethers.utils.parseEther('0'));
+
+      const secondYearReleasable = await secondYear['releasable(address)'](
+        zoicToken.address
+      );
+      expect(secondYearReleasable).to.be.eq(ethers.utils.parseEther('0'));
+    });
   });
 });
