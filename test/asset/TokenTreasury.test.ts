@@ -63,14 +63,51 @@ describe('TokenTreasury', async () => {
     const usdtAmount = ethers.utils.parseEther('100');
     await usdt.mint(addr1.address, usdtAmount);
 
-    expect(await usdt.balanceOf(addr1.address)).to.equal(usdtAmount);
+    const balanceBefore = await usdt.balanceOf(addr1.address);
+    expect(balanceBefore).to.equal(usdtAmount);
 
-    await usdt.connect(addr1).transfer(contract.address, usdtAmount);
+    expect(await usdt.connect(addr1).transfer(contract.address, usdtAmount))
+      .to.emit(contract, 'TokenReceived')
+      .withArgs(addr1.address, usdtAmount);
 
     expect(await usdt.balanceOf(contract.address)).to.equal(usdtAmount);
 
     expect(await usdt.balanceOf(addr1.address)).to.equal(
       usdtAmount.sub(usdtAmount)
+    );
+
+    await contract.grantRole(ethers.utils.id('WITHDRAW'), addr1.address);
+    expect(
+      await contract
+        .connect(addr1)
+        .withdrawERC20(
+          usdt.address,
+          addr1.address,
+          ethers.utils.parseEther('0')
+        )
+    )
+      .to.emit(contract, 'WithdrawERC20')
+      .withArgs(usdt.address, addr1.address, ethers.utils.parseEther('0'));
+
+    await expect(
+      contract
+        .connect(addr1)
+        .withdrawERC20(usdt.address, addr1.address, usdtAmount.mul(2))
+    ).to.be.revertedWith('ERC20: transfer amount exceeds balance');
+
+    expect(
+      await contract
+        .connect(addr1)
+        .withdrawERC20(usdt.address, addr1.address, usdtAmount)
+    )
+      .to.emit(contract, 'WithdrawERC20')
+      .withArgs(usdt.address, addr1.address, usdtAmount);
+
+    expect(await usdt.balanceOf(addr1.address)).to.equal(
+      balanceBefore.sub(usdtAmount).add(usdtAmount)
+    );
+    expect(await usdt.balanceOf(contract.address)).to.equal(
+      ethers.utils.parseEther('0')
     );
   });
 });
