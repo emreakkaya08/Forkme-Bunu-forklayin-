@@ -7,7 +7,7 @@ describe('TokenCofferPaymentSplitter', async () => {
   let cenoToken: Contract;
 
   beforeEach(async () => {
-    const TokenCENOContract = await ethers.getContractFactory('StableTokenX');
+    const TokenCENOContract = await ethers.getContractFactory('TokenCENO');
     cenoToken = await upgrades.deployProxy(TokenCENOContract, []);
     await cenoToken.deployed();
 

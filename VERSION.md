@@ -28,4 +28,11 @@
 
 #### 0.1.0.20230412.2
 
-1. deploy StableTokenX and DepositToken contract
+1. deploy TokenCENO and DepositToken contract
+
+#### 0.1.0.20230423.1
+
+1. add TokenCoffer
+2. add VestingByTimeWallet
+3. add TokenCofferPaymentSplitter
+4. rename StableTokenX to TokenCENO

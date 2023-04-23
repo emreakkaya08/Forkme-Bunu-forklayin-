@@ -11,7 +11,7 @@ describe('TokenDeposit', () => {
   const WITHDRAW = ethers.utils.solidityKeccak256(['string'], ['WITHDRAW']);
 
   beforeEach(async () => {
-    const CenoToken = await ethers.getContractFactory('StableTokenX');
+    const CenoToken = await ethers.getContractFactory('TokenCENO');
     cenoToken = await upgrades.deployProxy(CenoToken, []);
     await cenoToken.deployed();
 

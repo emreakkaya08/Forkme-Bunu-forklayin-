@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { Contract } from 'ethers';
 import { ethers, upgrades } from 'hardhat';
 
-describe('StableTokenX', () => {
+describe('TokenCENO', () => {
   let contract: Contract;
 
   const MINTER_ROLE = ethers.utils.solidityKeccak256(
@@ -11,19 +11,19 @@ describe('StableTokenX', () => {
   );
 
   beforeEach(async () => {
-    const StableTokenX = await ethers.getContractFactory('StableTokenX');
-    contract = await upgrades.deployProxy(StableTokenX, []);
+    const TokenCENO = await ethers.getContractFactory('TokenCENO');
+    contract = await upgrades.deployProxy(TokenCENO, []);
     await contract.deployed();
   });
 
   it('contract to be defined', async () => {
     expect(contract).to.be.instanceOf(Contract);
-    expect(await contract.name()).to.equal('StableTokenX');
-    expect(await contract.symbol()).to.equal('STX');
+    expect(await contract.name()).to.equal('TokenCENO');
+    expect(await contract.symbol()).to.equal('CENO');
     expect(await contract.decimals()).to.equal(18);
   });
 
-  it('StableTokenX mint test', async () => {
+  it('TokenCENO mint test', async () => {
     const [owner, signer] = await ethers.getSigners();
 
     const amount = ethers.utils.parseEther('100');
@@ -45,7 +45,7 @@ describe('StableTokenX', () => {
     );
   });
 
-  it('StableTokenX transfer test', async () => {
+  it('TokenCENO transfer test', async () => {
     const [owner, from, to] = await ethers.getSigners();
     const amount = ethers.utils.parseEther('100');
     const transferValue = ethers.utils.parseEther('50');
