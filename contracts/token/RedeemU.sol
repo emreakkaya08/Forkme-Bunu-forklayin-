@@ -15,13 +15,13 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../asset/TokenTreasury.sol";
 
 contract RedeemU is
-    Initializable,
-    AccessControlEnumerableUpgradeable,
-    PausableUpgradeable,
-    UUPSUpgradeable,
-    ReentrancyGuardUpgradeable,
-    VersionUpgradeable,
-    ERC20BurnableUpgradeable
+Initializable,
+AccessControlEnumerableUpgradeable,
+PausableUpgradeable,
+UUPSUpgradeable,
+ReentrancyGuardUpgradeable,
+VersionUpgradeable,
+ERC20BurnableUpgradeable
 {
     // the role that can pause the contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -123,7 +123,6 @@ contract RedeemU is
     }
 
     function setTokens(
-        address _treasury,
         address _xToken,
         address _yToken
     ) public onlyRole(DEFAULT_ADMIN_ROLE) {
