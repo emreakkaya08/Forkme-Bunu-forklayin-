@@ -20,6 +20,7 @@ interface ContractDeployAddressInterface {
   PoolTokenCoffer?: ContractDeployAddress;
   VaultTokenCoffer?: ContractDeployAddress;
   TeamTokenCoffer?: ContractDeployAddress;
+  TokenCofferPaymentSplitter?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
@@ -39,6 +40,8 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   PoolTokenCoffer: '0x6a8424a3e8b9d0bFfFB910f264C2fdD66D9D3ecf',
   VaultTokenCoffer: '0xcCC65943a9fd1125F2717549Ba810279450607B9',
   TeamTokenCoffer: '0x8348cbd49B64d85a8488e40D8Efc7B76EEFa0fa1',
+
+  TokenCofferPaymentSplitter: '0x4d76295B951342DF124e264bd6d9a77B2a962072',
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
