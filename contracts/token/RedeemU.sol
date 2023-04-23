@@ -15,13 +15,13 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../asset/TokenTreasury.sol";
 
 contract RedeemU is
-Initializable,
-AccessControlEnumerableUpgradeable,
-PausableUpgradeable,
-UUPSUpgradeable,
-ReentrancyGuardUpgradeable,
-VersionUpgradeable,
-ERC20BurnableUpgradeable
+    Initializable,
+    AccessControlEnumerableUpgradeable,
+    PausableUpgradeable,
+    UUPSUpgradeable,
+    ReentrancyGuardUpgradeable,
+    VersionUpgradeable,
+    ERC20BurnableUpgradeable
 {
     // the role that can pause the contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -33,7 +33,7 @@ ERC20BurnableUpgradeable
     TokenTreasury tokenTreasury;
     using SafeMath for uint256;
 
-    event RedeemRC20(
+    event RedeemERC20(
         IERC20Upgradeable indexed token,
         uint256 _amountX,
         uint256 reddemAmount
@@ -87,9 +87,10 @@ ERC20BurnableUpgradeable
         // 90% X and 10 % Y burn
         burnXY(_amountX, _amountY);
 
-        tokenTreasury.withdrawERC20(u, msg.sender, redeemAmount);
+        address to = _msgSender();
+        tokenTreasury.withdrawERC20(u, to, redeemAmount);
 
-        emit RedeemRC20(usdt, _amountX, redeemAmount);
+        emit RedeemERC20(usdt, _amountX, redeemAmount);
     }
 
     function burnXY(uint256 _amountX, uint256 _amountY) internal {
