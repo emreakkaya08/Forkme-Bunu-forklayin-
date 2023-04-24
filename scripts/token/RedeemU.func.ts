@@ -15,7 +15,6 @@ async function setTokens() {
   const contract = await getContract();
 
   const tx = await contract.setTokens(
-    ContractDeployAddress.TokenTreasury,
     ContractDeployAddress.XToken,
     ContractDeployAddress.YToken
   );

@@ -10,7 +10,9 @@ async function main() {
       contractAddress
     );
   } else {
-    const contract = await deployUpgradeProxy(DeployContractName);
+    const contract = await deployUpgradeProxy(DeployContractName, [
+      ContractDeployAddress.TokenTreasury,
+    ]);
   }
 }
 
