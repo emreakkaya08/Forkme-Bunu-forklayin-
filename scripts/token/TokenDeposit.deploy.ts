@@ -11,7 +11,7 @@ async function main() {
     );
   } else {
     const contract = await deployUpgradeProxy(DeployContractName, [
-      ContractDeployAddress.StableTokenX,
+      ContractDeployAddress.TokenCENO,
       ContractDeployAddress.TokenTreasury,
     ]);
   }

@@ -4,9 +4,10 @@ import {
   deployUpgradeUpdate,
 } from '../../utils/deploy.util';
 
+const DeployContractName = 'TokenCofferPaymentSplitter';
+const contractAddress = ContractDeployAddress.TokenCofferPaymentSplitter;
+
 async function main() {
-  const contractAddress = ContractDeployAddress.TokenZOIC;
-  const DeployContractName = 'TokenZOIC';
   if (contractAddress) {
     const contract = await deployUpgradeUpdate(
       DeployContractName,
@@ -14,7 +15,13 @@ async function main() {
     );
   } else {
     const contract = await deployUpgradeProxy(DeployContractName, [
-      ContractDeployAddress.ZOICTokenCoffer,
+      [
+        ContractDeployAddress.GameTokenCoffer,
+        ContractDeployAddress.PoolTokenCoffer,
+        ContractDeployAddress.VaultTokenCoffer,
+        ContractDeployAddress.TeamTokenCoffer,
+      ],
+      [53, 20, 17, 10],
     ]);
   }
 }

@@ -5,8 +5,8 @@ import {
 } from '../../utils/deploy.util';
 
 async function main() {
-  const contractAddress = ContractDeployAddress.StableTokenX;
-  const DeployContractName = 'StableTokenX';
+  const contractAddress = ContractDeployAddress.TeamTokenCoffer;
+  const DeployContractName = 'TokenCoffer';
   if (contractAddress) {
     const contract = await deployUpgradeUpdate(
       DeployContractName,

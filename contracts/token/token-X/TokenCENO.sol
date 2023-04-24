@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract StableTokenX is
+contract TokenCENO is
     Initializable,
     ERC20Upgradeable,
     AccessControlEnumerableUpgradeable,
@@ -44,7 +44,7 @@ contract StableTokenX is
     }
 
     function initialize() public initializer {
-        __ERC20_init("StableTokenX", "STX");
+        __ERC20_init("TokenCENO", "CENO");
         __AccessControlEnumerable_init();
         __Pausable_init();
         __VersionUpgradeable_init();

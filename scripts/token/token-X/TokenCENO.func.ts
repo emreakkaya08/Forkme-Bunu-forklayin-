@@ -3,8 +3,8 @@ import { ContractDeployAddress } from '../../consts/deploy.address.const';
 
 async function getContract() {
   const contract = await ethers.getContractAt(
-    'StableTokenX',
-    ContractDeployAddress.StableTokenX
+    'TokenCENO',
+    ContractDeployAddress.TokenCENO
   );
   const [owner] = await ethers.getSigners();
 

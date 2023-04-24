@@ -5,17 +5,15 @@ import {
 } from '../../utils/deploy.util';
 
 async function main() {
-  const contractAddress = ContractDeployAddress.TokenZOIC;
-  const DeployContractName = 'TokenZOIC';
+  const contractAddress = ContractDeployAddress.GameTokenCoffer;
+  const DeployContractName = 'TokenCoffer';
   if (contractAddress) {
     const contract = await deployUpgradeUpdate(
       DeployContractName,
       contractAddress
     );
   } else {
-    const contract = await deployUpgradeProxy(DeployContractName, [
-      ContractDeployAddress.ZOICTokenCoffer,
-    ]);
+    const contract = await deployUpgradeProxy(DeployContractName);
   }
 }
 
