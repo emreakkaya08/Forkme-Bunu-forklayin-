@@ -36,3 +36,7 @@
 2. add VestingByTimeWallet
 3. add TokenCofferPaymentSplitter
 4. rename StableTokenX to TokenCENO
+
+#### 0.1.0.20230425.1
+
+1. remove XToken and YToken test contract
