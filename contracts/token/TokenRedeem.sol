@@ -120,7 +120,7 @@ contract TokenRedeem is
         address tokenY,
         address redeemToken,
         uint256 amountTokenX
-    ) public whenNotPaused nonReentrant returns (uint256) {
+    ) public whenNotPaused nonReentrant {
         require(amountTokenX > 0, "Amount must be greater than 0");
         require(
             hasRedeemTokenPair(tokenX, tokenY, redeemToken),
@@ -156,7 +156,7 @@ contract TokenRedeem is
 
         // TODO: XY->U usdtAmount need oracle to get
         // set Y default price is 0.1 U
-        uint256 redeemTokenAmount = amountTokenY.div(10) + amountTokenX;
+        uint256 redeemTokenAmount = amountTokenY.div(10).add(amountTokenX);
         IERC20Upgradeable tokenRedeem = IERC20Upgradeable(redeemToken);
         require(
             tokenRedeem.balanceOf(address(_tokenVault)) >= redeemTokenAmount,
@@ -176,7 +176,5 @@ contract TokenRedeem is
             amountTokenY,
             redeemTokenAmount
         );
-
-        return redeemTokenAmount;
     }
 }
