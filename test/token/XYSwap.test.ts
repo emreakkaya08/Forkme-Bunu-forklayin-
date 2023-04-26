@@ -8,20 +8,16 @@ describe('XYSwap', function () {
   let yToken: Contract;
   const conversionRate = 2;
 
-  const WITHDRAW = ethers.utils.solidityKeccak256(['string'], ['WITHDRAW']);
-
   beforeEach(async function () {
     // deploy YToken
     const [owner] = await ethers.getSigners();
-    const YToken = await ethers.getContractFactory('YToken');
+    const YToken = await ethers.getContractFactory('TokenZOIC');
     yToken = await upgrades.deployProxy(YToken);
     await yToken.deployed();
 
     console.log('owner Y init amount: ', await yToken.balanceOf(owner.address));
-    const XYSwap = await ethers.getContractFactory('XYSwap',owner);
-    contract = await upgrades.deployProxy(XYSwap, [
-      yToken.address
-    ]);
+    const XYSwap = await ethers.getContractFactory('XYSwap', owner);
+    contract = await upgrades.deployProxy(XYSwap, [yToken.address]);
     await contract.deployed();
   });
 
@@ -46,7 +42,7 @@ describe('XYSwap', function () {
   it('should deposit ERC20 and receive Y Token', async function () {
     // deploy XToken
     const [from, withdrawRole, withdrawTo] = await ethers.getSigners();
-    const XTokenFactory = await ethers.getContractFactory('XToken');
+    const XTokenFactory = await ethers.getContractFactory('TokenCENO');
     const xToken = await upgrades.deployProxy(XTokenFactory);
     await xToken.deployed();
 
@@ -100,12 +96,15 @@ describe('XYSwap', function () {
     console.log('from yTokenBalance', yTokenBalance);
 
     //比较 contract 里的 YToken 数量和转移的 X * 费率一致
-    expect(await yToken.balanceOf(contract.address)).to.equal(swapAmount.mul(conversionRate));
+    expect(await yToken.balanceOf(contract.address)).to.equal(
+      swapAmount.mul(conversionRate)
+    );
 
+    const roleWithdraw = ethers.utils.id('WITHDRAW');
     // withdrawRole 里面没有 WITHDRAW 权限
     const reason = `AccessControl: account ${ethers.utils
       .getAddress(withdrawRole.address)
-      .toLowerCase()} is missing role ${WITHDRAW}`;
+      .toLowerCase()} is missing role ${roleWithdraw}`;
     await expect(
       contract
         .connect(withdrawRole)
@@ -113,7 +112,7 @@ describe('XYSwap', function () {
     ).to.be.revertedWith(reason);
 
     // owner 给 withdrawRole WITHDRAW 权限
-    await contract.grantRole(WITHDRAW, withdrawRole.address);
+    await contract.grantRole(roleWithdraw, withdrawRole.address);
 
     // withdrawRole 里面有 WITHDRAW 权限
     await expect(
