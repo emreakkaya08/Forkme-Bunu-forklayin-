@@ -17,11 +17,11 @@ async function grantRoleForWithdraw() {
   //grant minter role to default caller
   const tx = await contract.grantRole(
     ethers.utils.id('WITHDRAW'),
-    ContractDeployAddress.RedeemU
+    ContractDeployAddress.TokenRedeem
   );
   const receipt = await tx.wait();
   console.log(receipt);
-  console.log('RedeemU get role of withdraw USDT', 'done!');
+  console.log('TokenRedeem get role of withdraw USDT', 'done!');
 }
 
 async function main() {
