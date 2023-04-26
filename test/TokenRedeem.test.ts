@@ -63,8 +63,11 @@ describe('TokenRedeem', async () => {
   it('TokenRedeem change redeem token pair', async () => {
     const [owner, addr1] = await ethers.getSigners();
 
-    expect(
-      await contract
+    const noRole = `AccessControl: account ${ethers.utils
+      .getAddress(owner.address)
+      .toLowerCase()} is missing role ${ethers.utils.id('ADMIN')}`;
+    await expect(
+      contract
         .connect(owner)
         .addRedeemTokenPair(
           tokenCENO.address,
@@ -72,8 +75,27 @@ describe('TokenRedeem', async () => {
           usdtContract.address,
           9
         )
-    ).to.be.revertedWith('');
+    ).to.be.revertedWith(noRole);
 
     await contract.grantRole(ethers.utils.id('ADMIN'), owner.address);
+
+    await contract
+      .connect(owner)
+      .addRedeemTokenPair(
+        tokenCENO.address,
+        tokenZOIC.address,
+        usdtContract.address,
+        9
+      );
+
+    expect(
+      await contract
+        .connect(owner)
+        .hasRedeemTokenPair(
+          tokenCENO.address,
+          tokenZOIC.address,
+          usdtContract.address
+        )
+    ).to.be.true;
   });
 });
