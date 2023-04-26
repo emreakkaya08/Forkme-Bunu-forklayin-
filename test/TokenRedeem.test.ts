@@ -6,6 +6,8 @@ import { ethers, upgrades } from 'hardhat';
 describe('TokenRedeem', async () => {
   let contract: Contract;
   let usdtContract: Contract;
+  let tokenCENO: Contract;
+  let tokenZOIC: Contract;
 
   let userAddress: SignerWithAddress;
 
@@ -21,7 +23,7 @@ describe('TokenRedeem', async () => {
     usdtContract.mint(treasury.address, ethers.utils.parseEther('10000000'));
 
     const TokenCENO = await ethers.getContractFactory('TokenCENO');
-    const tokenCENO = await upgrades.deployProxy(TokenCENO, []);
+    tokenCENO = await upgrades.deployProxy(TokenCENO, []);
     await tokenCENO.deployed();
 
     const TokenZoicCoffer = await ethers.getContractFactory('TokenCoffer');
@@ -29,7 +31,9 @@ describe('TokenRedeem', async () => {
     await tokenZoicCoffer.deployed();
 
     const TokenZOIC = await ethers.getContractFactory('TokenZOIC');
-    const tokenZOIC = await upgrades.deployProxy(TokenZOIC, [tokenZoicCoffer.address]);
+    tokenZOIC = await upgrades.deployProxy(TokenZOIC, [
+      tokenZoicCoffer.address,
+    ]);
     await tokenZOIC.deployed();
 
     const [owner, addr1] = await ethers.getSigners();
@@ -54,5 +58,22 @@ describe('TokenRedeem', async () => {
 
   it('TokenRedeem Test', async () => {
     expect(contract).to.be.instanceOf(Contract);
+  });
+
+  it('TokenRedeem change redeem token pair', async () => {
+    const [owner, addr1] = await ethers.getSigners();
+
+    expect(
+      await contract
+        .connect(owner)
+        .addRedeemTokenPair(
+          tokenCENO.address,
+          tokenZOIC.address,
+          usdtContract.address,
+          9
+        )
+    ).to.be.revertedWith('');
+
+    await contract.grantRole(ethers.utils.id('ADMIN'), owner.address);
   });
 });
