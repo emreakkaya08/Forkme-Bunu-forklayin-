@@ -5,14 +5,15 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "../asset/TokenTreasury.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
+
+import "../core/contract-upgradeable/interface/ITokenVault.sol";
 
 contract RedeemU is
     Initializable,
@@ -20,24 +21,26 @@ contract RedeemU is
     PausableUpgradeable,
     UUPSUpgradeable,
     ReentrancyGuardUpgradeable,
-    VersionUpgradeable,
-    ERC20BurnableUpgradeable
+    VersionUpgradeable
 {
-    // the role that can pause the contract
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    // the role that used for upgrading the contract
-    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-
-    address public xToken;
-    address public yToken;
-    TokenTreasury tokenTreasury;
     using SafeMath for uint256;
+
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant ADMIN = keccak256("ADMIN");
 
     event RedeemERC20(
         IERC20Upgradeable indexed token,
-        uint256 _amountX,
+        address indexed to,
+        uint256 amountX,
+        uint256 amounY,
         uint256 reddemAmount
     );
+
+    ITokenVault private _tokenVault;
+
+    mapping(address => mapping(address => mapping(address => uint256)))
+        private _redeemTokenPairs;
 
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -55,8 +58,7 @@ contract RedeemU is
         return 1;
     }
 
-    function initialize(address _tokenTreasury) public initializer {
-        __ERC20Burnable_init();
+    function initialize(address tokenVault) public initializer {
         __AccessControl_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
@@ -66,68 +68,96 @@ contract RedeemU is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-        tokenTreasury = TokenTreasury(payable(_tokenTreasury));
+
+        _tokenVault = ITokenVault(tokenVault);
+    }
+
+    function addRedeemTokenPair(
+        address tokenX,
+        address tokenY,
+        address redeemToken,
+        uint256 rate
+    ) public whenNotPaused onlyRole(ADMIN) {
+        require(
+            tokenX != tokenY && tokenX != redeemToken && tokenY != redeemToken,
+            "Token must be different tokens"
+        );
+        require(
+            !hasRedeemTokenPair(tokenX, tokenY, redeemToken),
+            "Token pair already exists"
+        );
+        require(rate > 0, "Rate must be greater than 0");
+        _redeemTokenPairs[tokenX][tokenY][redeemToken] = rate;
+    }
+
+    function hasRedeemTokenPair(
+        address tokenX,
+        address tokenY,
+        address redeemToken
+    ) public view returns (bool) {
+        return _redeemTokenPairs[tokenX][tokenY][redeemToken] > 0;
     }
 
     function redeemERC20(
-        uint256 _amountX,
-        IERC20Upgradeable usdt
-    ) public whenNotPaused nonReentrant {
-        IERC20Upgradeable u = IERC20Upgradeable(usdt);
-        // check amount
-        // example 1 X = 2 Y
-        require(_amountX > 0, "Amount must be greater than 0");
-        uint256 _amountY = (((_amountX.mul(10)).div(9)).div(10)).mul(2);
-
-        uint256 redeemAmount = _amountX.mul(10).div(9);
-
-        require(xToken != address(0), "XToken not set");
-        require(yToken != address(0), "YToken not set");
-
-        // 90% X and 10 % Y burn
-        burnXY(_amountX, _amountY);
-
-        address to = _msgSender();
-        tokenTreasury.withdrawERC20(u, to, redeemAmount);
-
-        emit RedeemERC20(usdt, _amountX, redeemAmount);
-    }
-
-    function burnXY(uint256 _amountX, uint256 _amountY) internal {
-        IERC20Upgradeable x_token = IERC20Upgradeable(xToken);
-        IERC20Upgradeable y_token = IERC20Upgradeable(yToken);
-        ERC20BurnableUpgradeable burnXToken = ERC20BurnableUpgradeable(
-            address(x_token)
-        );
-        ERC20BurnableUpgradeable burnYToken = ERC20BurnableUpgradeable(
-            address(y_token)
-        );
+        address tokenX,
+        address tokenY,
+        address redeemToken,
+        uint256 amountTokenX
+    ) public whenNotPaused nonReentrant returns (uint256) {
+        require(amountTokenX > 0, "Amount must be greater than 0");
         require(
-            x_token.allowance(msg.sender, address(this)) >= _amountX,
+            hasRedeemTokenPair(tokenX, tokenY, redeemToken),
+            "Token pair does not exist"
+        );
+
+        uint256 amountTokenY = amountTokenX.div(
+            _redeemTokenPairs[tokenX][tokenY][redeemToken]
+        );
+
+        ERC20BurnableUpgradeable xToken = ERC20BurnableUpgradeable(tokenX);
+        ERC20BurnableUpgradeable yToken = ERC20BurnableUpgradeable(tokenY);
+
+        require(
+            xToken.allowance(_msgSender(), address(this)) >= amountTokenX,
             "Must approve XToken first"
         );
 
         require(
-            y_token.allowance(msg.sender, address(this)) >= _amountY,
+            yToken.allowance(_msgSender(), address(this)) >= amountTokenY,
             "Must approve YToken first"
         );
 
-        require(x_token.balanceOf(msg.sender) >= _amountX, "Not enough XToken");
+        require(
+            xToken.balanceOf(_msgSender()) >= amountTokenX,
+            "Not enough X token"
+        );
 
-        require(y_token.balanceOf(msg.sender) >= _amountY, "Not enough XToken");
+        require(
+            yToken.balanceOf(_msgSender()) >= amountTokenY,
+            "Not enough Y token"
+        );
 
-        // burn X
-        burnXToken.burnFrom(msg.sender, _amountX);
+        // TODO: XY->U usdtAmount need oracle to get
+        // set Y default price is 0.1 U
+        uint256 redeemTokenAmount = amountTokenY.div(10) + amountTokenX;
+        IERC20Upgradeable tokenRedeem = IERC20Upgradeable(redeemToken);
+        require(
+            tokenRedeem.balanceOf(address(_tokenVault)) >= redeemTokenAmount,
+            "Not enough redeem token"
+        );
 
-        // burn Y
-        burnYToken.burnFrom(msg.sender, _amountY);
-    }
+        // burnXY
+        xToken.burnFrom(_msgSender(), amountTokenX);
+        yToken.burnFrom(_msgSender(), amountTokenY);
 
-    function setTokens(
-        address _xToken,
-        address _yToken
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        xToken = _xToken;
-        yToken = _yToken;
+        _tokenVault.withdrawERC20(tokenRedeem, _msgSender(), redeemTokenAmount);
+
+        emit RedeemERC20(
+            tokenRedeem,
+            _msgSender(),
+            amountTokenX,
+            amountTokenY,
+            redeemTokenAmount
+        );
     }
 }
