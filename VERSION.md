@@ -42,3 +42,7 @@
 #### 0.1.0.20230426.1
 
 1. remove XYSwap contract
+
+#### 0.1.0.20230426.2
+
+1. update TokenRedeem logic
