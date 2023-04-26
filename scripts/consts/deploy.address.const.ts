@@ -5,8 +5,6 @@ export type ContractDeployAddress = string | null;
 
 interface ContractDeployAddressInterface {
   Greeter?: ContractDeployAddress;
-  XToken?: ContractDeployAddress;
-  YToken?: ContractDeployAddress;
   XYGameUSDT?: ContractDeployAddress;
   USDTFaucet?: ContractDeployAddress;
   TokenCENO?: ContractDeployAddress;

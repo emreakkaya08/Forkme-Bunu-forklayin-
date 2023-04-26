@@ -15,8 +15,8 @@ async function setTokens() {
   const contract = await getContract();
 
   const tx = await contract.setTokens(
-    ContractDeployAddress.XToken,
-    ContractDeployAddress.YToken
+    ContractDeployAddress.TokenCENO,
+    ContractDeployAddress.TokenZOIC
   );
   const receipt = await tx.wait();
   console.log(`RedeemU setTokens`, 'done!');
