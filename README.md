@@ -6,9 +6,11 @@
 
 ### eth testnet
 
-- `XToken`: `0x??`
+- `TokenCENO`: `0x??`
   - [bscscan](https://bscscan.com/address/0x??)
-
+- `TokenZOIC`: `0x??`
+  - [bscscan](https://bscscan.com/address/0x??)
+  
 ## how to develop and test
 
 ### Principle of development
