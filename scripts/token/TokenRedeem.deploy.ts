@@ -2,8 +2,8 @@ import { ContractDeployAddress } from '../consts/deploy.address.const';
 import { deployUpgradeProxy, deployUpgradeUpdate } from '../utils/deploy.util';
 
 async function main() {
-  const contractAddress = ContractDeployAddress.RedeemU;
-  const DeployContractName = 'RedeemU';
+  const contractAddress = ContractDeployAddress.TokenRedeem;
+  const DeployContractName = 'TokenRedeem';
   if (contractAddress) {
     const contract = await deployUpgradeUpdate(
       DeployContractName,

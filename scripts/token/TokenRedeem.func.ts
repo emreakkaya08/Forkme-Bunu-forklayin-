@@ -3,27 +3,32 @@ import { ContractDeployAddress } from '../consts/deploy.address.const';
 
 async function getContract() {
   const contract = await ethers.getContractAt(
-    'RedeemU',
-    ContractDeployAddress.RedeemU
+    'TokenRedeem',
+    ContractDeployAddress.TokenRedeem
   );
   const [owner] = await ethers.getSigners();
 
   return contract.connect(owner);
 }
 
-async function setTokens() {
+async function addTokenPair() {
+  const redeemToken =
+    ContractDeployAddress.USDT ?? ContractDeployAddress.XYGameUSDT;
   const contract = await getContract();
-
-  const tx = await contract.setTokens(
+  await contract.addRedeemTokenPair(
     ContractDeployAddress.TokenCENO,
-    ContractDeployAddress.TokenZOIC
+    ContractDeployAddress.TokenZOIC,
+    redeemToken,
+    9
   );
-  const receipt = await tx.wait();
-  console.log(`RedeemU setTokens`, 'done!');
+
+  console.log(
+    `add token pair: 9 * ${ContractDeployAddress.TokenCENO}, 1 * ${ContractDeployAddress.TokenZOIC} to get ${redeemToken}`
+  );
 }
 
 async function main() {
-  await setTokens();
+  await addTokenPair();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

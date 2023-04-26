@@ -15,7 +15,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20Burnable
 
 import "../core/contract-upgradeable/interface/ITokenVault.sol";
 
-contract RedeemU is
+contract TokenRedeem is
     Initializable,
     AccessControlEnumerableUpgradeable,
     PausableUpgradeable,
@@ -90,6 +90,23 @@ contract RedeemU is
         _redeemTokenPairs[tokenX][tokenY][redeemToken] = rate;
     }
 
+    function updateRedeemTokenPair(
+        address tokenX,
+        address tokenY,
+        address redeemToken,
+        uint256 rate
+    ) public whenNotPaused onlyRole(ADMIN) {
+        require(
+            hasRedeemTokenPair(tokenX, tokenY, redeemToken),
+            "Token pair does not exist"
+        );
+        require(
+            rate > 0 && _redeemTokenPairs[tokenX][tokenY][redeemToken] != rate,
+            "Rate must be greater than 0 or different from current rate"
+        );
+        _redeemTokenPairs[tokenX][tokenY][redeemToken] = rate;
+    }
+
     function hasRedeemTokenPair(
         address tokenX,
         address tokenY,
@@ -159,5 +176,7 @@ contract RedeemU is
             amountTokenY,
             redeemTokenAmount
         );
+
+        return redeemTokenAmount;
     }
 }
