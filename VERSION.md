@@ -4,8 +4,6 @@
 
 ### 0.1.0
 
-#### 0.1.0.20230331.1
-
 1. Project initialized
 
 #### 0.1.0.20230410.1
@@ -40,3 +38,7 @@
 #### 0.1.0.20230425.1
 
 1. remove XToken and YToken test contract
+
+#### 0.1.0.20230426.1
+
+1. remove XYSwap contract
