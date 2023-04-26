@@ -15,12 +15,16 @@ async function addTokenPair() {
   const redeemToken =
     ContractDeployAddress.USDT ?? ContractDeployAddress.XYGameUSDT;
   const contract = await getContract();
-  await contract.addRedeemTokenPair(
+  const [owner] = await ethers.getSigners();
+  const tx = await contract.grantRole(ethers.utils.id('ADMIN'), owner.address);
+  const receipt = await tx.wait();
+  const txAdd = await contract.addRedeemTokenPair(
     ContractDeployAddress.TokenCENO,
     ContractDeployAddress.TokenZOIC,
     redeemToken,
     9
   );
+  await txAdd.wait();
 
   console.log(
     `add token pair: 9 * ${ContractDeployAddress.TokenCENO}, 1 * ${ContractDeployAddress.TokenZOIC} to get ${redeemToken}`
