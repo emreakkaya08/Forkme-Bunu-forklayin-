@@ -69,6 +69,18 @@ async function transferZOICToVestingWallet() {
   );
 }
 
+async function release() {
+  const year1VestingByTimeWallet = await getContract(
+    'VestingByTimeWallet',
+    ContractDeployAddress.Year1VestingByTimeWallet
+  );
+
+  const tx = await year1VestingByTimeWallet['release()']();
+  console.log('tx', tx);
+  const receipt = await tx.wait();
+  console.log(receipt);
+}
+
 async function main() {
   await transferZOICToVestingWallet();
 }
