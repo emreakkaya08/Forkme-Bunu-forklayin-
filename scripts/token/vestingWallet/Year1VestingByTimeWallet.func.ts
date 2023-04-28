@@ -75,7 +75,9 @@ async function release() {
     ContractDeployAddress.Year1VestingByTimeWallet
   );
 
-  const tx = await year1VestingByTimeWallet['release()']();
+  const tx = await year1VestingByTimeWallet['release(address)'](
+    ContractDeployAddress.TokenZOIC
+  );
   console.log('tx', tx);
   const receipt = await tx.wait();
   console.log(receipt);
