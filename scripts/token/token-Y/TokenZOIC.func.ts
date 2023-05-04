@@ -16,7 +16,10 @@ async function withdraw() {
 
   const [owned] = await ethers.getSigners();
   //grant minter role to default caller
-  const tx = await contract.grantRole(ethers.utils.id('WITHDRAW'), owned);
+  const tx = await contract.grantRole(
+    ethers.utils.id('WITHDRAW'),
+    owned.address
+  );
   const receipt = await tx.wait();
 
   const txWithdraw = await contract
@@ -27,7 +30,9 @@ async function withdraw() {
       ethers.utils.parseEther('1000')
     );
 
-  await txWithdraw.wait();
+  const receiptWithdraw = await txWithdraw.wait();
+
+  console.log('transfer:', receiptWithdraw);
 
   console.log('withdraw done');
 }
