@@ -11,21 +11,38 @@ async function getContract() {
   return contract.connect(owner);
 }
 
-async function grantRoleForWithdraw() {
-  const contract = await getContract();
+async function approveTokenRedeem() {
+  const usdtContract = await ethers.getContractAt(
+    ContractDeployAddress.USDT ? 'xx' : 'XYGameUSDT',
+    ContractDeployAddress.USDT ?? ContractDeployAddress.XYGameUSDT
+  );
 
-  //grant minter role to default caller
-  const tx = await contract.grantRole(
-    ethers.utils.id('WITHDRAW'),
-    ContractDeployAddress.TokenRedeem
+  const balance = await usdtContract.balanceOf(
+    ContractDeployAddress.TokenTreasury
+  );
+  console.log('TokenTreasury USDT balance', balance.toString());
+
+  const contract = await getContract();
+  const [owner] = await ethers.getSigners();
+
+  const txGrant = await contract.grantRole(
+    ethers.utils.id('APPROVE_ERC20'),
+    owner.address
+  );
+  const receiptGrant = await txGrant.wait();
+
+  const tx = await contract.approve(
+    usdtContract.address,
+    ContractDeployAddress.TokenRedeem,
+    balance
   );
   const receipt = await tx.wait();
   console.log(receipt);
-  console.log('TokenRedeem get role of withdraw USDT', 'done!');
+  console.log('TokenRedeem get approved of USDT', 'done!');
 }
 
 async function main() {
-  await grantRoleForWithdraw();
+  await approveTokenRedeem();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

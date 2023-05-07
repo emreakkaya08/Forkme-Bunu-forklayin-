@@ -13,8 +13,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 
-import "../core/contract-upgradeable/interface/ITokenVault.sol";
-
 contract TokenRedeem is
     Initializable,
     AccessControlEnumerableUpgradeable,
@@ -37,7 +35,7 @@ contract TokenRedeem is
         uint256 reddemAmount
     );
 
-    ITokenVault private _tokenVault;
+    address private _tokenVault;
 
     mapping(address => mapping(address => mapping(address => uint256)))
         private _redeemTokenPairs;
@@ -69,7 +67,7 @@ contract TokenRedeem is
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
 
-        _tokenVault = ITokenVault(tokenVault);
+        _tokenVault = tokenVault;
     }
 
     function addRedeemTokenPair(
@@ -159,7 +157,7 @@ contract TokenRedeem is
         uint256 redeemTokenAmount = amountTokenY.div(10).add(amountTokenX);
         IERC20Upgradeable tokenRedeem = IERC20Upgradeable(redeemToken);
         require(
-            tokenRedeem.balanceOf(address(_tokenVault)) >= redeemTokenAmount,
+            tokenRedeem.balanceOf(_tokenVault) >= redeemTokenAmount,
             "Not enough redeem token"
         );
 
@@ -167,7 +165,12 @@ contract TokenRedeem is
         xToken.burnFrom(_msgSender(), amountTokenX);
         yToken.burnFrom(_msgSender(), amountTokenY);
 
-        _tokenVault.withdrawERC20(tokenRedeem, _msgSender(), redeemTokenAmount);
+        SafeERC20Upgradeable.safeTransferFrom(
+            tokenRedeem,
+            _tokenVault,
+            _msgSender(),
+            redeemTokenAmount
+        );
 
         emit RedeemERC20(
             tokenRedeem,
