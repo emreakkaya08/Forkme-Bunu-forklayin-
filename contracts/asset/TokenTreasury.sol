@@ -22,6 +22,7 @@ contract TokenTreasury is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
+    bytes32 public constant APPROVE_ERC20 = keccak256("APPROVE_ERC20");
 
     event TokenReceived(address from, uint256 amount);
     event Withdraw(address to, uint256 amount);
@@ -83,5 +84,13 @@ contract TokenTreasury is
     ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
         SafeERC20Upgradeable.safeTransfer(token, to, value);
         emit WithdrawERC20(token, to, value);
+    }
+
+    function approve(
+        IERC20Upgradeable token,
+        address spender,
+        uint256 amount
+    ) external whenNotPaused onlyRole(APPROVE_ERC20) returns (bool) {
+        return token.approve(spender, amount);
     }
 }
