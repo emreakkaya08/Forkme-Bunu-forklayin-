@@ -8,6 +8,7 @@ describe('TokenRedeem', async () => {
   let usdtContract: Contract;
   let tokenCENO: Contract;
   let tokenZOIC: Contract;
+  let treasury: Contract;
 
   let userAddress: SignerWithAddress;
 
@@ -17,7 +18,7 @@ describe('TokenRedeem', async () => {
     await usdtContract.deployed();
 
     const TokenTreasury = await ethers.getContractFactory('TokenTreasury');
-    const treasury = await upgrades.deployProxy(TokenTreasury, []);
+    treasury = await upgrades.deployProxy(TokenTreasury, []);
     await treasury.deployed();
 
     usdtContract.mint(treasury.address, ethers.utils.parseEther('10000000'));
@@ -129,6 +130,15 @@ describe('TokenRedeem', async () => {
       .div(9)
       .div(10)
       .add(ethers.utils.parseEther('9'));
+
+    // approve
+    const balanceY = await usdtContract.balanceOf(treasury.address);
+    await treasury
+      .connect(owner)
+      .grantRole(ethers.utils.id('APPROVE_ERC20'), addr1.address);
+    await treasury
+      .connect(addr1)
+      .approve(usdtContract.address, contract.address, balanceY);
 
     await expect(
       contract
