@@ -7,14 +7,27 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-
-contract PaymentSplitterDailyUpgradeable is Initializable, ContextUpgradeable {
+contract PaymentSplitterDailyUpgradeable is
+    Initializable,
+    ContextUpgradeable,
+    ReentrancyGuardUpgradeable
+{
     event PayeeAdded(address account, uint256 shares);
     event PaymentReleased(address to, uint256 amount);
-    event ERC20PaymentReleased(IERC20Upgradeable indexed token, address to, uint256 amount);
+    event ERC20PaymentReleased(
+        IERC20Upgradeable indexed token,
+        address to,
+        uint256 amount
+    );
     event PaymentReceived(address from, uint256 amount);
 
+    address tokenZOIC;
+
+    uint256 private dailyReceived;
     uint256 private _totalShares;
     uint256 private _totalReleased;
 
@@ -23,14 +36,24 @@ contract PaymentSplitterDailyUpgradeable is Initializable, ContextUpgradeable {
     address[] private _payees;
 
     mapping(IERC20Upgradeable => uint256) private _erc20TotalReleased;
-    mapping(IERC20Upgradeable => mapping(address => uint256)) private _erc20Released;
+    mapping(IERC20Upgradeable => mapping(address => uint256))
+        private _erc20Released;
 
-    function __PaymentSplitter_init(address[] memory payees, uint256[] memory shares_) internal onlyInitializing {
+    function __PaymentSplitter_init(
+        address[] memory payees,
+        uint256[] memory shares_
+    ) internal onlyInitializing {
         __PaymentSplitter_init_unchained(payees, shares_);
     }
 
-    function __PaymentSplitter_init_unchained(address[] memory payees, uint256[] memory shares_) internal onlyInitializing {
-        require(payees.length == shares_.length, "PaymentSplitter: payees and shares length mismatch");
+    function __PaymentSplitter_init_unchained(
+        address[] memory payees,
+        uint256[] memory shares_
+    ) internal onlyInitializing {
+        require(
+            payees.length == shares_.length,
+            "PaymentSplitter: payees and shares length mismatch"
+        );
         require(payees.length > 0, "PaymentSplitter: no payees");
 
         for (uint256 i = 0; i < payees.length; i++) {
@@ -38,17 +61,44 @@ contract PaymentSplitterDailyUpgradeable is Initializable, ContextUpgradeable {
         }
     }
 
-    function __UpdateGameCofficient(address[] memory payees, uint256[] memory shares_) internal {
-
-        require(payees.length == shares_.length, "PaymentSplitter: payees and shares length mismatch");
+    function __UpdateGameCofficient(
+        address[] memory payees,
+        uint256[] memory shares_
+    ) internal {
+        require(
+            payees.length == shares_.length,
+            "PaymentSplitter: payees and shares length mismatch"
+        );
         require(payees.length > 0, "PaymentSplitter: no payees");
 
         _payees = payees;
 
+        _totalShares = 0;
         for (uint256 i = 0; i < payees.length; i++) {
             _shares[payees[i]] = shares_[i];
+            _totalShares += shares_[i];
         }
+    }
 
+    function releaseZOIC() public nonReentrant {
+        require(address(this).balance > 0, "PaymentSplitter: no balance");
+
+        IERC20Upgradeable token = IERC20Upgradeable(tokenZOIC);
+
+        for (uint256 i = 0; i < _payees.length; i++) {
+            address account = _payees[i];
+            uint256 payment = (address(this).balance * _shares[account]) /
+                _totalShares;
+            _totalReleased += payment;
+            _released[account] += payment;
+            SafeERC20Upgradeable.safeTransferFrom(
+                token,
+                address(this),
+                account,
+                payment
+            );
+            emit PaymentReleased(account, payment);
+        }
     }
 
     receive() external payable virtual {
@@ -63,7 +113,9 @@ contract PaymentSplitterDailyUpgradeable is Initializable, ContextUpgradeable {
         return _totalReleased;
     }
 
-    function totalReleased(IERC20Upgradeable token) public view returns (uint256) {
+    function totalReleased(
+        IERC20Upgradeable token
+    ) public view returns (uint256) {
         return _erc20TotalReleased[token];
     }
 
@@ -75,7 +127,10 @@ contract PaymentSplitterDailyUpgradeable is Initializable, ContextUpgradeable {
         return _released[account];
     }
 
-    function released(IERC20Upgradeable token, address account) public view returns (uint256) {
+    function released(
+        IERC20Upgradeable token,
+        address account
+    ) public view returns (uint256) {
         return _erc20Released[token][account];
     }
 
@@ -83,7 +138,7 @@ contract PaymentSplitterDailyUpgradeable is Initializable, ContextUpgradeable {
         return _payees[index];
     }
 
-   /*  function releasable(address account) public view returns (uint256) {
+    /*  function releasable(address account) public view returns (uint256) {
         uint256 totalReceived = address(this).balance + totalReleased();
         return _pendingPayment(account, totalReceived, released(account));
     }
@@ -134,9 +189,15 @@ contract PaymentSplitterDailyUpgradeable is Initializable, ContextUpgradeable {
     } */
 
     function _addPayee(address account, uint256 shares_) private {
-        require(account != address(0), "PaymentSplitter: account is the zero address");
+        require(
+            account != address(0),
+            "PaymentSplitter: account is the zero address"
+        );
         require(shares_ > 0, "PaymentSplitter: shares are 0");
-        require(_shares[account] == 0, "PaymentSplitter: account already has shares");
+        require(
+            _shares[account] == 0,
+            "PaymentSplitter: account already has shares"
+        );
 
         _payees.push(account);
         _shares[account] = shares_;
