@@ -79,8 +79,8 @@ contract GameCofferPaymentSplitter is
         // GameCofficientBallot(gameCofficientBallot).openBallot();
     }
 
-    function updateGameCofficient() public onlyRole(UPGRADER_ROLE) {
-        require(ballotStatus == 1, "Ballot is not opened");
+    function updateGameCofficient() public {
+        require(_msgSender() == gameCofficientBallot, "Caller is not the ballot");
 
         /* (
             bool success,
@@ -93,6 +93,12 @@ contract GameCofferPaymentSplitter is
 
         address[] memory __payees = new address[](2);
         uint256[] memory __shares = new uint256[](2);
+
+        __payees[0] = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+        __payees[1] = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+
+        __shares[0] = 1;
+        __shares[1] = 1;
 
         __UpdateGameCofficient(__payees, __shares);
 

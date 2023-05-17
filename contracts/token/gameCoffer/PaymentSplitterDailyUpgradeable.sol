@@ -8,13 +8,11 @@ import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract PaymentSplitterDailyUpgradeable is
     Initializable,
-    ContextUpgradeable,
-    ReentrancyGuardUpgradeable
+    ContextUpgradeable
 {
     event PayeeAdded(address account, uint256 shares);
     event PaymentReleased(address to, uint256 amount);
@@ -80,7 +78,7 @@ contract PaymentSplitterDailyUpgradeable is
         }
     }
 
-    function releaseZOIC() public nonReentrant {
+    function releaseZOIC() public {
         require(address(this).balance > 0, "PaymentSplitter: no balance");
 
         IERC20Upgradeable token = IERC20Upgradeable(tokenZOIC);
@@ -137,56 +135,6 @@ contract PaymentSplitterDailyUpgradeable is
     function payee(uint256 index) public view returns (address) {
         return _payees[index];
     }
-
-    /*  function releasable(address account) public view returns (uint256) {
-        uint256 totalReceived = address(this).balance + totalReleased();
-        return _pendingPayment(account, totalReceived, released(account));
-    }
-
-    function releasable(IERC20Upgradeable token, address account) public view returns (uint256) {
-        uint256 totalReceived = token.balanceOf(address(this)) + totalReleased(token);
-        return _pendingPayment(account, totalReceived, released(token, account));
-    }
-
-    function release(address payable account) public virtual {
-        require(_shares[account] > 0, "PaymentSplitter: account has no shares");
-
-        uint256 payment = releasable(account);
-
-        require(payment != 0, "PaymentSplitter: account is not due payment");
-
-        _totalReleased += payment;
-        unchecked {
-            _released[account] += payment;
-        }
-
-        AddressUpgradeable.sendValue(account, payment);
-        emit PaymentReleased(account, payment);
-    }
-
-    function release(IERC20Upgradeable token, address account) public virtual {
-        require(_shares[account] > 0, "PaymentSplitter: account has no shares");
-
-        uint256 payment = releasable(token, account);
-
-        require(payment != 0, "PaymentSplitter: account is not due payment");
-
-        _erc20TotalReleased[token] += payment;
-        unchecked {
-            _erc20Released[token][account] += payment;
-        }
-
-        SafeERC20Upgradeable.safeTransfer(token, account, payment);
-        emit ERC20PaymentReleased(token, account, payment);
-    }
-
-    function _pendingPayment(
-        address account,
-        uint256 totalReceived,
-        uint256 alreadyReleased
-    ) private view returns (uint256) {
-        return (totalReceived * _shares[account]) / _totalShares - alreadyReleased;
-    } */
 
     function _addPayee(address account, uint256 shares_) private {
         require(
