@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -20,7 +21,8 @@ contract GameCoffer is
     ReentrancyGuardUpgradeable,
     PausableUpgradeable,
     UUPSUpgradeable,
-    VersionUpgradeable
+    VersionUpgradeable,
+    ERC20Upgradeable
 {
     event TokenReceived(address from, uint256 amount);
     event Withdraw(address to, uint256 amount);
@@ -66,6 +68,7 @@ contract GameCoffer is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(WITHDRAW, msg.sender);
     }
 
     receive() external payable {

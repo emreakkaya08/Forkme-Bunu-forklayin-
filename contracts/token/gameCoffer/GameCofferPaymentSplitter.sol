@@ -18,11 +18,11 @@ contract GameCofferPaymentSplitter is
     PaymentSplitterDailyUpgradeable,
     VersionUpgradeable
 {
-
     event GameCofficientUpdated(address[] payees, uint256[] shares);
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant BALLOT_ROLE = keccak256("BALLOT_ROLE");
 
     // GameCofficientBallot
     address gameCofficientBallot;
@@ -50,27 +50,22 @@ contract GameCofferPaymentSplitter is
         _disableInitializers();
     }
 
-    function initialize(address ballot) public initializer {
+    function initialize(
+        address[] memory payees,
+        uint256[] memory shares_,
+        address gameCoffer_,
+        address ballot
+    ) public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
         __VersionUpgradeable_init();
-
-        __GameCofficientBallot_init(ballot);
-        __BallotStatus_init();
+        __PaymentSplitter_init(payees, shares_, gameCoffer_);
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-    }
-
-    function __GameCofficientBallot_init(address ballot) internal initializer {
-        require(ballot != address(0), "Ballot is the zero address");
-        gameCofficientBallot = ballot;
-    }
-
-    function __BallotStatus_init() internal initializer {
-        ballotStatus = 0;
+        _grantRole(BALLOT_ROLE, ballot);
     }
 
     function openBallot() public {
@@ -79,9 +74,7 @@ contract GameCofferPaymentSplitter is
         // GameCofficientBallot(gameCofficientBallot).openBallot();
     }
 
-    function updateGameCofficient() public {
-        require(_msgSender() == gameCofficientBallot, "Caller is not the ballot");
-
+    function updateGameCofficient() public onlyRole(BALLOT_ROLE) {
         /* (
             bool success,
             mapping(address => uint256) newGameCofficient
@@ -103,8 +96,5 @@ contract GameCofferPaymentSplitter is
         __UpdateGameCofficient(__payees, __shares);
 
         emit GameCofficientUpdated(__payees, __shares);
-
     }
-
-
 }

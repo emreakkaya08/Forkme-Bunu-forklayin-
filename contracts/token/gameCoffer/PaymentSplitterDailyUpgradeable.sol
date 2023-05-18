@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "./GameCoffer.sol";
 
 contract PaymentSplitterDailyUpgradeable is
     Initializable,
@@ -23,7 +24,8 @@ contract PaymentSplitterDailyUpgradeable is
     );
     event PaymentReceived(address from, uint256 amount);
 
-    address tokenZOIC;
+address tokenZOIC;
+    address gameCoffer;
 
     uint256 private dailyReceived;
     uint256 private _totalShares;
@@ -39,24 +41,34 @@ contract PaymentSplitterDailyUpgradeable is
 
     function __PaymentSplitter_init(
         address[] memory payees,
-        uint256[] memory shares_
+        uint256[] memory shares_,
+        address gameCoffer_,
+        address tokenZOIC_
     ) internal onlyInitializing {
-        __PaymentSplitter_init_unchained(payees, shares_);
+        __PaymentSplitter_init_unchained(payees, shares_, gameCoffer_, tokenZOIC_);
     }
 
     function __PaymentSplitter_init_unchained(
         address[] memory payees,
-        uint256[] memory shares_
+        uint256[] memory shares_,
+        address gameCoffer_
     ) internal onlyInitializing {
         require(
             payees.length == shares_.length,
             "PaymentSplitter: payees and shares length mismatch"
         );
         require(payees.length > 0, "PaymentSplitter: no payees");
+        require(
+            gameCoffer_ != address(0),
+            "PaymentSplitter: gameCoffer_ is the zero address"
+        );
 
         for (uint256 i = 0; i < payees.length; i++) {
             _addPayee(payees[i], shares_[i]);
         }
+        gameCoffer = gameCoffer_;
+        tokenZOIC = tokenZOIC_;
+
     }
 
     function __UpdateGameCofficient(
@@ -79,7 +91,8 @@ contract PaymentSplitterDailyUpgradeable is
     }
 
     function releaseZOIC() public {
-        require(address(this).balance > 0, "PaymentSplitter: no balance");
+
+        require(address(tokenZOIC).balance > 0, "PaymentSplitter: no balance");
 
         IERC20Upgradeable token = IERC20Upgradeable(tokenZOIC);
 
@@ -91,12 +104,13 @@ contract PaymentSplitterDailyUpgradeable is
             _released[account] += payment;
             SafeERC20Upgradeable.safeTransferFrom(
                 token,
-                address(this),
+                gameCoffer,
                 account,
                 payment
             );
             emit PaymentReleased(account, payment);
         }
+        
     }
 
     receive() external payable virtual {
