@@ -35,22 +35,22 @@ contract GainVEToken is
         uint256 veTokenAmount
     );
 
-    // the role that can pause the contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    // the role that used for upgrading the contract
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    // admin role
     bytes32 public constant ADMIN = keccak256("ADMIN");
 
     struct depositRecord {
         uint256 startTimestamp;
         uint256 duration;
-        uint256 amount;
+        uint256 tokenZOICAmount;
+        uint256 veTokenAmount;
     }
-
     mapping(address => depositRecord[]) public depositRecords;
 
-    mapping(uint256 => uint256) public veTokenRewardCoifficent;
+    mapping(uint256 => uint256) public depositCoifficientSequence;
+    uint256[] public depositCoifficientIndex;
+
+    mapping(uint256 => uint256) public veTokenRewardCoifficentSequence;
     uint256[] public veTokenRewardCoifficentIndex;
 
     address public veTokenAddress;
@@ -81,7 +81,9 @@ contract GainVEToken is
     function initialize(
         address _veToken,
         address _tokenZOIC,
-        address _userCofferAddress
+        address _userCofferAddress,
+        uint256[] memory veTokenAmount,
+        uint256[] memory rewardCoifficient
     ) public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
@@ -95,7 +97,8 @@ contract GainVEToken is
         _grantRole(ADMIN, msg.sender);
 
         tokenAddress_init(_veToken, _tokenZOIC, _userCofferAddress);
-        veTokenRewardCoifficent_init(uint256[], uint256[]);
+        veTokenRewardCoifficent_init(veTokenAmount, rewardCoifficient);
+        depositCoifficient_init(veTokenAmount, rewardCoifficient);
     }
 
     function tokenAddress_init(
@@ -108,21 +111,54 @@ contract GainVEToken is
         userCofferAddress = _userCofferAddress;
     }
 
-    function _veTokenRewardCoifficent_init(uint256[] veTokenAmount,uint256[] rewardCoifficient) public onlyRole(UPGRADER_ROLE) {
+    function _veTokenRewardCoifficent_init(
+        uint256[] memory veTokenAmount,
+        uint256[] memory rewardCoifficient
+    ) public onlyRole(UPGRADER_ROLE) {
         veTokenRewardCoifficent_init(veTokenAmount, rewardCoifficient);
     }
 
-    function veTokenRewardCoifficent_init(uint256[] veTokenAmount,uint256[] rewardCoifficient) internal {
-        require(veTokenAmount.length == rewardCoifficient.length, "veTokenAmount and rewardCoifficient length must be equal");
-        for(uint256 i = 0; i < veTokenAmount.length; i++){
-            veTokenRewardCoifficent[veTokenAmount[i]] = rewardCoifficient[i];
+    function veTokenRewardCoifficent_init(
+        uint256[] memory veTokenAmount,
+        uint256[] memory rewardCoifficient
+    ) internal {
+        require(
+            veTokenAmount.length == rewardCoifficient.length,
+            "veTokenAmount and rewardCoifficient length must be equal"
+        );
+        for (uint256 i = 0; i < veTokenAmount.length; i++) {
+            veTokenRewardCoifficentSequence[
+                veTokenAmount[i]
+            ] = rewardCoifficient[i];
             veTokenRewardCoifficentIndex[i] = veTokenAmount[i];
         }
-
     }
 
-    function deposit(uint256 amount) public nonReentrant whenNotPaused {
+    function depositCoifficient_init(
+        uint256[] memory veTokenAmount,
+        uint256[] memory rewardCoifficient
+    ) internal {
+        require(
+            veTokenAmount.length == rewardCoifficient.length,
+            "veTokenAmount and rewardCoifficient length must be equal"
+        );
+        for (uint256 i = 0; i < veTokenAmount.length; i++) {
+            depositCoifficientSequence[veTokenAmount[i]] = rewardCoifficient[i];
+            depositCoifficientIndex[i] = veTokenAmount[i];
+        }
+    }
 
+    function _depositCoifficient_init(
+        uint256[] memory veTokenAmount,
+        uint256[] memory rewardCoifficient
+    ) public onlyRole(UPGRADER_ROLE) {
+        depositCoifficient_init(veTokenAmount, rewardCoifficient);
+    }
+
+    function deposit(
+        uint256 amount,
+        uint256 duration
+    ) public nonReentrant whenNotPaused {
         IERC20Upgradeable tokenZOIC = IERC20Upgradeable(tokenZOICAddress);
 
         address userAddress = _msgSender();
@@ -139,17 +175,36 @@ contract GainVEToken is
             amount
         );
 
+        uint256 depositCoifficient;
+        for (uint i = 0; i < depositCoifficientIndex.length; i++) {
+            if (duration >= depositCoifficientIndex[i]) {
+                depositCoifficient = depositCoifficientSequence[
+                    depositCoifficientIndex[i]
+                ];
+            } else {
+                break;
+            }
+        }
 
+        uint256 veAmount = amount * depositCoifficient;
+        IERCMINTExt20(veTokenAddress).mint(userAddress, veAmount);
 
-        IERCMINTExt20 veToken = IERCMINTExt20(veTokenAddress);
-        veToken.mint(userAddress, amount);
-
-        IERC20Upgradeable veToken = IERC20Upgradeable(veTokenAddress);
         SafeERC20Upgradeable.safeTransferFrom(
-            vetoken,
+            IERC20Upgradeable(veTokenAddress),
             veTokenAddress,
             userAddress,
-            amount
-        )
+            veAmount
+        );
+
+        depositRecords[userAddress].push(
+            depositRecord({
+                startTimestamp: block.timestamp,
+                duration: duration,
+                tokenZOICAmount: amount,
+                veTokenAmount: veAmount
+            })
+        );
+
+        emit DepositZOIC(userAddress, amount, veAmount, duration);
     }
 }
