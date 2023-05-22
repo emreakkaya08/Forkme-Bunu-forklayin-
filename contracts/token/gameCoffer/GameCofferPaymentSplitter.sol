@@ -8,14 +8,13 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "../../core/contract-upgradeable/VersionUpgradeable.sol";
-import "./PaymentSplitterDailyUpgradeable.sol";
+
 
 contract GameCofferPaymentSplitter is
     Initializable,
     AccessControlEnumerableUpgradeable,
     PausableUpgradeable,
     UUPSUpgradeable,
-    PaymentSplitterDailyUpgradeable,
     VersionUpgradeable
 {
     event GameCofficientUpdated(address[] payees, uint256[] shares);
@@ -51,16 +50,16 @@ contract GameCofferPaymentSplitter is
     }
 
     function initialize(
-        address[] memory payees,
-        uint256[] memory shares_,
-        address gameCoffer_,
+        // address[] memory payees,
+        // uint256[] memory shares_,
+        // address gameCoffer_,
         address ballot
     ) public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
         __VersionUpgradeable_init();
-        __PaymentSplitter_init(payees, shares_, gameCoffer_);
+        // __PaymentSplitter_init(payees, shares_, gameCoffer_);
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
@@ -93,12 +92,12 @@ contract GameCofferPaymentSplitter is
         __shares[0] = 1;
         __shares[1] = 1;
 
-        __UpdateGameCofficient(__payees, __shares);
+        // __UpdateGameCofficient(__payees, __shares);
 
         emit GameCofficientUpdated(__payees, __shares);
     }
 
     function releaseZOIC () public whenNotPaused {
-        _releaseZOIC();
+        // _releaseZOIC();
     }
 }
