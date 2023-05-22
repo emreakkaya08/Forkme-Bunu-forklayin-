@@ -159,6 +159,7 @@ contract GainVEToken is
         uint256 amount,
         uint256 duration
     ) public nonReentrant whenNotPaused {
+
         IERC20Upgradeable tokenZOIC = IERC20Upgradeable(tokenZOICAddress);
 
         address userAddress = _msgSender();
@@ -207,4 +208,6 @@ contract GainVEToken is
 
         emit DepositZOIC(userAddress, amount, veAmount, duration);
     }
+
+    
 }

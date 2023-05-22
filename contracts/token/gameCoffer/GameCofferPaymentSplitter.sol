@@ -97,4 +97,8 @@ contract GameCofferPaymentSplitter is
 
         emit GameCofficientUpdated(__payees, __shares);
     }
+
+    function releaseZOIC () public whenNotPaused {
+        _releaseZOIC();
+    }
 }

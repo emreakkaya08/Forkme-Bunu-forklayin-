@@ -11,10 +11,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./GameCoffer.sol";
 
-contract PaymentSplitterDailyUpgradeable is
-    Initializable,
-    ContextUpgradeable
-{
+contract PaymentSplitterDailyUpgradeable is Initializable, ContextUpgradeable {
     event PayeeAdded(address account, uint256 shares);
     event PaymentReleased(address to, uint256 amount);
     event ERC20PaymentReleased(
@@ -24,7 +21,7 @@ contract PaymentSplitterDailyUpgradeable is
     );
     event PaymentReceived(address from, uint256 amount);
 
-address tokenZOIC;
+    address tokenZOIC;
     address gameCoffer;
 
     uint256 private dailyReceived;
@@ -45,7 +42,12 @@ address tokenZOIC;
         address gameCoffer_,
         address tokenZOIC_
     ) internal onlyInitializing {
-        __PaymentSplitter_init_unchained(payees, shares_, gameCoffer_, tokenZOIC_);
+        __PaymentSplitter_init_unchained(
+            payees,
+            shares_,
+            gameCoffer_,
+            tokenZOIC_
+        );
     }
 
     function __PaymentSplitter_init_unchained(
@@ -68,7 +70,6 @@ address tokenZOIC;
         }
         gameCoffer = gameCoffer_;
         tokenZOIC = tokenZOIC_;
-
     }
 
     function __UpdateGameCofficient(
@@ -90,8 +91,7 @@ address tokenZOIC;
         }
     }
 
-    function releaseZOIC() public {
-
+    function _releaseZOIC() internal {
         require(address(tokenZOIC).balance > 0, "PaymentSplitter: no balance");
 
         IERC20Upgradeable token = IERC20Upgradeable(tokenZOIC);
@@ -110,7 +110,6 @@ address tokenZOIC;
             );
             emit PaymentReleased(account, payment);
         }
-        
     }
 
     receive() external payable virtual {
