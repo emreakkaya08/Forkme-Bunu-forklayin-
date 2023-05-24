@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9
+//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
@@ -12,8 +12,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "../../core/contract-upgradeable/VersionUpgradeable.sol";
-
-
 
 contract GameCoffer is
     Initializable,
@@ -57,7 +55,6 @@ contract GameCoffer is
         _disableInitializers();
     }
 
-
     function initialize() public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
@@ -90,5 +87,5 @@ contract GameCoffer is
     ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
         SafeERC20Upgradeable.safeTransfer(token, to, value);
         emit WithdrawERC20(token, to, value);
-    }   
+    }
 }
