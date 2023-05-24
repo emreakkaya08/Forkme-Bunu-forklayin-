@@ -18,4 +18,11 @@ interface ITokenVault {
         address to,
         uint256 value
     ) external;
+    
+    function releaseERC20(
+        IERC20Upgradeable token,
+        address account
+    ) public whenNotPaused {
+        release(token, account);
+    }
 }

@@ -15,7 +15,7 @@ import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 
 
 
-contract GameCoffer is
+contract PlayerCoffer is
     Initializable,
     AccessControlEnumerableUpgradeable,
     ReentrancyGuardUpgradeable,
@@ -57,7 +57,6 @@ contract GameCoffer is
         _disableInitializers();
     }
 
-
     function initialize() public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
@@ -90,5 +89,5 @@ contract GameCoffer is
     ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
         SafeERC20Upgradeable.safeTransfer(token, to, value);
         emit WithdrawERC20(token, to, value);
-    }   
+    }
 }
