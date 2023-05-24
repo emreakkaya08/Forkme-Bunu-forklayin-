@@ -19,7 +19,6 @@ contract TokenZOIC is
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -38,7 +37,7 @@ contract TokenZOIC is
         _disableInitializers();
     }
 
-    function initialize() public /* address _zoicCoffer */ initializer {
+    function initialize(address _zoicCoffer) public initializer {
         __ERC20_init("TokenZOIC", "ZOIC");
         __AccessControlEnumerable_init();
         __ERC20Burnable_init();
@@ -49,8 +48,7 @@ contract TokenZOIC is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-        _grantRole(MINTER_ROLE, msg.sender);
-        // _mint(_zoicCoffer, 204800000 * 10 ** decimals());
+        _mint(_zoicCoffer, 204800000 * 10 ** decimals());
     }
 
     function _beforeTokenTransfer(
@@ -64,11 +62,4 @@ contract TokenZOIC is
     function _authorizeUpgrade(
         address newImplementation
     ) internal override onlyRole(UPGRADER_ROLE) {}
-
-    function mint(
-        address to,
-        uint256 amount
-    ) public onlyRole(MINTER_ROLE) whenNotPaused {
-        _mint(to, amount);
-    }
 }
