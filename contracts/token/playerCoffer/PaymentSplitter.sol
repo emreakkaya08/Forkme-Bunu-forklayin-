@@ -182,4 +182,9 @@ VersionUpgradeable
         emit WithDrawZOIC(msg.sender, amount);
         
     }
+
+    function getZOICAward() public view returns (uint256) {
+        require(!blockedList[msg.sender], "You are blocked");
+        return playerAwarded[msg.sender];
+    }
 }

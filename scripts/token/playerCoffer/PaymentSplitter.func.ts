@@ -10,7 +10,6 @@ async function getContract(name: string, address: ContractDeployAddress) {
 
 async function paymentSplitter() {
     
-    
     const paymentSplitter = await getContract(
         'PaymentSplitter',
         ContractDeployAddress.PaymentSplitter
@@ -27,12 +26,24 @@ async function paymentSplitter() {
     const receipt = await tx.wait();
     console.log(receipt);
     
-    
     const split = await paymentSplitter.paymentSplitter();
     
     const reward = await paymentSplitter.getPlayerAwarded();
     console.log('reward', reward.toString());
     
+}
+
+async function getZOICAward() {
+    
+    const paymentSplitter = await getContract(
+        'PaymentSplitter',
+        ContractDeployAddress.PaymentSplitter
+    );
+    
+    const [owned] = await ethers.getSigners();
+    
+    const award = await paymentSplitter.getZOICAward();
+    console.log('award', award.toString());
 }
 
 async function releaseZOIC() {
@@ -55,6 +66,7 @@ async function releaseZOIC() {
 
 async function main() {
     await paymentSplitter();
+    await getZOICAward();
     await releaseZOIC();
 }
 
