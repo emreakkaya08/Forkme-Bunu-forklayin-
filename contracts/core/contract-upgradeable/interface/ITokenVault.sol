@@ -10,9 +10,9 @@ interface ITokenVault {
         address indexed to,
         uint256 amount
     );
-
+    
     function withdraw(address payable to, uint256 amount) external;
-
+    
     function withdrawERC20(
         IERC20Upgradeable token,
         address to,
@@ -22,7 +22,5 @@ interface ITokenVault {
     function releaseERC20(
         IERC20Upgradeable token,
         address account
-    ) public whenNotPaused {
-        release(token, account);
-    }
+    ) external;
 }

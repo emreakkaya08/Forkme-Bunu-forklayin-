@@ -14,3 +14,7 @@ ethereum-abi-types
 
 # IDEA
 .idea
+
+# MacOS
+*.DS_Store
+.DS_Store

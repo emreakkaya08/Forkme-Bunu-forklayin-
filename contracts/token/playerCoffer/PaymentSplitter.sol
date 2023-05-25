@@ -107,7 +107,10 @@ VersionUpgradeable
     function _getPlayerPoof(address player) internal returns (uint256 poof){
         
         // get player poof from another contract;
-        emit NewestPlayerPoof(players, poofs);
+        // emit NewestPlayerPoof(players, poofs);
+        
+        
+        player;
         poof = 100;
         
     }
@@ -119,6 +122,8 @@ VersionUpgradeable
         
         players[0] = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
         players[1] = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+        
+        game;
         
     }
     
@@ -140,14 +145,12 @@ VersionUpgradeable
             }
         }
         
-        mapping(address => uint256) memory gameAwarded;
         for (uint256 i = 0; i < games.length; i++) {
             
             uint256 amount = SafeMathUpgradeable.div(SafeMathUpgradeable.mul(1000000000000000000, coefficients[i]), totalCoefficient);
-            gameAwarded[games[i]] = amount;
             emit TransferZOICToGame(games[i], coefficients[i], amount);
             
-            address[] players = _getGamePlayers(games[i]);
+            address[] memory players = _getGamePlayers(games[i]);
             
             for (uint256 j = 0; j < players.length; j++) {
                 
