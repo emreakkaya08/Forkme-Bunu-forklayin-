@@ -1,0 +1,13 @@
+{
+    "entryPoint": "DbgEntry",
+    "solc": "0.8.20",
+    "sourceDirs": [
+        "."
+    ],
+    "breakOnEntry": false,
+    "fork": {
+        "enable": false,
+        "url": "",
+        "blockNumber": 0
+    }
+}
