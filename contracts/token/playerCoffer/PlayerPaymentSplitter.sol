@@ -13,8 +13,9 @@ import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "../../core/contract-upgradeable/interface/ITokenVault.sol";
 import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "../tokenCoffer/TokenCofferPaymentSplitter.sol";
 
-contract PaymentSplitter is
+contract PlayerPaymentSplitter is
 Initializable,
 AccessControlEnumerableUpgradeable,
 PausableUpgradeable,
@@ -35,8 +36,8 @@ VersionUpgradeable
     event NewestPlayerPoof(address[] players, uint256[] poofs);
     event WithDrawZOIC(address indexed player, uint256 amount);
     
-    ERC20Upgradeable public ZOIC;
-    ITokenVault public tokenVault;
+    IERC20Upgradeable public tokenZOIC;
+    TokenCofferPaymentSplitter public tokenCofferPaymentSplitter;
     address public playerCoffer;
     
     mapping(address => uint256) public playerAwarded;
@@ -70,14 +71,15 @@ VersionUpgradeable
         _disableInitializers();
     }
     
-    function initialize(address token, address tokenCoffer) public initializer {
+    function initialize(address token, address payable _tokenCofferPaymentSplitter) public initializer {
+        
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
         __VersionUpgradeable_init();
         
-        ZOIC = ERC20Upgradeable(token);
-        tokenVault = ITokenVault(tokenCoffer);
+        tokenZOIC = IERC20Upgradeable(token);
+        tokenCofferPaymentSplitter = TokenCofferPaymentSplitter(_tokenCofferPaymentSplitter);
         
         // paymentSplitter_init(payees, shares_);
         
@@ -86,6 +88,7 @@ VersionUpgradeable
         _grantRole(UPGRADER_ROLE, msg.sender);
         _grantRole(BALLOT_ROLE, msg.sender);
         _grantRole(SPONSOR_ROLE, msg.sender);
+        
     }
     
     function _getGameCoefficient() internal returns (address[] memory games, uint256[] memory coefficients){
@@ -94,7 +97,7 @@ VersionUpgradeable
         games = new address[](2);
         coefficients = new uint256[](2);
         
-        games[0] = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+        games[0] = 0x8e675b3B721af441E908aB2597C1BC283A0D1C4d;
         games[1] = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
         
         coefficients[0] = 50;
@@ -109,7 +112,6 @@ VersionUpgradeable
         // get player poof from another contract;
         // emit NewestPlayerPoof(players, poofs);
         
-        
         player;
         poof = 100;
         
@@ -120,7 +122,7 @@ VersionUpgradeable
         // get game players from another contract;
         players = new address[](2);
         
-        players[0] = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+        players[0] = 0x8e675b3B721af441E908aB2597C1BC283A0D1C4d;
         players[1] = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
         
         game;
@@ -129,7 +131,7 @@ VersionUpgradeable
     
     function paymentSplit() public onlyRole(UPGRADER_ROLE) {
         
-        tokenVault.releaseERC20(ZOIC, playerCoffer);
+        tokenCofferPaymentSplitter.releaseERC20(tokenZOIC, playerCoffer);
         
         address[] memory games;
         uint256[] memory coefficients;
@@ -138,9 +140,9 @@ VersionUpgradeable
         
         uint256 totalCoefficient;
         for (uint256 i = 0; i < coefficients.length; i++) {
-            bool succ;
-            (succ, totalCoefficient) = SafeMathUpgradeable.tryAdd(totalCoefficient, coefficients[i]);
-            if (!succ) {
+            bool success;
+            (success, totalCoefficient) = SafeMathUpgradeable.tryAdd(totalCoefficient, coefficients[i]);
+            if (!success) {
                 revert("Invalid game coefficient");
             }
         }
@@ -170,21 +172,22 @@ VersionUpgradeable
     function releaseZOIC() public whenNotPaused {
         
         uint256 amount = playerAwarded[msg.sender];
-        require(amount > 0, "No ZOIC to withdraw");
+        require(amount > 0, "No ZOIC");
         
         uint256 releasable = SafeMathUpgradeable.sub(playerAwarded[msg.sender], playerWithdrawn[msg.sender]);
         require(releasable > 0, "No ZOIC to withdraw");
         
         playerWithdrawn[msg.sender] = SafeMathUpgradeable.add(playerWithdrawn[msg.sender], releasable);
         
-        ITokenVault(playerCoffer).withdrawERC20(ZOIC, msg.sender, releasable);
+        ITokenVault(playerCoffer).withdrawERC20(tokenZOIC, msg.sender, releasable);
         
         emit WithDrawZOIC(msg.sender, amount);
         
     }
-
+    
     function getZOICAward() public view returns (uint256) {
         require(!blockedList[msg.sender], "You are blocked");
         return playerAwarded[msg.sender];
     }
+    
 }
