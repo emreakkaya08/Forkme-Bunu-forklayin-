@@ -24,8 +24,22 @@ async function addExchangeRate() {
   console.log(`TokenDeposit add addExchangeRate usdt ${rate}`, 'done!');
 }
 
+// async function grantRole() {
+//   const contract = await getContract();
+
+//   //grant minter role to default caller
+//   const tx = await contract.grantRole(
+//     ethers.utils.id('ADMIN'),
+//     '0xbaeFe32bc1636a90425AcBCC8cfAD1b0507eCdE1'
+//   );
+//   const receipt = await tx.wait();
+//   console.log(receipt);
+//   console.log('DepositToken get role of Mint X', 'done!');
+// }
+
 async function main() {
   await addExchangeRate();
+  // await grantRole();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

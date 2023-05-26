@@ -4,8 +4,6 @@
 
 ### 0.1.0
 
-#### 0.1.0.20230331.1
-
 1. Project initialized
 
 #### 0.1.0.20230410.1
@@ -36,3 +34,15 @@
 2. add VestingByTimeWallet
 3. add TokenCofferPaymentSplitter
 4. rename StableTokenX to TokenCENO
+
+#### 0.1.0.20230425.1
+
+1. remove XToken and YToken test contract
+
+#### 0.1.0.20230426.1
+
+1. remove XYSwap contract
+
+#### 0.1.0.20230426.2
+
+1. update TokenRedeem logic

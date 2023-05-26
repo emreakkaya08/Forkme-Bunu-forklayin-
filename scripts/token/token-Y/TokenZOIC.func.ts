@@ -3,30 +3,42 @@ import { ContractDeployAddress } from '../../consts/deploy.address.const';
 
 async function getContract() {
   const contract = await ethers.getContractAt(
-    'XToken',
-    ContractDeployAddress.XToken
+    'TokenCoffer',
+    ContractDeployAddress.ZOICTokenCoffer
   );
   const [owner] = await ethers.getSigners();
 
   return contract.connect(owner);
 }
 
-async function grantRole() {
+async function withdraw() {
   const contract = await getContract();
 
+  const [owned] = await ethers.getSigners();
   //grant minter role to default caller
   const tx = await contract.grantRole(
-    ethers.utils.id('X_ADMIN_ROLE'),
-    ContractDeployAddress.TokenDeposit
+    ethers.utils.id('WITHDRAW'),
+    owned.address
   );
   const receipt = await tx.wait();
-  console.log(receipt);
-  console.log('DepositToken get role of Mint X', 'done!');
+
+  const txWithdraw = await contract
+    .connect(owned)
+    .withdrawERC20(
+      ContractDeployAddress.TokenZOIC,
+      '0xfcCCE324CA463aD8C2946A8aC7ADE24231FB819D',
+      ethers.utils.parseEther('1000')
+    );
+
+  const receiptWithdraw = await txWithdraw.wait();
+
+  console.log('transfer:', receiptWithdraw);
+
+  console.log('withdraw done');
 }
 
 async function main() {
-  // console.log('contractAddress', ContractDeployAddress);
-  await grantRole();
+  // await withdraw();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

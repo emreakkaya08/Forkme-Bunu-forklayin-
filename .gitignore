@@ -11,3 +11,6 @@ artifacts
 abi
 ethereum-abi-types
 .openzeppelin
+
+# IDEA
+.idea

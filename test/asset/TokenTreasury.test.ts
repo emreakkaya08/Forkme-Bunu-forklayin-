@@ -110,4 +110,44 @@ describe('TokenTreasury', async () => {
       ethers.utils.parseEther('0')
     );
   });
+
+  it('TokenTreasury Approve', async () => {
+    const [owner, addr1, addr2] = await ethers.getSigners();
+
+    const USDTContract = await ethers.getContractFactory('XYGameUSDT');
+    const usdt = await upgrades.deployProxy(USDTContract, []);
+    await usdt.deployed();
+
+    const usdtAmount = ethers.utils.parseEther('100');
+    await usdt.mint(contract.address, usdtAmount);
+
+    expect(await usdt.balanceOf(contract.address)).to.equal(usdtAmount);
+
+    await expect(
+      usdt.transferFrom(contract.address, addr1.address, usdtAmount)
+    ).to.be.revertedWith('ERC20: insufficient allowance');
+
+    await contract
+      .connect(owner)
+      .grantRole(ethers.utils.id('APPROVE_ERC20'), addr1.address);
+    await contract
+      .connect(addr1)
+      .approve(usdt.address, addr1.address, usdtAmount);
+    const amountAllowance = await usdt.allowance(
+      contract.address,
+      addr1.address
+    );
+    expect(amountAllowance).to.equal(usdtAmount);
+
+    const transferAmount = ethers.utils.parseEther('10');
+
+    await usdt
+      .connect(addr1)
+      .transferFrom(contract.address, addr1.address, transferAmount);
+
+    expect(await usdt.balanceOf(addr1.address)).to.equal(transferAmount);
+    expect(await usdt.balanceOf(contract.address)).to.equal(
+      usdtAmount.sub(transferAmount)
+    );
+  });
 });

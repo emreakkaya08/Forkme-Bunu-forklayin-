@@ -5,15 +5,16 @@ export type ContractDeployAddress = string | null;
 
 interface ContractDeployAddressInterface {
   Greeter?: ContractDeployAddress;
-  XToken?: ContractDeployAddress;
-  YToken?: ContractDeployAddress;
+
+  USDT?: ContractDeployAddress;
+
   XYGameUSDT?: ContractDeployAddress;
   USDTFaucet?: ContractDeployAddress;
   TokenCENO?: ContractDeployAddress;
   TokenZOIC?: ContractDeployAddress;
   TokenDeposit?: ContractDeployAddress;
   TokenTreasury?: ContractDeployAddress;
-  RedeemU?: ContractDeployAddress;
+  TokenRedeem?: ContractDeployAddress;
 
   ZOICTokenCoffer?: ContractDeployAddress;
   GameTokenCoffer?: ContractDeployAddress;
@@ -26,15 +27,16 @@ interface ContractDeployAddressInterface {
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   Greeter: null,
+
+  USDT: null,
+
   XYGameUSDT: '0xf3e54ed5E6BAFd203bCc4316663bAe0Bf0100811',
   USDTFaucet: '0x861eC40cF915A2036617272a81ed16b339952E51',
-  XToken: '0x9389023C56ed52f0Da18571500149d50430e7a1A',
-  YToken: '0xa5bb1f61C8CFc133Bea27127565eB21B2C458CC3',
-  TokenCENO: '0x858Bd29D36b5B62637963101258068892DDF49A7',
-  TokenZOIC: '0x7eC668de7E159564FA61B33617eD42a4522a6b86',
-  TokenDeposit: '0xC077028f5396bd89f5FA1eB36772809974A51F10',
+  TokenCENO: '0xd7dA0eb37ac4AFBa74ce8DEBB03A8caa09177378',
+  TokenZOIC: '0x5268edFd4fEc755D283779e4994B05003A44D0D2',
+  TokenDeposit: '0x2a2370af0E7928Ac6D8f03fF9EDc150d02c6D2Be',
   TokenTreasury: '0xCA7BE8Ad675e77B8edF0D40ceE28bB4d3dC93E38',
-  RedeemU: '0x7E23018E7a6142e526b574A55261c0c43a48CaC1',
+  TokenRedeem: '0x8db571e987be7A27C407f231E8f3B91E44A731e0',
 
   ZOICTokenCoffer: '0x199D69090b609175770920cEb056c65822F71529',
   GameTokenCoffer: '0xc64c53Bc7047e3caE33F1b175e6261754F96e5F3',
