@@ -131,7 +131,7 @@ VersionUpgradeable
     
     function paymentSplit() public onlyRole(UPGRADER_ROLE) {
         
-        tokenCofferPaymentSplitter.releaseERC20(tokenZOIC, playerCoffer);
+//        tokenCofferPaymentSplitter.releaseERC20(tokenZOIC, playerCoffer);
         
         address[] memory games;
         uint256[] memory coefficients;
@@ -167,6 +167,8 @@ VersionUpgradeable
             
         }
         
+        
+//        gamecoffer.releaseERC20(tokenZOIC, playerCoffer);
     }
     
     function releaseZOIC() public whenNotPaused {
@@ -186,8 +188,11 @@ VersionUpgradeable
     }
     
     function getZOICAward() public view returns (uint256) {
+        
         require(!blockedList[msg.sender], "You are blocked");
+        
         return playerAwarded[msg.sender];
+        
     }
     
 }

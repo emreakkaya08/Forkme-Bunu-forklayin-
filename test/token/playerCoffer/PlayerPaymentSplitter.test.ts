@@ -10,13 +10,20 @@ describe('PlayerPaymentSplitter', async () => {
     let playerCoffer: Contract;
     let cenoToken: Contract;
     let playerPaymentSplitterContract: Contract;
+    let tokenZoicCoffer: Contract;
     
     beforeEach(async () => {
         
+        const ZOICTokenCoffer = await ethers.getContractFactory('TokenCoffer');
+        tokenZoicCoffer = await upgrades.deployProxy(ZOICTokenCoffer, []);
+        await tokenZoicCoffer.deployed();
+        
         const TokenZOICContract = await ethers.getContractFactory('TokenZOIC');
-        zoicToken = await upgrades.deployProxy(TokenZOICContract, []);
+        zoicToken = await upgrades.deployProxy(TokenZOICContract, [
+            playerPaymentSplitterContract.address,
+        ]);
         await zoicToken.deployed();
-        console.log('TokenZOIC deployed to:', zoicToken.address);
+        console.log('TokenZOIC balanceOf:', await zoicToken.balanceOf( playerPaymentSplitterContract.address));
         
         const PlayerCofferContract = await ethers.getContractFactory('TokenCoffer');
         playerCoffer = await upgrades.deployProxy(PlayerCofferContract, []);
@@ -49,30 +56,21 @@ describe('PlayerPaymentSplitter', async () => {
         
     });
     
-    it('TokenZOIC Test', async () => {
-        expect(zoicToken).to.be.instanceOf(Contract);
-    });
     
-    it('PlayerCoffer Test', async () => {
-        expect(playerCoffer).to.be.instanceOf(Contract);
-    });
-    
-    it('PaymentSplitter Test', async () => {
-        expect(tokenCofferPaymentSplitterContract).to.be.instanceOf(Contract);
-    });
-    
-    it('PaymentSplitter: paymentSplit test', async () => {
+    it('PlayerPaymentSplitter: paymentSplit test', async () => {
         
         const [owner] = await ethers.getSigners();
-        await tokenCofferPaymentSplitterContract.connect(owner).paymentSplit();
-        expect(await tokenCofferPaymentSplitterContract.getZOICAward().to.equal(ethers.utils.parseEther('100')));
+        console.log('playerCoffer balanceOf:', await zoicToken.balanceOf(playerCoffer.address));
+        await playerPaymentSplitterContract.connect(owner).paymentSplit();
+        console.log('playerCoffer balanceOf:', await zoicToken.balanceOf(playerCoffer.address));
+        expect(await playerPaymentSplitterContract.getZOICAward()).to.equal(ethers.utils.parseEther('100'));
         
     });
     
-    it('PaymentSplitter: releaseZOIC test', async () => {
+    it('PlayerPaymentSplitter: releaseZOIC test', async () => {
         
         const [owner] = await ethers.getSigners();
-        await tokenCofferPaymentSplitterContract.releaseZOIC();
+        await playerPaymentSplitterContract.releaseZOIC();
         expect(await zoicToken.balanceOf(playerCoffer.address)).to.equal(ethers.utils.parseEther('100'));
         
     });
