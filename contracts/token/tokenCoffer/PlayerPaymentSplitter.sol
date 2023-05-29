@@ -14,6 +14,7 @@ import "../../core/contract-upgradeable/interface/ITokenVault.sol";
 import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "../tokenCoffer/TokenCofferPaymentSplitter.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 contract PlayerPaymentSplitter is
 Initializable,
@@ -37,8 +38,7 @@ VersionUpgradeable
     event WithDrawZOIC(address indexed player, uint256 amount);
     
     IERC20Upgradeable public tokenZOIC;
-    TokenCofferPaymentSplitter public tokenCofferPaymentSplitter;
-    address public playerCoffer;
+    address public gamePool;
     
     mapping(address => uint256) public playerAwarded;
     mapping(address => uint256) public playerWithdrawn;
@@ -71,7 +71,7 @@ VersionUpgradeable
         _disableInitializers();
     }
     
-    function initialize(address token, address payable _tokenCofferPaymentSplitter) public initializer {
+    function initialize(address token, address _gamePool) public initializer {
         
         __AccessControlEnumerable_init();
         __Pausable_init();
@@ -79,9 +79,7 @@ VersionUpgradeable
         __VersionUpgradeable_init();
         
         tokenZOIC = IERC20Upgradeable(token);
-        tokenCofferPaymentSplitter = TokenCofferPaymentSplitter(_tokenCofferPaymentSplitter);
-        
-        // paymentSplitter_init(payees, shares_);
+        gamePool = _gamePool;
         
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
@@ -131,7 +129,9 @@ VersionUpgradeable
     
     function paymentSplit() public onlyRole(UPGRADER_ROLE) {
         
-//        tokenCofferPaymentSplitter.releaseERC20(tokenZOIC, playerCoffer);
+        // releasable amount of tokenZOIC
+        // refreshes every cycle
+        uint256 value = tokenZOIC.balanceOf(address(this));
         
         address[] memory games;
         uint256[] memory coefficients;
@@ -140,35 +140,36 @@ VersionUpgradeable
         
         uint256 totalCoefficient;
         for (uint256 i = 0; i < coefficients.length; i++) {
+            
             bool success;
             (success, totalCoefficient) = SafeMathUpgradeable.tryAdd(totalCoefficient, coefficients[i]);
             if (!success) {
                 revert("Invalid game coefficient");
             }
+            
         }
         
         for (uint256 i = 0; i < games.length; i++) {
             
-            uint256 amount = SafeMathUpgradeable.div(SafeMathUpgradeable.mul(1000000000000000000, coefficients[i]), totalCoefficient);
-            emit TransferZOICToGame(games[i], coefficients[i], amount);
+            uint256 coefficient = SafeMathUpgradeable.div(coefficients[i], totalCoefficient);
+            
+            uint256 gameAward = SafeMathUpgradeable.mul(value, coefficient);
+            emit TransferZOICToGame(games[i], coefficient, gameAward);
             
             address[] memory players = _getGamePlayers(games[i]);
-            
             for (uint256 j = 0; j < players.length; j++) {
                 
                 uint256 poof;
                 poof = _getPlayerPoof(players[j]);
-                uint256 reward = SafeMathUpgradeable.mul(amount, poof);
+                uint256 playerAward = SafeMathUpgradeable.mul(gameAward, poof);
                 
-                playerAwarded[players[j]] = SafeMathUpgradeable.add(playerAwarded[players[j]], reward);
-                emit TransferZOICToPlayer(players[j], poof, reward);
+                playerAwarded[players[j]] = SafeMathUpgradeable.add(playerAwarded[players[j]], playerAward);
+                emit TransferZOICToPlayer(players[j], poof, playerAward);
                 
             }
             
         }
         
-        
-//        gamecoffer.releaseERC20(tokenZOIC, playerCoffer);
     }
     
     function releaseZOIC() public whenNotPaused {
@@ -181,7 +182,7 @@ VersionUpgradeable
         
         playerWithdrawn[msg.sender] = SafeMathUpgradeable.add(playerWithdrawn[msg.sender], releasable);
         
-        ITokenVault(playerCoffer).withdrawERC20(tokenZOIC, msg.sender, releasable);
+        ITokenVault(gamePool).withdrawERC20(tokenZOIC, msg.sender, releasable);
         
         emit WithDrawZOIC(msg.sender, amount);
         
