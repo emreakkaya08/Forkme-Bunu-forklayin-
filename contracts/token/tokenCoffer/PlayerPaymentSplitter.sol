@@ -97,7 +97,7 @@ VersionUpgradeable
         games[0] = 0x8e675b3B721af441E908aB2597C1BC283A0D1C4d;
         
         uint256[] memory coefficients = new uint256[](1);
-        coefficients.push(50);
+        coefficients[0] = 50;
         
         uint256 totalCoefficient = 100;
         
@@ -125,7 +125,7 @@ VersionUpgradeable
         
         // releasable amount of tokenZOIC
         // refreshes every cycle
-        uint256 value = tokenZOIC.balanceOf(address(this));
+        uint256 value = tokenZOIC.balanceOf(gamePool);
         
         (address[] memory games, uint256[] memory coefficients, uint256 totalCoefficient) = _getGameCoefficient();
         require(games.length == coefficients.length, "Invalid game coefficient");
