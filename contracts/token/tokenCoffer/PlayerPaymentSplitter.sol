@@ -89,41 +89,35 @@ VersionUpgradeable
         
     }
     
-    function _getGameCoefficient() internal returns (address[] memory games, uint256[] memory coefficients){
+    function _getGameCoefficient() internal returns (address[] memory, uint256[] memory, uint256){
         
         // get new game coefficient from ballot;
-        games = new address[](2);
-        coefficients = new uint256[](2);
         
+        address[] memory games = new address[](1);
         games[0] = 0x8e675b3B721af441E908aB2597C1BC283A0D1C4d;
-        games[1] = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
         
-        coefficients[0] = 50;
-        coefficients[1] = 50;
+        uint256[] memory coefficients = new uint256[](1);
+        coefficients.push(50);
         
-        emit NewestGameCoefficient(games, coefficients);
+        uint256 totalCoefficient = 100;
+        
+        return (games, coefficients, totalCoefficient);
         
     }
     
-    function _getPlayerPoof(address player) internal returns (uint256 poof){
+    function _getPlayerPoof(address game) internal returns (address[] memory, uint256[] memory, uint256){
         
         // get player poof from another contract;
-        // emit NewestPlayerPoof(players, poofs);
         
-        player;
-        poof = 100;
-        
-    }
-    
-    function _getGamePlayers(address game) internal returns (address[] memory players){
-        
-        // get game players from another contract;
-        players = new address[](2);
-        
+        address[] memory players = new address[](1);
         players[0] = 0x8e675b3B721af441E908aB2597C1BC283A0D1C4d;
-        players[1] = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
         
-        game;
+        uint256[] memory poofs = new uint256[](1);
+        poofs[0] = 50;
+        
+        uint256 totalPoof = 100;
+        
+        return (players, poofs, totalPoof);
         
     }
     
@@ -133,38 +127,26 @@ VersionUpgradeable
         // refreshes every cycle
         uint256 value = tokenZOIC.balanceOf(address(this));
         
-        address[] memory games;
-        uint256[] memory coefficients;
-        (games, coefficients) = _getGameCoefficient();
+        (address[] memory games, uint256[] memory coefficients, uint256 totalCoefficient) = _getGameCoefficient();
         require(games.length == coefficients.length, "Invalid game coefficient");
-        
-        uint256 totalCoefficient;
-        for (uint256 i = 0; i < coefficients.length; i++) {
-            
-            bool success;
-            (success, totalCoefficient) = SafeMathUpgradeable.tryAdd(totalCoefficient, coefficients[i]);
-            if (!success) {
-                revert("Invalid game coefficient");
-            }
-            
-        }
         
         for (uint256 i = 0; i < games.length; i++) {
             
-            uint256 coefficient = SafeMathUpgradeable.div(coefficients[i], totalCoefficient);
+            // keep two decimal places
+            uint256 coefficientWithScale = SafeMathUpgradeable.div(SafeMathUpgradeable.mul(coefficients[i], 10000), totalCoefficient);
             
-            uint256 gameAward = SafeMathUpgradeable.mul(value, coefficient);
-            emit TransferZOICToGame(games[i], coefficient, gameAward);
+            uint256 gameAward = SafeMathUpgradeable.div(SafeMathUpgradeable.mul(value, coefficientWithScale), 10000);
+            emit TransferZOICToGame(games[i], coefficientWithScale, gameAward);
             
-            address[] memory players = _getGamePlayers(games[i]);
+            (address[] memory players, uint256[] memory poofs, uint256 totalPoof) = _getPlayerPoof(games[i]);
             for (uint256 j = 0; j < players.length; j++) {
                 
-                uint256 poof;
-                poof = _getPlayerPoof(players[j]);
-                uint256 playerAward = SafeMathUpgradeable.mul(gameAward, poof);
+                // keep two decimal places
+                uint256 poofWithScale = SafeMathUpgradeable.div(SafeMathUpgradeable.mul(poofs[j], 10000), totalPoof);
+                uint256 playerAward = SafeMathUpgradeable.div(SafeMathUpgradeable.mul(gameAward, poofWithScale), 10000);
                 
                 playerAwarded[players[j]] = SafeMathUpgradeable.add(playerAwarded[players[j]], playerAward);
-                emit TransferZOICToPlayer(players[j], poof, playerAward);
+                emit TransferZOICToPlayer(players[j], poofWithScale, playerAward);
                 
             }
             

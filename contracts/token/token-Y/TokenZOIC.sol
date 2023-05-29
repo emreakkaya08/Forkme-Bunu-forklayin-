@@ -65,11 +65,4 @@ VersionUpgradeable
         address newImplementation
     ) internal override onlyRole(UPGRADER_ROLE) {}
     
-    function mint(
-        address to,
-        uint256 amount
-    ) public onlyRole(MINTER_ROLE) whenNotPaused {
-        _mint(to, amount);
-    }
-    
 }
