@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
 
 contract TokenTreasury is
@@ -22,7 +23,7 @@ contract TokenTreasury is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
-    bytes32 public constant APPROVE_ERC20 = keccak256("APPROVE_ERC20");
+    bytes32 public constant WITHDRAW_ERC20 = keccak256("WITHDRAW_ERC20");
 
     event TokenReceived(address from, uint256 amount);
     event Withdraw(address to, uint256 amount);
@@ -31,6 +32,9 @@ contract TokenTreasury is
         address indexed to,
         uint256 amount
     );
+
+    //nonces for address
+    mapping(address => uint256) public nonces;
 
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -69,28 +73,68 @@ contract TokenTreasury is
         emit TokenReceived(_msgSender(), msg.value);
     }
 
-    function withdraw(
+    function getNonce() public view returns (uint256) {
+        return nonces[_msgSender()];
+    }
+
+    function recoverSigner(
+        bytes32 hash,
+        bytes memory signature
+    ) public pure returns (address) {
+        bytes32 ethSign = ECDSAUpgradeable.toEthSignedMessageHash(hash);
+        return ECDSAUpgradeable.recover(ethSign, signature);
+    }
+
+    function _checkWithdrawRoleWithSignature(
+        address to,
+        uint256 amount,
+        bytes memory signature,
+        bytes32 role
+    ) internal {
+        uint256 nonce = nonces[to];
+        nonces[to] = nonce + 1;
+        address signer = recoverSigner(
+            keccak256(abi.encodePacked(to, amount, nonce)),
+            signature
+        );
+        _checkRole(role, signer);
+    }
+
+    function _withdraw(
         address payable to,
         uint256 amount
-    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
+    ) internal whenNotPaused {
         AddressUpgradeable.sendValue(to, amount);
         emit Withdraw(to, amount);
     }
 
-    function withdrawERC20(
+    function _withdrawERC20(
         IERC20Upgradeable token,
         address to,
         uint256 value
-    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
+    ) internal whenNotPaused {
         SafeERC20Upgradeable.safeTransfer(token, to, value);
         emit WithdrawERC20(token, to, value);
     }
 
-    function approve(
+    function withdrawWithSignature(
+        uint256 amount,
+        bytes memory signature
+    ) public whenNotPaused nonReentrant {
+        address _to = _msgSender();
+        _checkWithdrawRoleWithSignature(_to, amount, signature, WITHDRAW);
+        _withdraw(payable(_to), amount);
+    }
+
+    function withdrawERC20WithSignature(
         IERC20Upgradeable token,
-        address spender,
-        uint256 amount
-    ) external whenNotPaused onlyRole(APPROVE_ERC20) returns (bool) {
-        return token.approve(spender, amount);
+        uint256 value,
+        bytes memory signature
+    ) public whenNotPaused nonReentrant {
+        address _to = _msgSender();
+
+        _checkWithdrawRoleWithSignature(_to, value, signature, WITHDRAW_ERC20);
+
+        _withdrawERC20(token, _to, value);
     }
 }
