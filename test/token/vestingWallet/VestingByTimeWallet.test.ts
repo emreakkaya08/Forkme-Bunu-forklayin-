@@ -80,7 +80,7 @@ describe('VestingByTimeWallet', async () => {
         startTimestamp,
         duringTimestamp
       )
-    ).to.be.revertedWith('Panic');
+    ).to.be.revertedWithPanic('0x11');
   });
 
   it('compute vesting tokens at startTime', async () => {

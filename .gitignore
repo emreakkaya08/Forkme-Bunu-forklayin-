@@ -1,16 +1,37 @@
+# Build and Release Folders
+bin-debug/
+bin-release/
+[Oo]bj/
+[Bb]in/
+
+# Other files and folders
+.settings/
+
+# Executables
+*.swf
+*.air
+*.ipa
+*.apk
+
+
 node_modules
 .env
 coverage
 coverage.json
 typechain
+typechain-types
 
 #Hardhat files
 cache
 artifacts
+
 #export files
 abi
 ethereum-abi-types
-.openzeppelin
+# OpenZeppelin
+.openzeppelin/unknown-*.json
 
 # IDEA
 .idea
+
+.DS_Store
