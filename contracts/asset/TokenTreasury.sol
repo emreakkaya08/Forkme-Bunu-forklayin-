@@ -11,6 +11,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 import "../core/contract-upgradeable/VersionUpgradeable.sol";
+import "../core/contract-upgradeable/interface/ITokenVault.sol";
 
 contract TokenTreasury is
     Initializable,
@@ -18,7 +19,8 @@ contract TokenTreasury is
     PausableUpgradeable,
     UUPSUpgradeable,
     ReentrancyGuardUpgradeable,
-    VersionUpgradeable
+    VersionUpgradeable,
+    ITokenVault
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
@@ -26,12 +28,6 @@ contract TokenTreasury is
     bytes32 public constant WITHDRAW_ERC20 = keccak256("WITHDRAW_ERC20");
 
     event TokenReceived(address from, uint256 amount);
-    event Withdraw(address to, uint256 amount);
-    event WithdrawERC20(
-        IERC20Upgradeable indexed token,
-        address indexed to,
-        uint256 amount
-    );
 
     //nonces for address
     mapping(address => uint256) public nonces;
@@ -136,5 +132,21 @@ contract TokenTreasury is
         _checkWithdrawRoleWithSignature(_to, value, signature, WITHDRAW_ERC20);
 
         _withdrawERC20(token, _to, value);
+    }
+
+    function withdraw(
+        address payable to,
+        uint256 amount
+    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
+        _checkRole(WITHDRAW, _msgSender());
+        _withdraw(to, amount);
+    }
+
+    function withdrawERC20(
+        IERC20Upgradeable token,
+        address to,
+        uint256 value
+    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW_ERC20) {
+        _withdrawERC20(token, to, value);
     }
 }

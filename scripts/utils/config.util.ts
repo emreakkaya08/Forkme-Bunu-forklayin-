@@ -56,8 +56,8 @@ function getRuntimeConfigETHTestNet(): RuntimeConfig {
   return {
     network: 'eth_testnet',
     // network: 'bsc_testnet',
-    // upgradeDefenderMultiSigAddress:
-    //   process.env.BSC_TESTNET_DEPLOYER_UPGRADE_MULTISIG_ADDRESS,
+    upgradeDefenderMultiSigAddress:
+      process.env.ETH_TESTNET_DEPLOYER_UPGRADE_MULTISIG_ADDRESS,
   };
 }
 

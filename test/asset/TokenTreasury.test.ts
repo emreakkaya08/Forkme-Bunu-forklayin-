@@ -61,7 +61,7 @@ describe('TokenTreasury', async () => {
     );
   });
 
-  it('TokenTreasury USDT withdraw test', async () => {
+  it('TokenTreasury eth withdraw test', async () => {
     const total = ethers.utils.parseEther('10');
     const transferETH = {
       to: contract.address,
@@ -113,7 +113,7 @@ describe('TokenTreasury', async () => {
     expect(addr1BalanceAfter).to.lt(amount.add(addr1BalanceBefore));
   });
 
-  it('TokenTreasury USDT transfer test', async () => {
+  it('TokenTreasury USDT withdraw test', async () => {
     // transfer U
     const [owner, addr1, addr2] = await ethers.getSigners();
 
