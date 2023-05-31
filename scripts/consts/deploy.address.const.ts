@@ -15,16 +15,24 @@ interface ContractDeployAddressInterface {
   TokenDeposit?: ContractDeployAddress;
   TokenTreasury?: ContractDeployAddress;
   TokenRedeem?: ContractDeployAddress;
+  TokenVeZOIC?: ContractDeployAddress;
 
   ZOICTokenCoffer?: ContractDeployAddress;
+  TokenCofferAirdrop?: ContractDeployAddress;
+  TokenCofferIDOToTGE?: ContractDeployAddress;
+  TokenCofferIDOLinnerRelease?: ContractDeployAddress;
+  TokenCofferIDOVestingByTime?: ContractDeployAddress;
+  TokenCofferPlayers?: ContractDeployAddress;
+  TokenCofferDevs?: ContractDeployAddress;
+  TokenCofferStakingRewards?: ContractDeployAddress;
+  TokenCofferTeam?: ContractDeployAddress;
+
   GameTokenCoffer?: ContractDeployAddress;
   PoolTokenCoffer?: ContractDeployAddress;
   VaultTokenCoffer?: ContractDeployAddress;
   TeamTokenCoffer?: ContractDeployAddress;
   TokenCofferPaymentSplitter?: ContractDeployAddress;
   Year1VestingByTimeWallet?: ContractDeployAddress;
-
-  TokenVeZOIC?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
@@ -35,12 +43,21 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   XYGameUSDT: '0xf3e54ed5E6BAFd203bCc4316663bAe0Bf0100811',
   USDTFaucet: '0x861eC40cF915A2036617272a81ed16b339952E51',
   TokenCENO: '0xd7dA0eb37ac4AFBa74ce8DEBB03A8caa09177378',
-  TokenZOIC: '0x5268edFd4fEc755D283779e4994B05003A44D0D2',
+  TokenZOIC: null,
   TokenDeposit: '0x2a2370af0E7928Ac6D8f03fF9EDc150d02c6D2Be',
   TokenTreasury: '0xC2f178B40C0741ead0309B13040326B3014B1F06',
   TokenRedeem: '0x82178F55690fe80f0664d6AD3BD16a273e3ff3Ab',
 
   ZOICTokenCoffer: '0x199D69090b609175770920cEb056c65822F71529',
+  TokenCofferAirdrop: null,
+  TokenCofferIDOToTGE: null,
+  TokenCofferIDOLinnerRelease: null,
+  TokenCofferIDOVestingByTime: null,
+  TokenCofferPlayers: null,
+  TokenCofferDevs: null,
+  TokenCofferStakingRewards: null,
+  TokenCofferTeam: null,
+
   GameTokenCoffer: '0xc64c53Bc7047e3caE33F1b175e6261754F96e5F3',
   PoolTokenCoffer: '0x6a8424a3e8b9d0bFfFB910f264C2fdD66D9D3ecf',
   VaultTokenCoffer: '0xcCC65943a9fd1125F2717549Ba810279450607B9',
