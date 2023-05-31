@@ -12,33 +12,16 @@ async function getContract() {
 }
 
 async function approveTokenRedeem() {
-  const usdtContract = await ethers.getContractAt(
-    ContractDeployAddress.USDT ? 'xx' : 'XYGameUSDT',
-    ContractDeployAddress.USDT ?? ContractDeployAddress.XYGameUSDT
-  );
-
-  const balance = await usdtContract.balanceOf(
-    ContractDeployAddress.TokenTreasury
-  );
-  console.log('TokenTreasury USDT balance', balance.toString());
+  const withdrawErc20Role = ethers.utils.id('WITHDRAW_ERC20');
 
   const contract = await getContract();
-  const [owner] = await ethers.getSigners();
 
   const txGrant = await contract.grantRole(
-    ethers.utils.id('APPROVE_ERC20'),
-    owner.address
+    withdrawErc20Role,
+    ContractDeployAddress.TokenRedeem
   );
-  const receiptGrant = await txGrant.wait();
-
-  const tx = await contract.approve(
-    usdtContract.address,
-    ContractDeployAddress.TokenRedeem,
-    balance
-  );
-  const receipt = await tx.wait();
-  console.log(receipt);
-  console.log('TokenRedeem get approved of USDT', 'done!');
+  await txGrant.wait();
+  console.log('TokenRedeem get WITHDRAW_ERC20 Role', 'done!');
 }
 
 async function main() {
