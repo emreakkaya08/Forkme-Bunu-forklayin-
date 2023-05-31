@@ -23,6 +23,8 @@ interface ContractDeployAddressInterface {
   TeamTokenCoffer?: ContractDeployAddress;
   TokenCofferPaymentSplitter?: ContractDeployAddress;
   Year1VestingByTimeWallet?: ContractDeployAddress;
+
+  TokenVeZOIC?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
@@ -46,13 +48,12 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
 
   TokenCofferPaymentSplitter: '0x4d76295B951342DF124e264bd6d9a77B2a962072',
   Year1VestingByTimeWallet: '0x38A6DFa6DB41B8B1851b058e26F74305044199ed',
+  TokenVeZOIC: '0xD260F08e3639a1A9E5684967ab4eb41C02912930',
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
 
-export function getContractDeployAddress(
-  network?: string
-): ContractDeployAddressInterface {
+export function getContractDeployAddress(network?: string): ContractDeployAddressInterface {
   let _ContractDeployAddress: ContractDeployAddressInterface = null as any;
   switch (network) {
     case deployNetwork.eth_testnet:
@@ -68,5 +69,6 @@ export function getContractDeployAddress(
   return _ContractDeployAddress;
 }
 
-export const ContractDeployAddress: ContractDeployAddressInterface =
-  getContractDeployAddress(hardhatArguments?.network) as any;
+export const ContractDeployAddress: ContractDeployAddressInterface = getContractDeployAddress(
+  hardhatArguments?.network
+) as any;
