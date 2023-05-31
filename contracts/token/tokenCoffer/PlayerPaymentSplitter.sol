@@ -98,7 +98,7 @@ contract PlayerPaymentSplitter is
     }
 
     function _getGameCoefficientThisCycle(
-        address[] _game,
+        address[] memory _game,
         uint64 _timestamp
     )
         internal
@@ -108,24 +108,57 @@ contract PlayerPaymentSplitter is
             .getGameCoefficient(_game, _timestamp);
     }
 
-    function _getPlayerPoofThisCycle(
-        address player,
-        uint64 timestamp
-    ) internal returns (uint256 totalPoof, uint256 playerPoof) {}
+    function _getPlayerGamePlayed(
+        address _player,
+        uint64 _timestamp
+    ) internal returns (address[] memory gamePlayed) {
+        gamePlayed = playerConsumeRecord.getPlayerGameRecord(
+            _player,
+            _timestamp
+        );
+    }
+
+    function _getPlayerConsumeRecord(
+        address player
+    ) internal view returns (uint256 cenoConsumed, uint256 gasUsed) {
+        (cenoConsumed, gasUsed) = playerConsumeRecord.getPlayerConsumeRecord(
+            player
+        );
+    }
 
     function releaseableThisCycle() public returns (uint256 releasable) {
-        uint64 _timestamp = block.timestamp;
+        uint64 _timestamp = uint64(block.timestamp);
         address _player = msg.sender;
 
-        address[] memory _gamePlayed = playerConsumeRecord.getPlayerGameRecord(
+        uint256 releasedZOIC = 10000000000;
+        // get the amount of ZOIC that will be released in this cycle
+        // from the ZOIC vault splitter
+        // uint256 releasedZOIC = tokenCofferPaymentSplitter.releasedZOIC();
+
+        address[] memory _gamePlayed = _getPlayerGamePlayed(
             _player,
             _timestamp
         );
 
         (
-            uint256[] memory coefficient,
-            uint256 totalCoefficient
+            uint256[] memory _coefficient,
+            uint256 _totalCoefficient
         ) = _getGameCoefficientThisCycle(_gamePlayed, _timestamp);
+
+        uint256 _gamePlayedSum;
+        for (uint256 i = 0; i < _coefficient.length; i++) {
+            _gamePlayedSum = SafeMathUpgradeable.add(
+                _gamePlayedSum,
+                _coefficient[i]
+            );
+        }
+
+        (uint256 _cenoConsumed, uint256 _gasUsed) = _getPlayerConsumeRecord(
+            _player
+        );
+
+        
+
     }
 
     function releaseZOIC() public whenNotPaused {

@@ -8,7 +8,7 @@ import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "./VersionUpgradeable.sol";
 import "../../core/utils/CycleUtils.sol";
 
-contract gameCoefficientBallot is
+contract PlayerConsumeRecord is
     Initializable,
     AccessControlEnumerableUpgradeable,
     UUPSUpgradeable,
@@ -33,7 +33,8 @@ contract gameCoefficientBallot is
         uint256 cenoConsumed;
         uint256 gasUsed;
     }
-    mapping(address => consumeRecordDetail) private consumeRecord;
+    mapping(address => mapping(address => consumeRecordDetail))
+        private consumeRecord;
 
     function _version() internal pure virtual override returns (uint256) {
         return 1;
@@ -62,6 +63,7 @@ contract gameCoefficientBallot is
     function _updatePlayerRecord(
         uint64 _timestamp,
         address _player,
+        address _game,
         uint256 _cenoConsumed,
         uint256 _gasUsed
     ) internal {
@@ -71,7 +73,7 @@ contract gameCoefficientBallot is
 
         consumeRecordDetail storage _consumeRecordDetail = consumeRecord[
             _player
-        ];
+        ][_game];
         _consumeRecordDetail.cenoConsumed += _cenoConsumed;
         _consumeRecordDetail.gasUsed += _gasUsed;
     }
@@ -95,7 +97,7 @@ contract gameCoefficientBallot is
         uint256 _cenoConsumed,
         uint256 _gasUsed
     ) public onlyRole(RECORDER_ROLE) {
-        _updatePlayerRecord(_timestamp, _player, _cenoConsumed, _gasUsed);
+        _updatePlayerRecord(_timestamp, _player, _gamePlayed, _cenoConsumed, _gasUsed);
         _updatePlayerGameRecord(_timestamp, _player, _gamePlayed);
     }
 
@@ -107,9 +109,10 @@ contract gameCoefficientBallot is
     }
 
     function getPlayerGameRecord(
-        address _player
+        address _player,
+        uint64 _timestamp
     ) public view returns (address[] memory _gamePlayed) {
+        _timestamp;
         _gamePlayed = gamePlayedThisCycle[_player];
     }
-
 }

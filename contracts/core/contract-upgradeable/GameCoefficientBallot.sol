@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "./VersionUpgradeable.sol";
 
-contract gameCoefficientBallot is
+contract GameCoefficientBallot is
     Initializable,
     AccessControlEnumerableUpgradeable,
     UUPSUpgradeable,
