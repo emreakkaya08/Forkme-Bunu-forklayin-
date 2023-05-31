@@ -13,7 +13,8 @@ describe('TokenZOIC', async () => {
 
     const TokenZOICContract = await ethers.getContractFactory('TokenZOIC');
     contract = await upgrades.deployProxy(TokenZOICContract, [
-      tokenZoicCoffer.address,
+      [tokenZoicCoffer.address],
+      [10000]
     ]);
     await contract.deployed();
   });
@@ -30,7 +31,7 @@ describe('TokenZOIC', async () => {
       ethers.utils.parseEther('0')
     );
     expect(await contract.balanceOf(tokenZoicCoffer.address)).to.equal(
-      ethers.utils.parseEther('204800000')
+      ethers.utils.parseEther('1000000000')
     );
   });
 });

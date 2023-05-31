@@ -3,7 +3,7 @@ export const ONE_YEAR = 60 * 60 * 24 * 365;
 export const VESTING_START_TIME = 1682294400;
 
 const initRate = 0.50794;
-const TOTAL_ZOIC_TOKEN_AMOUNT = 204800000;
+const TOTAL_ZOIC_TOKEN_AMOUNT = 1000000000;
 export const RELEASE_STEP = [
   Math.floor(TOTAL_ZOIC_TOKEN_AMOUNT * initRate),
   Math.floor((TOTAL_ZOIC_TOKEN_AMOUNT * initRate) / 2),
