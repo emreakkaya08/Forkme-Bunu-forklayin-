@@ -33,7 +33,8 @@ describe('TokenRedeem', async () => {
 
     const TokenZOIC = await ethers.getContractFactory('TokenZOIC');
     tokenZOIC = await upgrades.deployProxy(TokenZOIC, [
-      tokenZoicCoffer.address,
+      [tokenZoicCoffer.address],
+      [10000]
     ]);
     await tokenZOIC.deployed();
 
