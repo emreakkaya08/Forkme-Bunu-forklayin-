@@ -84,17 +84,16 @@ contract GameCoefficientBallot is
     }
 
     function getGameCoefficient(
-        address[] memory _game,
+        address _game,
         uint64 _timestamp
     )
         public
         view
-        returns (uint256[] memory _gameCoefficient, uint256 _totalCoefficient)
+        returns (uint256 _gameCoefficient, uint256 _totalCoefficient)
     {
         _timestamp;
-        for (uint256 i = 0; i < _game.length; i++) {
-            _gameCoefficient[i] = gameCoefficient[_game[i]];
-        }
+
+        _gameCoefficient = gameCoefficient[_game];
         _totalCoefficient = totalCoefficient;
     }
 }

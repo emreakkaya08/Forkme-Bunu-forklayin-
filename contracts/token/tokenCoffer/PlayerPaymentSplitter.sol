@@ -27,17 +27,11 @@ contract PlayerPaymentSplitter is
 {
     using AddressUpgradeable for address;
 
-    event TransferZOICToGame(
-        address indexed game,
-        uint256 coefficient,
-        uint256 amount
-    );
-    event TransferZOICToPlayer(
+    event ClaimReward(
         address indexed player,
-        uint256 poof,
+        address indexed game,
         uint256 amount
     );
-    event WithDrawZOIC(address indexed player, uint256 amount);
 
     IERC20Upgradeable private tokenZOIC;
     GameCoefficientBallot private gameCoefficientBallot;
@@ -45,7 +39,6 @@ contract PlayerPaymentSplitter is
 
     address private gamePool;
 
-    mapping(address => uint256) private playerAwarded;
     mapping(address => uint256) private playerWithdrawn;
 
     mapping(address => bool) private blockedList;
@@ -98,35 +91,60 @@ contract PlayerPaymentSplitter is
     }
 
     function _getGameCoefficientThisCycle(
-        address[] memory _game,
+        address _game,
         uint64 _timestamp
-    )
-        internal
-        returns (uint256[] memory coefficient, uint256 totalCoefficient)
-    {
+    ) internal view returns (uint256 coefficient, uint256 totalCoefficient) {
         (coefficient, totalCoefficient) = gameCoefficientBallot
             .getGameCoefficient(_game, _timestamp);
     }
 
-    function _getPlayerGamePlayed(
+    function _getPlayerConsumeRecordThisCycle(
         address _player,
-        uint64 _timestamp
-    ) internal returns (address[] memory gamePlayed) {
-        gamePlayed = playerConsumeRecord.getPlayerGameRecord(
-            _player,
-            _timestamp
-        );
+        address _game
+    )
+        internal
+        view
+        returns (
+            uint256 cenoConsumed,
+            uint256 gasUsed,
+            uint256 cenoConsumedTotal,
+            uint256 gasUsedTotal
+        )
+    {
+        (
+            cenoConsumed,
+            gasUsed,
+            cenoConsumedTotal,
+            gasUsedTotal
+        ) = playerConsumeRecord.getPlayerConsumeRecordThisCycle(_player, _game);
     }
 
-    function _getPlayerConsumeRecord(
-        address player
-    ) internal view returns (uint256 cenoConsumed, uint256 gasUsed) {
-        (cenoConsumed, gasUsed) = playerConsumeRecord.getPlayerConsumeRecord(
-            player
-        );
+    function _getPlayerConsumeRecordLastCycle(
+        address _player,
+        address _game
+    )
+        internal
+        view
+        returns (
+            uint256 cenoConsumed,
+            uint256 gasUsed,
+            uint256 cenoConsumedTotal,
+            uint256 gasUsedTotal
+        )
+    {
+        (
+            cenoConsumed,
+            gasUsed,
+            cenoConsumedTotal,
+            gasUsedTotal
+        ) = playerConsumeRecord.getPlayerConsumeRecordLastCycle(_player, _game);
     }
 
-    function releaseableThisCycle() public returns (uint256 releasable) {
+    function releasableThisCycle(
+        address _game
+    ) public view returns (uint256 releasable) {
+        // player gets the amount of ZOIC that will be released in this cycle in this game
+
         uint64 _timestamp = uint64(block.timestamp);
         address _player = msg.sender;
 
@@ -135,55 +153,88 @@ contract PlayerPaymentSplitter is
         // from the ZOIC vault splitter
         // uint256 releasedZOIC = tokenCofferPaymentSplitter.releasedZOIC();
 
-        address[] memory _gamePlayed = _getPlayerGamePlayed(
-            _player,
-            _timestamp
-        );
+        (
+            uint256 _coefficient,
+            uint256 _totalCoefficient
+        ) = _getGameCoefficientThisCycle(_game, _timestamp);
 
         (
-            uint256[] memory _coefficient,
-            uint256 _totalCoefficient
-        ) = _getGameCoefficientThisCycle(_gamePlayed, _timestamp);
+            uint256 _cenoConsumed,
+            uint256 _gasUsed,
+            uint256 _cenoConsumedTotal,
+            uint256 _gasUsedTotal
+        ) = _getPlayerConsumeRecordThisCycle(_player, _game);
 
-        uint256 _gamePlayedSum;
-        for (uint256 i = 0; i < _coefficient.length; i++) {
-            _gamePlayedSum = SafeMathUpgradeable.add(
-                _gamePlayedSum,
-                _coefficient[i]
-            );
-        }
+        _cenoConsumedTotal;
+        _gasUsedTotal;
 
-        (uint256 _cenoConsumed, uint256 _gasUsed) = _getPlayerConsumeRecord(
-            _player
-        );
-
-        
-
+        // Reward(A)=rY*52%*K*[P(A)/P(N)]
+        // TODO : veToken and inviteReward
+        releasable =
+            (releasedZOIC *
+                _coefficient *
+                (6 *
+                    (_cenoConsumed < 1 ? 1 : _cenoConsumed) +
+                    4 *
+                    (_gasUsed < 1 ? 1 : _gasUsed))) /
+            _totalCoefficient /
+            100;
     }
 
-    function releaseZOIC() public whenNotPaused {
-        uint256 amount = playerAwarded[msg.sender];
-        require(amount > 0, "No ZOIC");
+    function releasableLastCycle(
+        address _game
+    ) public view returns (uint256 releasable) {
+        // player gets the amount of ZOIC that will be released in this cycle in this game
 
-        uint256 releasable = SafeMathUpgradeable.sub(
-            playerAwarded[msg.sender],
-            playerWithdrawn[msg.sender]
-        );
-        require(releasable > 0, "No ZOIC to withdraw");
+        uint64 _timestamp = uint64(block.timestamp);
+        address _player = msg.sender;
 
-        playerWithdrawn[msg.sender] = SafeMathUpgradeable.add(
-            playerWithdrawn[msg.sender],
+        uint256 releasedZOIC = 10000000000;
+        // get the amount of ZOIC that will be released in this cycle
+        // from the ZOIC vault splitter
+        // uint256 releasedZOIC = tokenCofferPaymentSplitter.releasedZOIC();
+
+        // TODO the consequence of ballot and cycle
+        (
+            uint256 _coefficient,
+            uint256 _totalCoefficient
+        ) = _getGameCoefficientThisCycle(_game, _timestamp);
+
+        (
+            uint256 _cenoConsumed,
+            uint256 _gasUsed,
+            uint256 _cenoConsumedTotal,
+            uint256 _gasUsedTotal
+        ) = _getPlayerConsumeRecordLastCycle(_player, _game);
+
+        _cenoConsumedTotal;
+        _gasUsedTotal;
+
+        // Reward(A)=rY*52%*K*[P(A)/P(N)]
+        // TODO : veToken and inviteReward
+        releasable =
+            (releasedZOIC *
+                _coefficient *
+                (6 *
+                    (_cenoConsumed < 1 ? 1 : _cenoConsumed) +
+                    4 *
+                    (_gasUsed < 1 ? 1 : _gasUsed))) /
+            _totalCoefficient /
+            100;
+    }
+
+    function claim(address _game) public whenNotPaused {
+        uint256 releasable = releasableLastCycle(_game);
+
+        require(releasable > 0, "releasable must be greater than 0");
+
+        SafeERC20Upgradeable.safeTransferFrom(
+            tokenZOIC,
+            gamePool,
+            msg.sender,
             releasable
         );
 
-        ITokenVault(gamePool).withdrawERC20(tokenZOIC, msg.sender, releasable);
-
-        emit WithDrawZOIC(msg.sender, amount);
-    }
-
-    function getZOICAward() public view returns (uint256) {
-        require(!blockedList[msg.sender], "You are blocked");
-
-        return playerAwarded[msg.sender];
+        emit ClaimReward(msg.sender, _game, releasable);
     }
 }
