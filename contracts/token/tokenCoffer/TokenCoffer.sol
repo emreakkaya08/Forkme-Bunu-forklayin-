@@ -89,7 +89,7 @@ contract TokenCoffer is
     function refreshApprove(
         IERC20Upgradeable token,
         address spender
-    ) public onlyRole(WITHDRAW) {
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 remainingAllowance = token.allowance(address(this), spender);
         if (remainingAllowance > 0) {
             SafeERC20Upgradeable.safeApprove(
