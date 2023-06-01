@@ -22,7 +22,7 @@ interface ContractDeployAddressInterface {
   TokenCofferIDOVesting?: ContractDeployAddress;
   TokenCofferIDOToTGE?: ContractDeployAddress;
   TokenCofferIDOLinnerRelease?: ContractDeployAddress;
-  TokenZOICIDOVestingByTime?: ContractDeployAddress;
+  TokenZOICIDOVestingByDay?: ContractDeployAddress;
   PlayersVestingDecayByWeek?: ContractDeployAddress;
   TokenCofferPlayers?: ContractDeployAddress;
   DevsVestingDecayByWeek?: ContractDeployAddress;
@@ -50,6 +50,7 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   TokenCENO: "0xd7dA0eb37ac4AFBa74ce8DEBB03A8caa09177378",
   TokenZOIC: null,
   TokenDeposit: "0x2a2370af0E7928Ac6D8f03fF9EDc150d02c6D2Be",
+  // use for usdt of zoic ... , use as vault
   TokenTreasury: "0xC2f178B40C0741ead0309B13040326B3014B1F06",
   TokenRedeem: "0x82178F55690fe80f0664d6AD3BD16a273e3ff3Ab",
 
@@ -63,7 +64,7 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   // ido release to, total amount 2.5% of total supply when released over 21 days TokenZOICIDOVestingByTime->TokenCofferIDOLinnerRelease
   TokenCofferIDOLinnerRelease: null,
   // 2.5% of total supply, release in 21 days
-  TokenZOICIDOVestingByTime: null,
+  TokenZOICIDOVestingByDay: null,
   // 52% of total supply, release in 360 weeks, decay 1% per week
   PlayersVestingDecayByWeek: null,
   TokenCofferPlayers: null,
