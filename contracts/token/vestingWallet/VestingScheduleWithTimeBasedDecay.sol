@@ -97,6 +97,7 @@ contract VestingScheduleWithTimeBasedDecay is
 
         TokenInfo memory tokenInfo = _tokenInfo[token];
         tokenInfo.currentReleaseTimes = tokenInfo.currentReleaseTimes + 1;
+        _tokenInfo[token] = tokenInfo;
     }
 
     function vestedAmount(

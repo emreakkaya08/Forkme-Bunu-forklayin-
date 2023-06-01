@@ -1,10 +1,9 @@
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import exp from "constants";
-import { BigNumber, Contract } from "ethers";
-import { ethers, upgrades } from "hardhat";
+import { Contract } from "ethers";
+import { ethers, upgrades, network } from "hardhat";
 
-const WEEK = 7 * 24 * 60 * 60;
+const DAY = 24 * 60 * 60;
+const WEEK = 7 * DAY;
 const WEEKS_360 = WEEK * 360;
 
 const now = () => Math.floor(new Date().getTime() / 1000);
@@ -33,6 +32,8 @@ describe("VestingScheduleWithTimeBasedDecay", async () => {
     const TokenCENOContract = await ethers.getContractFactory("TokenCENO");
     contractCENO = await upgrades.deployProxy(TokenCENOContract, []);
     await contractCENO.deployed();
+
+    contractCENO.mint(contract.address, ethers.utils.parseEther("450000000"));
 
     contract.grantRole(ethers.utils.id("TOKEN_SETTER_ROLE"), owner.address);
     await contract
@@ -65,12 +66,6 @@ describe("VestingScheduleWithTimeBasedDecay", async () => {
     expect(
       Number(ethers.utils.formatEther(lastReleaseAmount)).toFixed(0)
     ).to.equal(last.toFixed(0));
-
-    console.log(
-      "lastReleaseAmount",
-      ethers.utils.formatEther(lastReleaseAmount),
-      ethers.utils.formatEther(firstReleaseAmount)
-    );
   });
 
   it("vestedAmount test", async () => {
@@ -83,7 +78,7 @@ describe("VestingScheduleWithTimeBasedDecay", async () => {
     const start = Number(startBigNum.toString());
     const vestedAmount = await contract["vestedAmount(address,uint64)"](
       contractCENO.address,
-      start - WEEK + 24 * 60 * 60
+      start - WEEK + DAY
     );
     expect(vestedAmount).to.equal(0);
 
@@ -99,7 +94,7 @@ describe("VestingScheduleWithTimeBasedDecay", async () => {
 
     const vestedAmount3 = await contract["vestedAmount(address,uint64)"](
       contractCENO.address,
-      start + WEEK + 24 * 60 * 60
+      start + WEEK + WEEK - DAY
     );
     expect(vestedAmount3).to.equal(firstReleaseAmount);
 
@@ -119,5 +114,62 @@ describe("VestingScheduleWithTimeBasedDecay", async () => {
         start + WEEK * 200
       )
     ).to.be.revertedWith("too far away from last release time");
+  });
+
+  describe("test for release", async () => {
+    let snapshotId: string;
+    beforeEach(async () => {
+      snapshotId = await ethers.provider.send("evm_snapshot", []);
+    });
+    afterEach(async () => {
+      await ethers.provider.send("evm_revert", [snapshotId]);
+    });
+
+    it("release", async () => {
+      const [owner, addr1] = await ethers.getSigners();
+      await network.provider.send("evm_increaseTime", [WEEK]);
+      await ethers.provider.send("evm_mine", []);
+
+      await contract["release(address)"](contractCENO.address);
+
+      const balance = await contractCENO.balanceOf(addr1.address);
+      const firstReleaseAmount = await contract.tokenReleaseAmount(
+        contractCENO.address,
+        1
+      );
+      expect(balance).to.equal(firstReleaseAmount);
+      let released = await contract["released(address)"](contractCENO.address);
+      expect(released).to.equal(firstReleaseAmount);
+
+      await network.provider.send("evm_increaseTime", [WEEK - DAY]);
+      await ethers.provider.send("evm_mine", []);
+
+      const startBigNum = await contract["start()"]();
+      const start = Number(startBigNum.toString());
+      let vestedAmount = await contract["vestedAmount(address,uint64)"](
+        contractCENO.address,
+        start + WEEK + WEEK - DAY
+      );
+
+      expect(vestedAmount).to.equal(firstReleaseAmount);
+
+      let releasable = await contract["releasable(address)"](
+        contractCENO.address
+      );
+      expect(releasable).to.equal(0);
+
+      await network.provider.send("evm_increaseTime", [DAY + 10]);
+      await ethers.provider.send("evm_mine", []);
+      const block = await ethers.provider.getBlock("latest");
+
+      releasable = await contract["releasable(address)"](contractCENO.address);
+
+      vestedAmount = await contract["vestedAmount(address,uint64)"](
+        contractCENO.address,
+        start + WEEK + WEEK - DAY + DAY + 10
+      );
+
+      expect(releasable).equal(vestedAmount.sub(released));
+    });
   });
 });
