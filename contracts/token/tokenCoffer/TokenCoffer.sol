@@ -85,4 +85,24 @@ contract TokenCoffer is
         SafeERC20Upgradeable.safeTransfer(token, to, value);
         emit WithdrawERC20(token, to, value);
     }
+
+    function refreshApprove(
+        IERC20Upgradeable token,
+        address spender
+    ) public onlyRole(WITHDRAW) {
+        uint256 remainingAllowance = token.allowance(address(this), spender);
+        if (remainingAllowance > 0) {
+            SafeERC20Upgradeable.safeApprove(
+                token,
+                spender,
+                0
+            );
+        }
+
+        // TODO
+        // transfer the remaining ZOIC that players didn't claim to the vault
+        // SafeERC20Upgradeable.safeTransfer(token, vault, token.balanceof(this));
+        
+        SafeERC20Upgradeable.safeApprove(token, spender, 204800000 * 10 ** 18);
+    }
 }

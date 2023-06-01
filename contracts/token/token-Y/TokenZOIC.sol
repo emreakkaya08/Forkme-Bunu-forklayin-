@@ -10,34 +10,34 @@ import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 
 contract TokenZOIC is
-Initializable,
-ERC20BurnableUpgradeable,
-AccessControlEnumerableUpgradeable,
-PausableUpgradeable,
-UUPSUpgradeable,
-VersionUpgradeable
+    Initializable,
+    ERC20BurnableUpgradeable,
+    AccessControlEnumerableUpgradeable,
+    PausableUpgradeable,
+    UUPSUpgradeable,
+    VersionUpgradeable
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    
+
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
     }
-    
+
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
-    
+
     function _version() internal pure virtual override returns (uint256) {
         return 1;
     }
-    
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
-    
+
     function initialize(address _zoicCoffer) public initializer {
         __ERC20_init("TokenZOIC", "ZOIC");
         __AccessControlEnumerable_init();
@@ -45,14 +45,14 @@ VersionUpgradeable
         __Pausable_init();
         __UUPSUpgradeable_init();
         __VersionUpgradeable_init();
-        
+
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
         _mint(_zoicCoffer, 204800000 * 10 ** decimals());
     }
-    
+
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -60,9 +60,8 @@ VersionUpgradeable
     ) internal override whenNotPaused {
         super._beforeTokenTransfer(from, to, amount);
     }
-    
+
     function _authorizeUpgrade(
         address newImplementation
     ) internal override onlyRole(UPGRADER_ROLE) {}
-    
 }
