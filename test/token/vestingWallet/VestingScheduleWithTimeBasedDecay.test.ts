@@ -81,42 +81,43 @@ describe("VestingScheduleWithTimeBasedDecay", async () => {
 
     const startBigNum = await contract["start()"]();
     const start = Number(startBigNum.toString());
-    // const vestedAmount = await contract["vestedAmount(address,uint64)"](
-    //   contractCENO.address,
-    //   start - WEEK + 24 * 60 * 60
-    // );
-    // expect(vestedAmount).to.equal(0);
-
-    // const vestedAmount2 = await contract["vestedAmount(address,uint64)"](
-    //   contractCENO.address,
-    //   start + WEEK
-    // );
-    // const firstReleaseAmount = await contract.tokenReleaseAmount(
-    //   contractCENO.address,
-    //   1
-    // );
-    // expect(vestedAmount2).to.equal(firstReleaseAmount);
-
-    // const vestedAmount3 = await contract["vestedAmount(address,uint64)"](
-    //   contractCENO.address,
-    //   start + WEEK + 24 * 60 * 60
-    // );
-    // expect(vestedAmount3).to.equal(firstReleaseAmount);
-
-    // const vestedAmount4 = await contract["vestedAmount(address,uint64)"](
-    //   contractCENO.address,
-    //   start + WEEK * 2
-    // );
-    // const secondReleaseAmount = await contract.tokenReleaseAmount(
-    //   contractCENO.address,
-    //   2
-    // );
-    // expect(vestedAmount4).to.equal(firstReleaseAmount.add(secondReleaseAmount));
-
-    const vestedAmount5 = await contract["vestedAmount(address,uint64)"](
+    const vestedAmount = await contract["vestedAmount(address,uint64)"](
       contractCENO.address,
-      start + WEEK * 360
+      start - WEEK + 24 * 60 * 60
     );
-    console.log("vestedAmount5", ethers.utils.formatEther(vestedAmount5));
+    expect(vestedAmount).to.equal(0);
+
+    const vestedAmount2 = await contract["vestedAmount(address,uint64)"](
+      contractCENO.address,
+      start + WEEK
+    );
+    const firstReleaseAmount = await contract.tokenReleaseAmount(
+      contractCENO.address,
+      1
+    );
+    expect(vestedAmount2).to.equal(firstReleaseAmount);
+
+    const vestedAmount3 = await contract["vestedAmount(address,uint64)"](
+      contractCENO.address,
+      start + WEEK + 24 * 60 * 60
+    );
+    expect(vestedAmount3).to.equal(firstReleaseAmount);
+
+    const vestedAmount4 = await contract["vestedAmount(address,uint64)"](
+      contractCENO.address,
+      start + WEEK * 2
+    );
+    const secondReleaseAmount = await contract.tokenReleaseAmount(
+      contractCENO.address,
+      2
+    );
+    expect(vestedAmount4).to.equal(firstReleaseAmount.add(secondReleaseAmount));
+
+    await expect(
+      contract["vestedAmount(address,uint64)"](
+        contractCENO.address,
+        start + WEEK * 200
+      )
+    ).to.be.revertedWith("too far away from last release time");
   });
 });

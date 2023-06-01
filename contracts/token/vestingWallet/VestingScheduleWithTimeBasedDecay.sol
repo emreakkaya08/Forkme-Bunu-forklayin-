@@ -26,12 +26,13 @@ contract VestingScheduleWithTimeBasedDecay is
     using SafeMath for uint256;
 
     struct TokenInfo {
-        uint64 currentReleaseTimes;
-        uint64 totalReleaseTimes;
+        uint32 currentReleaseTimes;
+        uint32 totalReleaseTimes;
         uint64 releaseInterval;
         uint256 precision;
         uint256 decay;
         uint256 totalSupply;
+        uint256 baseSupply;
     }
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -115,13 +116,14 @@ contract VestingScheduleWithTimeBasedDecay is
         uint256 amount = released(token);
         uint256 times = (timestamp - start()) / tokenInfo.releaseInterval;
 
-        if (times > tokenInfo.totalReleaseTimes) {
-            times = tokenInfo.totalReleaseTimes;
-        }
+        require(
+            times <= tokenInfo.totalReleaseTimes / 3,
+            "too far away from last release time"
+        );
 
         if (tokenInfo.currentReleaseTimes < times) {
             for (
-                uint64 i = tokenInfo.currentReleaseTimes + 1;
+                uint32 i = tokenInfo.currentReleaseTimes + 1;
                 i <= times;
                 i++
             ) {
@@ -133,9 +135,9 @@ contract VestingScheduleWithTimeBasedDecay is
 
     function addTokenInfo(
         address token,
-        uint64 totalReleaseTimes,
+        uint32 totalReleaseTimes,
         uint8 decayPerTime,
-        uint64 releaseInterval,
+        uint32 releaseInterval,
         uint256 totalSupply
     ) public whenNotPaused onlyRole(TOKEN_SETTER_ROLE) {
         require(token != address(0), "token is zero address");
@@ -149,19 +151,30 @@ contract VestingScheduleWithTimeBasedDecay is
         uint256 precision = 10 ** uint256(decimals);
         uint256 decay = (uint256(100 - decayPerTime)) * precision.div(100);
 
+        uint256 result = decay;
+        for (uint64 i = 1; i < totalReleaseTimes; i++) {
+            result = result.mul(decay).div(precision);
+        }
+
+        uint256 numerator = 1 * precision - decay;
+        uint256 coefficient = (1 * precision - result).mul(precision).div(
+            numerator
+        );
+
         _tokenInfo[token] = TokenInfo({
             currentReleaseTimes: 0,
             totalReleaseTimes: totalReleaseTimes,
             decay: decay,
             precision: precision,
             totalSupply: totalSupply,
-            releaseInterval: releaseInterval
+            releaseInterval: releaseInterval,
+            baseSupply: totalSupply.div(coefficient)
         });
     }
 
     function tokenReleaseAmount(
         address token,
-        uint256 times
+        uint32 times
     ) public view returns (uint256) {
         TokenInfo memory tokenInfo = _tokenInfo[token];
         require(tokenInfo.totalReleaseTimes > 0, "token not set");
@@ -173,46 +186,14 @@ contract VestingScheduleWithTimeBasedDecay is
             return 0;
         }
 
-        // uint8 decimals = ERC20Upgradeable(token).decimals();
-        // uint256 precision = 10 ** uint256(decimals);
-
-        // uint256 decay = (uint256(100 - tokenInfo.decayPerTime)) *
-        //     precision.div(100);
-        // uint256 q = 1 * precision - decay;
-
-        // uint256 result = decay;
-        // for (uint64 i = 1; i < tokenInfo.totalReleaseTimes; i++) {
-        //     result = result.mul(decay).div(precision);
-        // }
-
-        // uint256 coefficient = (1 * precision - result) * precision.div(q);
-        // if (times == 1) {
-        //     return totalSupply.div(coefficient).mul(precision);
-        // } else {
-        //     uint256 decayN = decay;
-        //     for (uint64 i = 1; i < times - 1; i++) {
-        //         decayN = decayN.mul(decay).div(precision);
-        //     }
-        //     return totalSupply.div(coefficient).mul(decayN);
-        // }
-
-        uint256 result = tokenInfo.decay;
-        for (uint64 i = 1; i < tokenInfo.totalReleaseTimes; i++) {
-            result = result.mul(tokenInfo.decay).div(tokenInfo.precision);
-        }
-
-        uint256 numerator = 1 * tokenInfo.precision - tokenInfo.decay;
-        uint256 coefficient = (1 * tokenInfo.precision - result)
-            .mul(tokenInfo.precision)
-            .div(numerator);
         if (times == 1) {
-            return totalSupply.div(coefficient).mul(tokenInfo.precision);
+            return tokenInfo.baseSupply.mul(tokenInfo.precision);
         } else {
             uint256 decayN = tokenInfo.decay;
-            for (uint64 i = 1; i < times - 1; i++) {
+            for (uint32 i = 1; i < times - 1; i++) {
                 decayN = decayN.mul(tokenInfo.decay).div(tokenInfo.precision);
             }
-            return totalSupply.div(coefficient).mul(decayN);
+            return tokenInfo.baseSupply.mul(decayN);
         }
     }
 }
