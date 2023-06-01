@@ -19,12 +19,17 @@ interface ContractDeployAddressInterface {
 
   ZOICTokenCoffer?: ContractDeployAddress;
   TokenCofferAirdrop?: ContractDeployAddress;
+  TokenCofferIDOVesting?: ContractDeployAddress;
   TokenCofferIDOToTGE?: ContractDeployAddress;
   TokenCofferIDOLinnerRelease?: ContractDeployAddress;
-  TokenCofferIDOVestingByTime?: ContractDeployAddress;
+  TokenZOICIDOVestingByTime?: ContractDeployAddress;
+  PlayersVestingDecayByWeek?: ContractDeployAddress;
   TokenCofferPlayers?: ContractDeployAddress;
+  DevsVestingDecayByWeek?: ContractDeployAddress;
   TokenCofferDevs?: ContractDeployAddress;
+  StakingRewardsVestingDecayByWeek?: ContractDeployAddress;
   TokenCofferStakingRewards?: ContractDeployAddress;
+  TeamVestingDecayByWeek?: ContractDeployAddress;
   TokenCofferTeam?: ContractDeployAddress;
 
   GameTokenCoffer?: ContractDeployAddress;
@@ -53,17 +58,23 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   TokenCofferAirdrop: null,
   // 2.5% of total supply
   TokenCofferIDOToTGE: null,
-  // ido release to, total amount 2.5% of total supply when released over 21 days
+  // ido token vesting release first mint to
+  TokenCofferIDOVesting: null,
+  // ido release to, total amount 2.5% of total supply when released over 21 days TokenZOICIDOVestingByTime->TokenCofferIDOLinnerRelease
   TokenCofferIDOLinnerRelease: null,
   // 2.5% of total supply, release in 21 days
-  TokenCofferIDOVestingByTime: null,
+  TokenZOICIDOVestingByTime: null,
   // 52% of total supply, release in 360 weeks, decay 1% per week
+  PlayersVestingDecayByWeek: null,
   TokenCofferPlayers: null,
   // 15.5% of total supply, release in 360 weeks,
+  DevsVestingDecayByWeek: null,
   TokenCofferDevs: null,
   // 15% of total supply, release in 360 weeks,
+  StakingRewardsVestingDecayByWeek: null,
   TokenCofferStakingRewards: null,
   // 10% of total supply, release in 360 weeks,
+  TeamVestingDecayByWeek: null,
   TokenCofferTeam: null,
 
   GameTokenCoffer: "0xc64c53Bc7047e3caE33F1b175e6261754F96e5F3",
