@@ -1,9 +1,11 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
+import exp from "constants";
 import { BigNumber, Contract } from "ethers";
 import { ethers, upgrades } from "hardhat";
 
-const WEEKS_360 = 7 * 24 * 60 * 60 * 360;
+const WEEK = 7 * 24 * 60 * 60;
+const WEEKS_360 = WEEK * 360;
 
 const now = () => Math.floor(new Date().getTime() / 1000);
 
@@ -31,10 +33,7 @@ describe("VestingScheduleWithTimeBasedDecay", async () => {
     const TokenCENOContract = await ethers.getContractFactory("TokenCENO");
     contractCENO = await upgrades.deployProxy(TokenCENOContract, []);
     await contractCENO.deployed();
-  });
 
-  it("should return the correct value", async () => {
-    const [owner, addr1] = await ethers.getSigners();
     contract.grantRole(ethers.utils.id("TOKEN_SETTER_ROLE"), owner.address);
     await contract
       .connect(owner)
@@ -42,9 +41,12 @@ describe("VestingScheduleWithTimeBasedDecay", async () => {
         contractCENO.address,
         360,
         1,
+        WEEK,
         ethers.utils.parseEther("450000000")
       );
+  });
 
+  it("tokenReleaseAmount", async () => {
     const firstReleaseAmount = await contract.tokenReleaseAmount(
       contractCENO.address,
       1
@@ -63,5 +65,58 @@ describe("VestingScheduleWithTimeBasedDecay", async () => {
     expect(
       Number(ethers.utils.formatEther(lastReleaseAmount)).toFixed(0)
     ).to.equal(last.toFixed(0));
+
+    console.log(
+      "lastReleaseAmount",
+      ethers.utils.formatEther(lastReleaseAmount),
+      ethers.utils.formatEther(firstReleaseAmount)
+    );
+  });
+
+  it("vestedAmount test", async () => {
+    const currentReleased = await contract["released(address)"](
+      contractCENO.address
+    );
+    expect(currentReleased).to.equal(0);
+
+    const startBigNum = await contract["start()"]();
+    const start = Number(startBigNum.toString());
+    // const vestedAmount = await contract["vestedAmount(address,uint64)"](
+    //   contractCENO.address,
+    //   start - WEEK + 24 * 60 * 60
+    // );
+    // expect(vestedAmount).to.equal(0);
+
+    // const vestedAmount2 = await contract["vestedAmount(address,uint64)"](
+    //   contractCENO.address,
+    //   start + WEEK
+    // );
+    // const firstReleaseAmount = await contract.tokenReleaseAmount(
+    //   contractCENO.address,
+    //   1
+    // );
+    // expect(vestedAmount2).to.equal(firstReleaseAmount);
+
+    // const vestedAmount3 = await contract["vestedAmount(address,uint64)"](
+    //   contractCENO.address,
+    //   start + WEEK + 24 * 60 * 60
+    // );
+    // expect(vestedAmount3).to.equal(firstReleaseAmount);
+
+    // const vestedAmount4 = await contract["vestedAmount(address,uint64)"](
+    //   contractCENO.address,
+    //   start + WEEK * 2
+    // );
+    // const secondReleaseAmount = await contract.tokenReleaseAmount(
+    //   contractCENO.address,
+    //   2
+    // );
+    // expect(vestedAmount4).to.equal(firstReleaseAmount.add(secondReleaseAmount));
+
+    const vestedAmount5 = await contract["vestedAmount(address,uint64)"](
+      contractCENO.address,
+      start + WEEK * 360
+    );
+    console.log("vestedAmount5", ethers.utils.formatEther(vestedAmount5));
   });
 });

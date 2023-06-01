@@ -28,7 +28,9 @@ contract VestingScheduleWithTimeBasedDecay is
     struct TokenInfo {
         uint64 currentReleaseTimes;
         uint64 totalReleaseTimes;
-        uint8 decayPerTime;
+        uint64 releaseInterval;
+        uint256 precision;
+        uint256 decay;
         uint256 totalSupply;
     }
 
@@ -87,10 +89,53 @@ contract VestingScheduleWithTimeBasedDecay is
         return super._vestingSchedule(totalAllocation, timestamp);
     }
 
+    function release(
+        address token
+    ) public virtual override whenNotPaused nonReentrant {
+        super.release(token);
+
+        TokenInfo memory tokenInfo = _tokenInfo[token];
+        tokenInfo.currentReleaseTimes = tokenInfo.currentReleaseTimes + 1;
+    }
+
+    function vestedAmount(
+        address token,
+        uint64 timestamp
+    ) public view virtual override returns (uint256) {
+        require(token != address(0), "token is zero address");
+        TokenInfo memory tokenInfo = _tokenInfo[token];
+        require(
+            _tokenInfo[token].totalReleaseTimes > 0,
+            "token has not been set"
+        );
+        if (timestamp < start()) {
+            return 0;
+        }
+
+        uint256 amount = released(token);
+        uint256 times = (timestamp - start()) / tokenInfo.releaseInterval;
+
+        if (times > tokenInfo.totalReleaseTimes) {
+            times = tokenInfo.totalReleaseTimes;
+        }
+
+        if (tokenInfo.currentReleaseTimes < times) {
+            for (
+                uint64 i = tokenInfo.currentReleaseTimes + 1;
+                i <= times;
+                i++
+            ) {
+                amount = amount.add(tokenReleaseAmount(token, i));
+            }
+        }
+        return amount;
+    }
+
     function addTokenInfo(
         address token,
         uint64 totalReleaseTimes,
         uint8 decayPerTime,
+        uint64 releaseInterval,
         uint256 totalSupply
     ) public whenNotPaused onlyRole(TOKEN_SETTER_ROLE) {
         require(token != address(0), "token is zero address");
@@ -98,12 +143,19 @@ contract VestingScheduleWithTimeBasedDecay is
         require(totalReleaseTimes > 0, "total times must be greater than 0");
         require(decayPerTime > 0, "decay must be greater than 0");
         require(totalSupply > 0, "supply must be greater than 0");
+        require(releaseInterval > 0, "interval must be greater than 0");
+
+        uint8 decimals = ERC20Upgradeable(token).decimals();
+        uint256 precision = 10 ** uint256(decimals);
+        uint256 decay = (uint256(100 - decayPerTime)) * precision.div(100);
 
         _tokenInfo[token] = TokenInfo({
             currentReleaseTimes: 0,
             totalReleaseTimes: totalReleaseTimes,
-            decayPerTime: decayPerTime,
-            totalSupply: totalSupply
+            decay: decay,
+            precision: precision,
+            totalSupply: totalSupply,
+            releaseInterval: releaseInterval
         });
     }
 
@@ -121,25 +173,44 @@ contract VestingScheduleWithTimeBasedDecay is
             return 0;
         }
 
-        uint8 decimals = ERC20Upgradeable(token).decimals();
-        uint256 precision = 10 ** uint256(decimals);
+        // uint8 decimals = ERC20Upgradeable(token).decimals();
+        // uint256 precision = 10 ** uint256(decimals);
 
-        uint256 decay = (uint256(100 - tokenInfo.decayPerTime)) *
-            precision.div(100);
-        uint256 q = 1 * precision - decay;
+        // uint256 decay = (uint256(100 - tokenInfo.decayPerTime)) *
+        //     precision.div(100);
+        // uint256 q = 1 * precision - decay;
 
-        uint256 result = decay;
+        // uint256 result = decay;
+        // for (uint64 i = 1; i < tokenInfo.totalReleaseTimes; i++) {
+        //     result = result.mul(decay).div(precision);
+        // }
+
+        // uint256 coefficient = (1 * precision - result) * precision.div(q);
+        // if (times == 1) {
+        //     return totalSupply.div(coefficient).mul(precision);
+        // } else {
+        //     uint256 decayN = decay;
+        //     for (uint64 i = 1; i < times - 1; i++) {
+        //         decayN = decayN.mul(decay).div(precision);
+        //     }
+        //     return totalSupply.div(coefficient).mul(decayN);
+        // }
+
+        uint256 result = tokenInfo.decay;
         for (uint64 i = 1; i < tokenInfo.totalReleaseTimes; i++) {
-            result = result.mul(decay).div(precision);
+            result = result.mul(tokenInfo.decay).div(tokenInfo.precision);
         }
 
-        uint256 coefficient = (1 * precision - result) * precision.div(q);
+        uint256 numerator = 1 * tokenInfo.precision - tokenInfo.decay;
+        uint256 coefficient = (1 * tokenInfo.precision - result)
+            .mul(tokenInfo.precision)
+            .div(numerator);
         if (times == 1) {
-            return totalSupply.div(coefficient).mul(precision);
+            return totalSupply.div(coefficient).mul(tokenInfo.precision);
         } else {
-            uint256 decayN = decay;
+            uint256 decayN = tokenInfo.decay;
             for (uint64 i = 1; i < times - 1; i++) {
-                decayN = decayN.mul(decay).div(precision);
+                decayN = decayN.mul(tokenInfo.decay).div(tokenInfo.precision);
             }
             return totalSupply.div(coefficient).mul(decayN);
         }
