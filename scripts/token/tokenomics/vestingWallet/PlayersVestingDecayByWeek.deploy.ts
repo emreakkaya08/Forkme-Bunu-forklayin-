@@ -4,11 +4,9 @@ import {
   deployUpgradeUpdate,
 } from "scripts/utils/deploy.util";
 import {
-  IDO_RELEASE_START_TIME,
   ZOIC_RELEASE_START_TIME,
-  ZOIC_RELEASE_WEEKS,
+  ZOIC_RELEASE_WEEKS_DURATION,
 } from "../Tokenomics.const";
-import { IDO_RELEASE_DURATION } from "../Tokenomics.const";
 
 const DeployContractName = "VestingScheduleWithTimeBasedDecay";
 const contractAddress = ContractDeployAddress.PlayersVestingDecayByWeek;
@@ -21,7 +19,7 @@ async function main() {
     );
   } else {
     const startTimestamp = ZOIC_RELEASE_START_TIME;
-    const duration = ZOIC_RELEASE_WEEKS;
+    const duration = ZOIC_RELEASE_WEEKS_DURATION;
 
     const contract = await deployUpgradeProxy(DeployContractName, [
       ContractDeployAddress.TokenCofferPlayers,
