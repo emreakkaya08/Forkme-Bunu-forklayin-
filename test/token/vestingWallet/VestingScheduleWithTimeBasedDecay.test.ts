@@ -125,6 +125,26 @@ describe("VestingScheduleWithTimeBasedDecay", async () => {
       await ethers.provider.send("evm_revert", [snapshotId]);
     });
 
+    it("change start time", async () => {
+      let starttime = now() + 60 * 60;
+
+      await expect(contract.setStartTime(starttime)).to.be.reverted;
+
+      const [owner, addr1] = await ethers.getSigners();
+      await contract.grantRole(
+        ethers.utils.id("START_TIME_SETTER_ROLE"),
+        owner.address
+      );
+
+      const startBeforeChange = await contract["start()"]();
+
+      await contract.connect(owner).setStartTime(starttime);
+
+      const start = await contract["start()"]();
+      expect(start).to.equal(`${starttime}`);
+      expect(start).to.not.equal(startBeforeChange);
+    });
+
     it("release", async () => {
       const [owner, addr1] = await ethers.getSigners();
       await network.provider.send("evm_increaseTime", [WEEK]);

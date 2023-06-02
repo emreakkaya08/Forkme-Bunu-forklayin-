@@ -146,10 +146,6 @@ contract VestingScheduleWithTimeBasedDecay is
         uint64 timestamp
     ) public whenNotPaused onlyRole(START_TIME_SETTER_ROLE) {
         require(_startTimeStamp == 0, "start time already set");
-        require(
-            _startTimeStamp >= block.timestamp,
-            "start time must be greater than current time"
-        );
         _startTimeStamp = timestamp;
     }
 
