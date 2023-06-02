@@ -1,9 +1,8 @@
 import { ethers } from "hardhat";
-import { ContractDeployAddress } from "scripts/consts/deploy.address.const";
 import { A_WEEK, TOTAL_RELEASE_WEEKS, getSupplyOf } from "../Tokenomics.const";
 import { ZOIC_RELEASE_WEEKLY_DECAY_PERCENT } from "../Tokenomics.const";
 import { SupplyDistribution } from "../Tokenomics.const";
-import { TOTAL_SUPPLY_ZOIC } from "../Tokenomics.const";
+import { ContractDeployAddress } from "../../../consts/deploy.address.const";
 
 async function getContract(name: string, address: ContractDeployAddress) {
   const contract = await ethers.getContractAt(name, address);

@@ -1,11 +1,11 @@
-import { ContractDeployAddress } from "scripts/consts/deploy.address.const";
+import { ContractDeployAddress } from "../../../consts/deploy.address.const";
 import {
   deployUpgradeProxy,
   deployUpgradeUpdate,
-} from "scripts/utils/deploy.util";
+} from "../../../utils/deploy.util";
 import {
-  ZOIC_RELEASE_START_TIME,
   ZOIC_RELEASE_WEEKS_DURATION,
+  ZoicReleaseStartTime,
 } from "../Tokenomics.const";
 
 const DeployContractName = "VestingScheduleWithTimeBasedDecay";
@@ -18,7 +18,7 @@ async function main() {
       contractAddress
     );
   } else {
-    const startTimestamp = ZOIC_RELEASE_START_TIME;
+    const startTimestamp = ZoicReleaseStartTime.Team;
     const duration = ZOIC_RELEASE_WEEKS_DURATION;
 
     const contract = await deployUpgradeProxy(DeployContractName, [

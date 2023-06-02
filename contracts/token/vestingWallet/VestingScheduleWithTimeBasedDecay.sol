@@ -38,6 +38,10 @@ contract VestingScheduleWithTimeBasedDecay is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant TOKEN_SETTER_ROLE = keccak256("TOKEN_SETTER_ROLE");
+    bytes32 public constant START_TIME_SETTER_ROLE =
+        keccak256("START_TIME_SETTER_ROLE");
+
+    uint64 private _startTimeStamp;
 
     mapping(address => TokenInfo) private _tokenInfo;
 
@@ -132,6 +136,17 @@ contract VestingScheduleWithTimeBasedDecay is
             }
         }
         return amount;
+    }
+
+    function start() public view virtual override returns (uint256) {
+        return _startTimeStamp == 0 ? super.start() : _startTimeStamp;
+    }
+
+    function setStartTime(
+        uint64 timestamp
+    ) public whenNotPaused onlyRole(START_TIME_SETTER_ROLE) {
+        require(_startTimeStamp == 0, "start time already set");
+        _startTimeStamp = timestamp;
     }
 
     function addTokenInfo(

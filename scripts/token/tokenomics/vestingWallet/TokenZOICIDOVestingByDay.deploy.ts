@@ -1,8 +1,8 @@
-import { ContractDeployAddress } from "scripts/consts/deploy.address.const";
+import { ContractDeployAddress } from "../../../consts/deploy.address.const";
 import {
   deployUpgradeProxy,
   deployUpgradeUpdate,
-} from "scripts/utils/deploy.util";
+} from "../../../utils/deploy.util";
 import { IDO_RELEASE_START_TIME } from "../Tokenomics.const";
 import { IDO_RELEASE_DURATION } from "../Tokenomics.const";
 
