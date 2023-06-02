@@ -63,6 +63,8 @@ ETH_TESTNET_URL='https://rpc.ankr.com/eth_goerli'
 ETH_TESTNET_DEPLOYER_PRIVATE_KEY='0xddf32a25932****************************'
 ZKSYNC_ERA_TESTNET_URL="https://testnet.era.zksync.dev"
 ZKSYNC_ERA_TESTNET_DEPLOYER_PRIVATE_KEY="0xddf32a25932****************************"
+BSC_TESTNET_URL='https://rpc.ankr.com/bsc_testnet_chapel/ac141fd7c92fef5b91821a38011b5073605c4d3c359e2c37b5efe857b324ac37'
+BSC_TESTNET_DEPLOYER_PRIVATE_KEY='0xddf32a25932****************************'
 ```
 
 Running Test Locally (Recommend)

@@ -1,12 +1,12 @@
-import { ContractDeployAddress } from '../../consts/deploy.address.const';
+import { ContractDeployAddress } from "../../../consts/deploy.address.const";
 import {
   deployUpgradeProxy,
   deployUpgradeUpdate,
-} from '../../utils/deploy.util';
+} from "../../../utils/deploy.util";
 
 async function main() {
-  const contractAddress = ContractDeployAddress.PoolTokenCoffer;
-  const DeployContractName = 'TokenCoffer';
+  const contractAddress = ContractDeployAddress.TokenCofferAirdrop;
+  const DeployContractName = "TokenCoffer";
   if (contractAddress) {
     const contract = await deployUpgradeUpdate(
       DeployContractName,

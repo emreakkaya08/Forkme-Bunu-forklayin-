@@ -33,7 +33,8 @@ describe('TokenRedeem', async () => {
 
     const TokenZOIC = await ethers.getContractFactory('TokenZOIC');
     tokenZOIC = await upgrades.deployProxy(TokenZOIC, [
-      tokenZoicCoffer.address,
+      [tokenZoicCoffer.address],
+      [10000]
     ]);
     await tokenZOIC.deployed();
 
@@ -131,14 +132,23 @@ describe('TokenRedeem', async () => {
       .div(10)
       .add(ethers.utils.parseEther('9'));
 
-    // approve
-    const balanceY = await usdtContract.balanceOf(treasury.address);
-    await treasury
-      .connect(owner)
-      .grantRole(ethers.utils.id('APPROVE_ERC20'), addr1.address);
-    await treasury
-      .connect(addr1)
-      .approve(usdtContract.address, contract.address, balanceY);
+    const withdrawERC20Role = ethers.utils.id('WITHDRAW_ERC20');
+    const revert = `AccessControl: account ${ethers.utils
+      .getAddress(contract.address)
+      .toLowerCase()} is missing role ${withdrawERC20Role}`;
+
+    await expect(
+      contract
+        .connect(userAddress)
+        .redeemERC20(
+          tokenCENO.address,
+          tokenZOIC.address,
+          usdtContract.address,
+          ethers.utils.parseEther('9')
+        )
+    ).to.be.revertedWith(revert);
+
+    await treasury.grantRole(withdrawERC20Role, contract.address);
 
     await expect(
       contract

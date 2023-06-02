@@ -22,11 +22,12 @@ describe('TokenCoffer', async () => {
   it('TokenCoffer Withdraw test', async () => {
     const TokenZOICContract = await ethers.getContractFactory('TokenZOIC');
     const zoicContract = await upgrades.deployProxy(TokenZOICContract, [
-      contract.address,
+      [contract.address],
+      [10000]
     ]);
     await zoicContract.deployed();
 
-    const totalAmount = ethers.utils.parseEther('204800000');
+    const totalAmount = ethers.utils.parseEther('1000000000');
     expect(await zoicContract.balanceOf(contract.address)).to.equal(
       totalAmount
     );

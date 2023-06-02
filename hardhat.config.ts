@@ -1,4 +1,5 @@
-import '@nomiclabs/hardhat-waffle';
+import '@nomicfoundation/hardhat-chai-matchers';
+import '@nomicfoundation/hardhat-toolbox';
 import 'dotenv/config';
 import { task } from 'hardhat/config';
 
