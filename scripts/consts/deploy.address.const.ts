@@ -66,16 +66,17 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   // 2.5% of total supply, release in 21 days
   TokenZOICIDOVestingByDay: null,
   // 52% of total supply, release in 360 weeks, decay 1% per week
-  PlayersVestingDecayByWeek: null,
+  PlayersVestingDecayByWeek: "0xeC7a14C3b440278ab41640d4902639F830206847",
   TokenCofferPlayers: "0x79aceefD4Bc5743d57939d7c06C4E7FdCAe1566e",
   // 15.5% of total supply, release in 360 weeks,
-  DevsVestingDecayByWeek: null,
+  DevsVestingDecayByWeek: "0x5C47f870F90E72c5b77c8Fcd7134dBeA3ec4E8B3",
   TokenCofferDevs: "0x76B4f7DBf864F7919466aC64e1344Fa276ccaeb3",
   // 15% of total supply, release in 360 weeks,
-  StakingRewardsVestingDecayByWeek: null,
+  StakingRewardsVestingDecayByWeek:
+    "0xf3557Fea44c4C3134589516229b4f772e84649f2",
   TokenCofferStakingRewards: "0xaa686d37A765BC5f67F0EA93a9804Eaa84E77Dca",
   // 10% of total supply, release in 360 weeks,
-  TeamVestingDecayByWeek: null,
+  TeamVestingDecayByWeek: "0x8330e53605F1cFec64461eE7f7Eb3EB0709e6C1C",
   TokenCofferTeam: "0x71f72C61551A2A14a8e147165e8bcA984a97616A",
 
   GameTokenCoffer: "0xc64c53Bc7047e3caE33F1b175e6261754F96e5F3",
