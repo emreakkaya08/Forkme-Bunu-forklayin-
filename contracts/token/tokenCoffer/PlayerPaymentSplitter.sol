@@ -188,7 +188,7 @@ contract PlayerPaymentSplitter is
         // uint64 _timestamp = uint64(block.timestamp);
         address _player = msg.sender;
 
-        uint256 releasedZOIC = 10000000000;
+        uint256 releasedZOIC = 10**18;
         // get the amount of ZOIC that will be released in this cycle
         // from the ZOIC vault splitter
         // uint256 releasedZOIC = tokenCofferPaymentSplitter.releasedZOIC();

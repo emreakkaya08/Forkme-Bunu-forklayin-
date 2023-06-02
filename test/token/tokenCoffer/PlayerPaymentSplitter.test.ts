@@ -97,6 +97,9 @@ describe('PlayerPaymentSplitter', async () => {
         
         expect(await playerPaymentSplitterContract.connect(owner).releasableThisCycle(burgerChallenge)).to.equal(ethers.utils.parseEther("0.32"));
         
+        await playerPaymentSplitterContract.connect(owner).claim(burgerChallenge);
+        expect(await zoicToken.balanceOf(owner.address)).to.equal(ethers.utils.parseEther("0.32"));
+        
     });
     
 });
