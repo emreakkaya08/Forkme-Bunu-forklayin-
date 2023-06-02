@@ -43,16 +43,34 @@ describe('PlayerPaymentSplitter', async () => {
     
     it('PlayerPaymentSplitter: paymentSplit test', async () => {
         
+        // random address
+        // 0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B  assume to be game Burger Challenge
+        // 0x1Db3439a222C519ab44bb1144fC28167b4Fa6EE6  assume to be game Save the Princess
+        let burgerChallenge = ethers.utils.getAddress("0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B");
+        let saveThePrincess = ethers.utils.getAddress("0x1Db3439a222C519ab44bb1144fC28167b4Fa6EE6");
+        // random address
+        // 0x220866B1A2219f40e72f5c628B65D54268cA3A9D  assume to be player Link
+        // 0xD04daa65144b97F147fbc9a9B45E741dF0A28fd7  assume to be player Zelda
+        let link = ethers.utils.getAddress("0x220866B1A2219f40e72f5c628B65D54268cA3A9D");
+        let zelda = ethers.utils.getAddress("0xD04daa65144b97F147fbc9a9B45E741dF0A28fd7");
+        
+        
         const [owner] = await ethers.getSigners();
         
         await gamePool.connect(owner).refreshApprove(zoicToken.address, playerPaymentSplitterContract.address);
         console.log("the allowance of game pool that splitter got", await zoicToken.allowance(gamePool.address, playerPaymentSplitterContract.address));
+        expect(await zoicToken.allowance(gamePool.address, playerPaymentSplitterContract.address)).to.equal(ethers.utils.parseEther("1"));
         
-        await gameCoefficientBallot.startBallot();
+        await gameCoefficientBallot.startBallot([burgerChallenge, saveThePrincess], [20, 80]);
+        expect(await gameCoefficientBallot.getGameCoefficient(burgerChallenge)).to.equal(20);
+        expect(await gameCoefficientBallot.getGameCoefficient(saveThePrincess)).to.equal(80);
         
+        await playerConsumeRecord.connect(owner).updatePlayerRecord(link, saveThePrincess, 10, 10);
+        await playerConsumeRecord.connect(owner).updatePlayerRecord(zelda, burgerChallenge, 20, 10);
+        await playerConsumeRecord.connect(owner).updatePlayerRecord(owner.address, burgerChallenge, 20, 10);
+        console.log("cenoConsumed,gasUsed,cenoConsumedTotal,gasUsedTotal", await playerConsumeRecord.getPlayerConsumeRecordThisCycle(link, saveThePrincess));
         
-        await playerPaymentSplitterContract.connect(owner).claim();
-        console.log('after releasing, player balanceOf:', await zoicToken.balanceOf(ethers.utils.getAddress("0x8e675b3B721af441E908aB2597C1BC283A0D1C4d")));
+        expect(await playerPaymentSplitterContract.connect(owner).releasableThisCycle(burgerChallenge)).to.equal(ethers.utils.parseEther("320"));
         
     });
     

@@ -13,12 +13,12 @@ import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 
 contract TokenCoffer is
-    Initializable,
-    AccessControlEnumerableUpgradeable,
-    ReentrancyGuardUpgradeable,
-    PausableUpgradeable,
-    UUPSUpgradeable,
-    VersionUpgradeable
+Initializable,
+AccessControlEnumerableUpgradeable,
+ReentrancyGuardUpgradeable,
+PausableUpgradeable,
+UUPSUpgradeable,
+VersionUpgradeable
 {
     event TokenReceived(address from, uint256 amount);
     event Withdraw(address to, uint256 amount);
@@ -27,48 +27,48 @@ contract TokenCoffer is
         address indexed to,
         uint256 amount
     );
-
+    
     bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-
+    
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
     }
-
+    
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
-
+    
     function _authorizeUpgrade(
         address newImplementation
     ) internal override onlyRole(UPGRADER_ROLE) {}
-
+    
     function _version() internal pure virtual override returns (uint256) {
         return 1;
     }
-
+    
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
-
+    
     function initialize() public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
         __ReentrancyGuard_init();
         __VersionUpgradeable_init();
-
+        
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
-
+    
     receive() external payable virtual {
         emit TokenReceived(_msgSender(), msg.value);
     }
-
+    
     function withdraw(
         address payable to,
         uint256 amount
@@ -76,7 +76,7 @@ contract TokenCoffer is
         AddressUpgradeable.sendValue(to, amount);
         emit Withdraw(to, amount);
     }
-
+    
     function withdrawERC20(
         IERC20Upgradeable token,
         address to,
@@ -85,7 +85,7 @@ contract TokenCoffer is
         SafeERC20Upgradeable.safeTransfer(token, to, value);
         emit WithdrawERC20(token, to, value);
     }
-
+    
     function refreshApprove(
         IERC20Upgradeable token,
         address spender
@@ -98,11 +98,11 @@ contract TokenCoffer is
                 0
             );
         }
-
+        
         // TODO
         // transfer the remaining ZOIC that players didn't claim to the vault
-        // SafeERC20Upgradeable.safeTransfer(token, vault, token.balanceof(this));
+        // SafeERC20Upgradeable.safeTransfer(token, vault, token.balance(this));
         
-        SafeERC20Upgradeable.safeApprove(token, spender, 204800000 * 10 ** 18);
+        SafeERC20Upgradeable.safeApprove(token, spender, 100 ** 18);
     }
 }

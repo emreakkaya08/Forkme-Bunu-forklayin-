@@ -65,13 +65,12 @@ contract PlayerConsumeRecord is
     }
 
     function _updatePlayerRecord(
-        uint64 _timestamp,
         address _player,
         address _game,
         uint256 _cenoConsumed,
         uint256 _gasUsed
     ) internal {
-        require(_timestamp > 0, "Invalid timestamp");
+
         require(_cenoConsumed > 0, "Invalid cenoConsumed");
         require(_gasUsed > 0, "Invalid gasUsed");
 
@@ -93,14 +92,14 @@ contract PlayerConsumeRecord is
     }
 
     function updatePlayerRecord(
-        uint64 _timestamp,
+
         address _player,
         address _gamePlayed,
         uint256 _cenoConsumed,
         uint256 _gasUsed
     ) public onlyRole(RECORDER_ROLE) {
         _updatePlayerRecord(
-            _timestamp,
+
             _player,
             _gamePlayed,
             _cenoConsumed,

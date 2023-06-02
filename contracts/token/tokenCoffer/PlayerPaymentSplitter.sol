@@ -91,11 +91,10 @@ contract PlayerPaymentSplitter is
     }
 
     function _getGameCoefficientThisCycle(
-        address _game,
-        uint64 _timestamp
+        address _game
     ) internal view returns (uint256 coefficient, uint256 totalCoefficient) {
         (coefficient, totalCoefficient) = gameCoefficientBallot
-            .getGameCoefficient(_game, _timestamp);
+            .getGameCoefficient(_game);
     }
 
     function _getPlayerConsumeRecordThisCycle(
@@ -145,10 +144,10 @@ contract PlayerPaymentSplitter is
     ) public view returns (uint256 releasable) {
         // player gets the amount of ZOIC that will be released in this cycle in this game
 
-        uint64 _timestamp = uint64(block.timestamp);
+        // uint64 _timestamp = uint64(block.timestamp);
         address _player = msg.sender;
 
-        uint256 releasedZOIC = 10000000000;
+        uint256 releasedZOIC = 10**18;
         // get the amount of ZOIC that will be released in this cycle
         // from the ZOIC vault splitter
         // uint256 releasedZOIC = tokenCofferPaymentSplitter.releasedZOIC();
@@ -156,7 +155,7 @@ contract PlayerPaymentSplitter is
         (
             uint256 _coefficient,
             uint256 _totalCoefficient
-        ) = _getGameCoefficientThisCycle(_game, _timestamp);
+        ) = _getGameCoefficientThisCycle(_game);
 
         (
             uint256 _cenoConsumed,
@@ -186,7 +185,7 @@ contract PlayerPaymentSplitter is
     ) public view returns (uint256 releasable) {
         // player gets the amount of ZOIC that will be released in this cycle in this game
 
-        uint64 _timestamp = uint64(block.timestamp);
+        // uint64 _timestamp = uint64(block.timestamp);
         address _player = msg.sender;
 
         uint256 releasedZOIC = 10000000000;
@@ -198,7 +197,7 @@ contract PlayerPaymentSplitter is
         (
             uint256 _coefficient,
             uint256 _totalCoefficient
-        ) = _getGameCoefficientThisCycle(_game, _timestamp);
+        ) = _getGameCoefficientThisCycle(_game);
 
         (
             uint256 _cenoConsumed,
