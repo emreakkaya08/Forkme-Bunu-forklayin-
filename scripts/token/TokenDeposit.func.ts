@@ -1,9 +1,9 @@
-import { ethers } from 'hardhat';
-import { ContractDeployAddress } from '../consts/deploy.address.const';
+import { ethers } from "hardhat";
+import { ContractDeployAddress } from "../consts/deploy.address.const";
 
 async function getContract() {
   const contract = await ethers.getContractAt(
-    'TokenDeposit',
+    "TokenDeposit",
     ContractDeployAddress.TokenDeposit
   );
   const [owner] = await ethers.getSigners();
@@ -14,14 +14,14 @@ async function getContract() {
 async function addExchangeRate() {
   const contract = await getContract();
 
-  //grant minter role to default caller
-  const rate = 1;
+  //TODO add exchange rate, the rate decided by PM
+  const rate = 100;
   const tx = await contract.addExchangeRate(
     ContractDeployAddress.XYGameUSDT,
     rate
   );
   const receipt = await tx.wait();
-  console.log(`TokenDeposit add addExchangeRate usdt ${rate}`, 'done!');
+  console.log(`TokenDeposit add addExchangeRate usdt ${rate}`, "done!");
 }
 
 // async function grantRole() {
