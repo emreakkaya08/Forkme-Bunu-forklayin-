@@ -62,15 +62,40 @@ describe('PlayerPaymentSplitter', async () => {
         expect(await zoicToken.allowance(gamePool.address, playerPaymentSplitterContract.address)).to.equal(ethers.utils.parseEther("1"));
         
         await gameCoefficientBallot.startBallot([burgerChallenge, saveThePrincess], [20, 80]);
-        expect(await gameCoefficientBallot.getGameCoefficient(burgerChallenge)).to.equal(20);
-        expect(await gameCoefficientBallot.getGameCoefficient(saveThePrincess)).to.equal(80);
+        await gameCoefficientBallot.getGameCoefficient(burgerChallenge).then(([gameCoefficient, totalCoefficient]) => {
+            expect(gameCoefficient).to.equal(20);
+        });
+        await gameCoefficientBallot.getGameCoefficient(saveThePrincess).then(([gameCoefficient, totalCoefficient]) => {
+            expect(gameCoefficient).to.equal(80);
+        });
         
         await playerConsumeRecord.connect(owner).updatePlayerRecord(link, saveThePrincess, 10, 10);
         await playerConsumeRecord.connect(owner).updatePlayerRecord(zelda, burgerChallenge, 20, 10);
         await playerConsumeRecord.connect(owner).updatePlayerRecord(owner.address, burgerChallenge, 20, 10);
-        console.log("cenoConsumed,gasUsed,cenoConsumedTotal,gasUsedTotal", await playerConsumeRecord.getPlayerConsumeRecordThisCycle(link, saveThePrincess));
+        await playerConsumeRecord.getPlayerConsumeRecordThisCycle(link, saveThePrincess)
+            .then(([cenoConsumed, gasUsed, cenoConsumedTotal, gasUsedTotal]) => {
+                expect(cenoConsumed).to.equal(10);
+                expect(gasUsed).to.equal(10);
+                expect(cenoConsumedTotal).to.equal(10);
+                expect(gasUsedTotal).to.equal(10);
+            });
+        await playerConsumeRecord.getPlayerConsumeRecordThisCycle(zelda, burgerChallenge)
+            .then(([cenoConsumed, gasUsed, cenoConsumedTotal, gasUsedTotal]) => {
+                expect(cenoConsumed).to.equal(20);
+                expect(gasUsed).to.equal(10);
+                expect(cenoConsumedTotal).to.equal(40);
+                expect(gasUsedTotal).to.equal(20);
+            });
+        await playerConsumeRecord.getPlayerConsumeRecordThisCycle(owner.address, burgerChallenge)
+            .then(([cenoConsumed, gasUsed, cenoConsumedTotal, gasUsedTotal]) => {
+                expect(cenoConsumed).to.equal(20);
+                expect(gasUsed).to.equal(10);
+                expect(cenoConsumedTotal).to.equal(40);
+                expect(gasUsedTotal).to.equal(20);
+            });
+        console.log(await playerConsumeRecord.getPlayerConsumeRecordThisCycle(link, saveThePrincess));
         
-        expect(await playerPaymentSplitterContract.connect(owner).releasableThisCycle(burgerChallenge)).to.equal(ethers.utils.parseEther("320"));
+        expect(await playerPaymentSplitterContract.connect(owner).releasableThisCycle(burgerChallenge)).to.equal(ethers.utils.parseEther("0.32"));
         
     });
     

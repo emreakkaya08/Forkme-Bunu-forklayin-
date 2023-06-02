@@ -211,6 +211,7 @@ contract PlayerPaymentSplitter is
 
         // Reward(A)=rY*52%*K*[P(A)/P(N)]
         // TODO : veToken and inviteReward
+        // TODO : total player P
         releasable =
             (releasedZOIC *
                 _coefficient *

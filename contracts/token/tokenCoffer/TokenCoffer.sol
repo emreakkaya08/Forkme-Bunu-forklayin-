@@ -103,6 +103,6 @@ VersionUpgradeable
         // transfer the remaining ZOIC that players didn't claim to the vault
         // SafeERC20Upgradeable.safeTransfer(token, vault, token.balance(this));
         
-        SafeERC20Upgradeable.safeApprove(token, spender, 100 ** 18);
+        SafeERC20Upgradeable.safeApprove(token, spender, 10 ** 18);
     }
 }
