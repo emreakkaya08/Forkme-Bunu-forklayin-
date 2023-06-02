@@ -19,16 +19,24 @@ export const SupplyDistribution = {
 };
 
 const DAY = 24 * 60 * 60;
-const WEEK = 7 * DAY;
+export const A_WEEK = 7 * DAY;
 
 // 2023-07-01 00:00:00 UTC
 export const ZOIC_RELEASE_START_TIME = 1686115200;
 
-export const ZOIC_RELEASE_WEEKS = 360 * WEEK;
+export const TOTAL_RELEASE_WEEKS = 360;
 
-export const ZOIC_RELEASE_WEEKLY_DECAY = 1;
+export const ZOIC_RELEASE_WEEKS_DURATION = TOTAL_RELEASE_WEEKS * A_WEEK;
+
+export const ZOIC_RELEASE_WEEKLY_DECAY_PERCENT = 1;
 
 // 2023-07-01 00:00:00 UTC
 export const IDO_RELEASE_START_TIME = 1686115200;
 
 export const IDO_RELEASE_DURATION = 21 * DAY;
+
+export const getSupplyOf = (supplyDistribution: number) => {
+  return parseInt(
+    ((TOTAL_SUPPLY_ZOIC * supplyDistribution) / 10000).toString()
+  );
+};
