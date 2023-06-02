@@ -1,8 +1,8 @@
-import { ContractDeployAddress } from "scripts/consts/deploy.address.const";
+import { ContractDeployAddress } from "../../../consts/deploy.address.const";
 import {
   deployUpgradeProxy,
   deployUpgradeUpdate,
-} from "scripts/utils/deploy.util";
+} from "../../../utils/deploy.util";
 import {
   ZOIC_RELEASE_WEEKS_DURATION,
   ZoicReleaseStartTime,
