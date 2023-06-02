@@ -17,7 +17,6 @@ interface ContractDeployAddressInterface {
   TokenRedeem?: ContractDeployAddress;
   TokenVeZOIC?: ContractDeployAddress;
 
-  ZOICTokenCoffer?: ContractDeployAddress;
   TokenCofferAirdrop?: ContractDeployAddress;
   TokenCofferIDOVesting?: ContractDeployAddress;
   TokenCofferIDOToTGE?: ContractDeployAddress;
@@ -31,13 +30,6 @@ interface ContractDeployAddressInterface {
   TokenCofferStakingRewards?: ContractDeployAddress;
   TeamVestingDecayByWeek?: ContractDeployAddress;
   TokenCofferTeam?: ContractDeployAddress;
-
-  GameTokenCoffer?: ContractDeployAddress;
-  PoolTokenCoffer?: ContractDeployAddress;
-  VaultTokenCoffer?: ContractDeployAddress;
-  TeamTokenCoffer?: ContractDeployAddress;
-  TokenCofferPaymentSplitter?: ContractDeployAddress;
-  Year1VestingByTimeWallet?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
@@ -54,7 +46,6 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   TokenTreasury: "0xC2f178B40C0741ead0309B13040326B3014B1F06",
   TokenRedeem: "0x82178F55690fe80f0664d6AD3BD16a273e3ff3Ab",
 
-  ZOICTokenCoffer: "0x199D69090b609175770920cEb056c65822F71529",
   // 2.5% of total supply
   TokenCofferAirdrop: "0x0185D5968928F7C57E66b669802c3CD53B08f2c0",
   // 2.5% of total supply
@@ -79,13 +70,6 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   TeamVestingDecayByWeek: "0x8330e53605F1cFec64461eE7f7Eb3EB0709e6C1C",
   TokenCofferTeam: "0x71f72C61551A2A14a8e147165e8bcA984a97616A",
 
-  GameTokenCoffer: "0xc64c53Bc7047e3caE33F1b175e6261754F96e5F3",
-  PoolTokenCoffer: "0x6a8424a3e8b9d0bFfFB910f264C2fdD66D9D3ecf",
-  VaultTokenCoffer: "0xcCC65943a9fd1125F2717549Ba810279450607B9",
-  TeamTokenCoffer: "0x8348cbd49B64d85a8488e40D8Efc7B76EEFa0fa1",
-
-  TokenCofferPaymentSplitter: "0x4d76295B951342DF124e264bd6d9a77B2a962072",
-  Year1VestingByTimeWallet: "0x38A6DFa6DB41B8B1851b058e26F74305044199ed",
   TokenVeZOIC: "0xD260F08e3639a1A9E5684967ab4eb41C02912930",
 };
 
