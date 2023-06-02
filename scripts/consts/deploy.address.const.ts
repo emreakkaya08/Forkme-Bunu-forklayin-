@@ -56,27 +56,27 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
 
   ZOICTokenCoffer: "0x199D69090b609175770920cEb056c65822F71529",
   // 2.5% of total supply
-  TokenCofferAirdrop: null,
+  TokenCofferAirdrop: "0x0185D5968928F7C57E66b669802c3CD53B08f2c0",
   // 2.5% of total supply
-  TokenCofferIDOToTGE: null,
+  TokenCofferIDOToTGE: "0xAfF7508aa99322Dd53Ea49FbD1CB297CD79BE501",
   // ido token vesting release first mint to
-  TokenCofferIDOVesting: null,
+  TokenCofferIDOVesting: "0x9c82A1AeD85Db7E2f5F82EFd7Cc57A293f3F06D2",
   // ido release to, total amount 2.5% of total supply when released over 21 days TokenZOICIDOVestingByTime->TokenCofferIDOLinnerRelease
-  TokenCofferIDOLinnerRelease: null,
+  TokenCofferIDOLinnerRelease: "0xAb4d40390d31E82C64D044ECE91727850ec84657",
   // 2.5% of total supply, release in 21 days
   TokenZOICIDOVestingByDay: null,
   // 52% of total supply, release in 360 weeks, decay 1% per week
   PlayersVestingDecayByWeek: null,
-  TokenCofferPlayers: null,
+  TokenCofferPlayers: "0x79aceefD4Bc5743d57939d7c06C4E7FdCAe1566e",
   // 15.5% of total supply, release in 360 weeks,
   DevsVestingDecayByWeek: null,
-  TokenCofferDevs: null,
+  TokenCofferDevs: "0x76B4f7DBf864F7919466aC64e1344Fa276ccaeb3",
   // 15% of total supply, release in 360 weeks,
   StakingRewardsVestingDecayByWeek: null,
-  TokenCofferStakingRewards: null,
+  TokenCofferStakingRewards: "0xaa686d37A765BC5f67F0EA93a9804Eaa84E77Dca",
   // 10% of total supply, release in 360 weeks,
   TeamVestingDecayByWeek: null,
-  TokenCofferTeam: null,
+  TokenCofferTeam: "0x71f72C61551A2A14a8e147165e8bcA984a97616A",
 
   GameTokenCoffer: "0xc64c53Bc7047e3caE33F1b175e6261754F96e5F3",
   PoolTokenCoffer: "0x6a8424a3e8b9d0bFfFB910f264C2fdD66D9D3ecf",
