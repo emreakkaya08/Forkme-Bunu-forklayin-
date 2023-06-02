@@ -40,7 +40,7 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   XYGameUSDT: "0xf3e54ed5E6BAFd203bCc4316663bAe0Bf0100811",
   USDTFaucet: "0x861eC40cF915A2036617272a81ed16b339952E51",
   TokenCENO: "0xd7dA0eb37ac4AFBa74ce8DEBB03A8caa09177378",
-  TokenZOIC: null,
+  TokenZOIC: "0xBD0a99e6B1F3B0b47A4F95B90Ba918Ae05Ae0644",
   TokenDeposit: "0x2a2370af0E7928Ac6D8f03fF9EDc150d02c6D2Be",
   // use for usdt of zoic ... , use as vault
   TokenTreasury: "0xC2f178B40C0741ead0309B13040326B3014B1F06",
