@@ -52,9 +52,9 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   TokenCofferPaymentSplitter: '0x4d76295B951342DF124e264bd6d9a77B2a962072',
   Year1VestingByTimeWallet: '0x38A6DFa6DB41B8B1851b058e26F74305044199ed',
   
-  GameCoefficientBallot:null,
-  PlayerConsumeRecord:null,
-  PlayerPaymentSplitter:null,
+  GameCoefficientBallot:'0xcd6781E19334298909C5830B1148Ad867BBCb601',
+  PlayerConsumeRecord:'0x8e675b3B721af441E908aB2597C1BC283A0D1C4d',
+  PlayerPaymentSplitter:'0x54273407780fB2382AEBCd7da7362Be8a75F86dC',
 
 };
 
@@ -65,7 +65,7 @@ export function getContractDeployAddress(
 ): ContractDeployAddressInterface {
   let _ContractDeployAddress: ContractDeployAddressInterface = null as any;
   switch (network) {
-    case deployNetwork.eth_testnet:
+    case deployNetwork.bsc_testnet:
       _ContractDeployAddress = ContractDeployAddress_ETHTestNet;
       break;
     case deployNetwork.eth_mainnet:
