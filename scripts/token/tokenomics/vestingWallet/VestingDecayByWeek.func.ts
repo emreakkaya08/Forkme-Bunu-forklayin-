@@ -37,6 +37,16 @@ async function addDecayVestingTokenInfo() {
   );
 }
 
+async function getContractWith(address:ContractDeployAddress) {
+  const [owner] = await ethers.getSigners();
+  const contract = await getContract(
+    "VestingScheduleWithTimeBasedDecay",
+    address
+  );
+
+  return contract.connect(owner);
+}
+
 async function addVestingTokenInfo(
   address: ContractDeployAddress,
   supplyDistribution: number
@@ -48,9 +58,9 @@ async function addVestingTokenInfo(
     address
   );
 
-  await contract.grantRole(ethers.utils.id("TOKEN_SETTER_ROLE"), owner.address);
-  await contract
-    .connect(owner)
+  const txGrantRole = await contract.grantRole(ethers.utils.id("TOKEN_SETTER_ROLE"), owner.address);
+  await txGrantRole.wait();
+  const tx = await contract
     .addTokenInfo(
       ContractDeployAddress.TokenZOIC,
       TOTAL_RELEASE_WEEKS,
@@ -58,7 +68,26 @@ async function addVestingTokenInfo(
       A_WEEK,
       ethers.utils.parseEther(`${getSupplyOf(supplyDistribution)}`)
     );
+  await tx.wait();
 }
+
+// async function release() {
+//   const player = await getContractWith(ContractDeployAddress.PlayersVestingDecayByWeek);
+//   const txPlayer = await player['release(address)'](ContractDeployAddress.TokenZOIC);
+//   await txPlayer.wait();
+
+//   const dev = await getContractWith(ContractDeployAddress.DevsVestingDecayByWeek);
+//   const txDev = await dev['release(address)'](ContractDeployAddress.TokenZOIC);
+//   await txDev.wait();
+
+//   const stake = await getContractWith(ContractDeployAddress.StakingRewardsVestingDecayByWeek);
+//   const txStake = await stake['release(address)'](ContractDeployAddress.TokenZOIC);
+//   await txStake.wait();
+
+//   const team = await getContractWith(ContractDeployAddress.TeamVestingDecayByWeek);
+//   const txTeam = await team['release(address)'](ContractDeployAddress.TokenZOIC);
+//   await txTeam.wait();
+// }
 
 async function main() {
   await addDecayVestingTokenInfo();
