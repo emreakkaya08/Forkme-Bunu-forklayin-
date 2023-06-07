@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../../core/contract-upgradeable/VersionUpgradeable.sol";
 
 contract TokenZOIC is
@@ -17,9 +18,10 @@ contract TokenZOIC is
     UUPSUpgradeable,
     VersionUpgradeable
 {
+    using SafeMath for uint256;
+
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -38,7 +40,10 @@ contract TokenZOIC is
         _disableInitializers();
     }
 
-    function initialize(address _zoicCoffer) public initializer {
+    function initialize(
+        address[] memory coffers,
+        uint256[] memory shares_
+    ) public initializer {
         __ERC20_init("TokenZOIC", "ZOIC");
         __AccessControlEnumerable_init();
         __ERC20Burnable_init();
@@ -49,8 +54,12 @@ contract TokenZOIC is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-        _grantRole(MINTER_ROLE, msg.sender);
-        _mint(_zoicCoffer, 204800000 * 10 ** decimals());
+
+        uint256 totalSupply = 1000000000 * (10 ** decimals());
+        for (uint64 i = 0; i < coffers.length; i++) {
+            uint256 amount = totalSupply.mul(shares_[i]).div(10000);
+            _mint(coffers[i], amount);
+        }
     }
 
     function _beforeTokenTransfer(
