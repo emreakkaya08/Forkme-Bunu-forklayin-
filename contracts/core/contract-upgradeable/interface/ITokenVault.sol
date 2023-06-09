@@ -10,9 +10,22 @@ interface ITokenVault {
         address indexed to,
         uint256 amount
     );
-    
+
+    function getNonce() external view returns (uint256);
+
+    function withdrawWithSignature(
+        uint256 amount,
+        bytes memory signature
+    ) external;
+
+    function withdrawERC20WithSignature(
+        IERC20Upgradeable token,
+        uint256 amount,
+        bytes memory signature
+    ) external;
+
     function withdraw(address payable to, uint256 amount) external;
-    
+
     function withdrawERC20(
         IERC20Upgradeable token,
         address to,
