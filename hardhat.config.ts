@@ -39,7 +39,7 @@ module.exports = {
 
   networks: {
     // use bsctest as dev env, goerli eth is so expensive
-    eth_testnet: {
+    bsc_testnet: {
       url: BSC_TESTNET_URL,
       chainId: 97,
       gasPrice: 20000000000,
