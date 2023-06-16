@@ -6,7 +6,7 @@ import {
 
 async function main() {
   const contractAddress = ContractDeployAddress.NFTForRewardPointsAmethystBox;
-  const DeployContractName = "NFTForRewardPointsAmethystBox";
+  const DeployContractName = "NFTForRewardPoints";
   if (contractAddress) {
     const contract = await deployUpgradeUpdate(
       DeployContractName,

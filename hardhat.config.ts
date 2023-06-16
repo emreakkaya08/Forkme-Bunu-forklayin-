@@ -1,12 +1,12 @@
-import '@nomicfoundation/hardhat-chai-matchers';
-import '@nomicfoundation/hardhat-toolbox';
-import 'dotenv/config';
-import { task } from 'hardhat/config';
+import "@nomicfoundation/hardhat-chai-matchers";
+import "@nomicfoundation/hardhat-toolbox";
+import "dotenv/config";
+import { task } from "hardhat/config";
 
-import '@nomiclabs/hardhat-solhint';
-import '@openzeppelin/hardhat-defender';
-import '@openzeppelin/hardhat-upgrades';
-import 'hardhat-abi-exporter';
+import "@nomiclabs/hardhat-solhint";
+import "@openzeppelin/hardhat-defender";
+import "@openzeppelin/hardhat-upgrades";
+import "hardhat-abi-exporter";
 
 const {
   ARBITRUM_TESTNET_URL,
@@ -21,7 +21,7 @@ const {
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
-task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
+task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
 
   for (const account of accounts) {
@@ -35,9 +35,15 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: '0.8.9',
+  solidity: "0.8.9",
 
   networks: {
+    eth_testnet: {
+      url: BSC_TESTNET_URL,
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: [`0x${BSC_TESTNET_DEPLOYER_PRIVATE_KEY}`],
+    },
     // use bsctest as dev env, goerli eth is so expensive
     bsc_testnet: {
       url: BSC_TESTNET_URL,
@@ -67,7 +73,7 @@ module.exports = {
     timeout: 2 * 60 * 1000,
   },
   abiExporter: {
-    except: ['contracts/tests', 'contracts/core', 'contracts/providers'],
+    except: ["contracts/tests", "contracts/core", "contracts/providers"],
   },
   defender: {
     apiKey: process.env.CONTRACT_DEPLOYER_DEFENDER_TEAM_API_KEY,

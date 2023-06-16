@@ -14,7 +14,7 @@ async function main() {
     );
   } else {
     const contract = await deployUpgradeProxy(DeployContractName, [
-      ContractDeployAddress.GameFactory,
+      ContractDeployAddress.GameAccountTemplate,
     ]);
   }
 }

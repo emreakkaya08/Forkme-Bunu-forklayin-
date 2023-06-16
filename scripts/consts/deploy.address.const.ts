@@ -49,10 +49,10 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   USDTFaucet: "0x861eC40cF915A2036617272a81ed16b339952E51",
   TokenCENO: "0xd7dA0eb37ac4AFBa74ce8DEBB03A8caa09177378",
   TokenZOIC: "0xBD0a99e6B1F3B0b47A4F95B90Ba918Ae05Ae0644",
-  TokenDeposit: "0x2a2370af0E7928Ac6D8f03fF9EDc150d02c6D2Be",
+  TokenDeposit: "0xe5A9645cDf7050935ACFe41a985F10F94Ba46de2",
   // use for usdt of zoic ... , use as vault
   TokenTreasury: "0xC2f178B40C0741ead0309B13040326B3014B1F06",
-  TokenRedeem: "0x82178F55690fe80f0664d6AD3BD16a273e3ff3Ab",
+  TokenRedeem: "0xbacC84d07DF79cD44cB297E626aCa5Ff69A4eA38",
 
   // 2.5% of total supply
   TokenCofferAirdrop: "0x0185D5968928F7C57E66b669802c3CD53B08f2c0",
@@ -80,13 +80,13 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
 
   TokenVeZOIC: "0xD260F08e3639a1A9E5684967ab4eb41C02912930",
 
-  NFTForRewardPointsSilverBox: null,
-  NFTForRewardPointsGoldenBox: null,
-  NFTForRewardPointsAmethystBox: null,
+  NFTForRewardPointsSilverBox: "0x4A63739cB244d90f5763C8d5C4f4192a0d9B5962",
+  NFTForRewardPointsGoldenBox: "0xbc4C77F7B8D4d62c1bccf37b24FeA40eFA38914E",
+  NFTForRewardPointsAmethystBox: "0xDd885DA6D22450522A37306d282859b2f50A8229",
   NFTMinterForRewardPoints: null,
 
-  GameAccountTemplate: null,
-  GameFactory: null,
+  GameAccountTemplate: "0x7176E4b3FF8de7189dCaEE7b3982B980725C9296",
+  GameFactory: "0xEc89847227F61Ca2cd4c6c50778EDe0f66780ecB",
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
