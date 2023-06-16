@@ -36,8 +36,8 @@ contract TokenDeposit is
     mapping(address => uint256) private exchangeRates;
 
     event DepositERC20(
-        address indexed sender,
-        address indexed user,
+        address indexed caller,
+        address indexed receiver,
         uint256 amount,
         uint256 cenoTokenAmount
     );
@@ -106,13 +106,7 @@ contract TokenDeposit is
         address tokenAddress,
         address to,
         uint256 amount
-    )
-        public
-        nonReentrant
-        whenNotPaused
-        onlyRole(DEPOSIT_ROLE)
-        returns (uint256 mintValue)
-    {
+    ) public nonReentrant whenNotPaused onlyRole(DEPOSIT_ROLE) {
         uint256 rate = exchangeRates[tokenAddress];
 
         require(rate != 0, "Token not supported");
@@ -133,7 +127,7 @@ contract TokenDeposit is
             amount
         );
 
-        mintValue = amount * rate;
+        uint256 mintValue = amount * rate;
 
         // mint the equivalent amount of cenoToken to the user
         cenoToken.mint(to, mintValue);
