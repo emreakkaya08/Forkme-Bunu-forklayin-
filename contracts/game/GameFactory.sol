@@ -7,9 +7,11 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import "../../core/contract-upgradeable/VersionUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
+import "../core/contract-upgradeable/VersionUpgradeable.sol";
+import "./GameAccount.sol";
 
-contract GameTokenVault is
+contract GameFactory is
     Initializable,
     ReentrancyGuardUpgradeable,
     AccessControlEnumerableUpgradeable,
@@ -19,7 +21,13 @@ contract GameTokenVault is
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    bytes32 public constant APPROVE_ROLE = keccak256("APPROVE_ROLE");
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
+    event GameRegistered(address indexed caller, address indexed gameAccount);
+
+    address public gameAccountTemplate;
+    mapping(address => address) public gameAccounts;
+    uint256 private _totalRegistered;
 
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -42,7 +50,7 @@ contract GameTokenVault is
         _disableInitializers();
     }
 
-    function initialize() public initializer {
+    function initialize(address template_) public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
@@ -52,9 +60,36 @@ contract GameTokenVault is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
+
+        gameAccountTemplate = template_;
     }
 
-    function approveDeposit(
-        address gameAdderss_
-    ) public onlyRole(APPROVE_ROLE) {}
+    function register(
+        string memory gameName_
+    ) public whenNotPaused nonReentrant {
+        address caller = _msgSender();
+        require(gameAccounts[caller] == address(0), "already registered");
+
+        GameAccount gameAccount = GameAccount(
+            ClonesUpgradeable.cloneDeterministic(
+                gameAccountTemplate,
+                keccak256(abi.encode(caller))
+            )
+        );
+
+        gameAccount.initialize(gameName_);
+
+        gameAccounts[caller] = address(gameAccount);
+        _totalRegistered += 1;
+
+        emit GameRegistered(caller, address(gameAccount));
+    }
+
+    function getGameAccount() public view returns (address) {
+        return gameAccounts[_msgSender()];
+    }
+
+    function totalRegistered() public view returns (uint256) {
+        return _totalRegistered;
+    }
 }
