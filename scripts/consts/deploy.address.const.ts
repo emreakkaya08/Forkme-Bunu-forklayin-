@@ -30,6 +30,11 @@ interface ContractDeployAddressInterface {
   TokenCofferStakingRewards?: ContractDeployAddress;
   TeamVestingDecayByWeek?: ContractDeployAddress;
   TokenCofferTeam?: ContractDeployAddress;
+
+  NFTForRewardPointsSilverBox?: ContractDeployAddress;
+  NFTForRewardPointsGoldenBox?: ContractDeployAddress;
+  NFTForRewardPointsAmethystBox?: ContractDeployAddress;
+  NFTMinterForRewardPoints?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
@@ -71,6 +76,11 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   TokenCofferTeam: "0x71f72C61551A2A14a8e147165e8bcA984a97616A",
 
   TokenVeZOIC: "0xD260F08e3639a1A9E5684967ab4eb41C02912930",
+
+  NFTForRewardPointsSilverBox: null,
+  NFTForRewardPointsGoldenBox: null,
+  NFTForRewardPointsAmethystBox: null,
+  NFTMinterForRewardPoints: null,
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
