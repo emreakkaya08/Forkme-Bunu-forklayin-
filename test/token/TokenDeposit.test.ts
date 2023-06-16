@@ -2,6 +2,8 @@ import { expect } from "chai";
 import { Contract } from "ethers";
 import { ethers, upgrades } from "hardhat";
 
+const RATE_USDT = 100;
+
 describe("TokenDeposit", () => {
   let contract: Contract;
   let tokenTreasury: Contract;
@@ -38,58 +40,65 @@ describe("TokenDeposit", () => {
       "Token not supported"
     );
     const [owner, addr1] = await ethers.getSigners();
-    const rate = 100;
 
     const role = ethers.utils.id("ADMIN");
     const revert = `AccessControl: account ${ethers.utils
       .getAddress(addr1.address)
       .toLowerCase()} is missing role ${role}`;
     await expect(
-      contract.connect(addr1).addExchangeRate(usdt.address, rate)
+      contract.connect(addr1).addExchangeRate(usdt.address, RATE_USDT)
     ).to.be.revertedWith(revert);
 
     await contract.grantRole(role, addr1.address);
-    await contract.connect(addr1).addExchangeRate(usdt.address, rate);
+    await contract.connect(addr1).addExchangeRate(usdt.address, RATE_USDT);
 
-    expect(await contract.getExchangeRate(usdt.address)).to.equal(rate);
+    expect(await contract.getExchangeRate(usdt.address)).to.equal(RATE_USDT);
 
     await expect(
-      contract.connect(addr1).addExchangeRate(usdt.address, rate)
+      contract.connect(addr1).addExchangeRate(usdt.address, RATE_USDT)
     ).to.be.revertedWith("Token already exists");
   });
 
   it("TokenDeposit DepositERC20 test", async () => {
-    const rate = 100;
-    await contract.addExchangeRate(usdt.address, rate);
+    await contract.addExchangeRate(usdt.address, RATE_USDT);
 
     // grant contract MINTER_ROLE
     await cenoToken.grantRole(ethers.utils.id("MINTER_ROLE"), contract.address);
 
-    const [owner, from] = await ethers.getSigners();
+    const [owner, gameRole, user] = await ethers.getSigners();
     const uAmount = ethers.utils.parseEther("100");
-    await usdt.mint(from.address, uAmount);
+    await usdt.mint(user.address, uAmount);
 
-    expect(await usdt.balanceOf(from.address)).to.equal(uAmount);
+    expect(await usdt.balanceOf(user.address)).to.equal(uAmount);
 
     const swapAmount = ethers.utils.parseEther("20");
 
     const emptyAmount = ethers.utils.parseEther("0");
     expect(await usdt.balanceOf(contract.address)).to.equal(emptyAmount);
 
-    await usdt.connect(from).approve(contract.address, swapAmount);
-    await expect(contract.connect(from).depositERC20(usdt.address, swapAmount))
+    // approve usdt operate role to contract
+    await usdt.connect(user).approve(contract.address, swapAmount);
+
+    // approve role
+    contract.grantRole(ethers.utils.id("DEPOSIT_ROLE"), gameRole.address);
+
+    const totalGet = swapAmount.mul(RATE_USDT);
+
+    await expect(
+      contract
+        .connect(gameRole)
+        .depositERC20(usdt.address, user.address, swapAmount)
+    )
       .to.emit(contract, "DepositERC20")
-      .withArgs(from.address, swapAmount, swapAmount.mul(rate));
+      .withArgs(gameRole.address, user.address, swapAmount, totalGet);
 
     expect(await usdt.balanceOf(contract.address)).to.equal(emptyAmount);
     expect(await usdt.balanceOf(tokenTreasury.address)).to.equal(swapAmount);
 
-    expect(await usdt.balanceOf(from.address)).to.equal(
+    expect(await usdt.balanceOf(user.address)).to.equal(
       uAmount.sub(swapAmount)
     );
-    const balance = await cenoToken.balanceOf(from.address);
-    expect(await cenoToken.balanceOf(from.address)).to.equal(
-      swapAmount.mul(rate)
-    );
+    const balance = await cenoToken.balanceOf(usdt.address);
+    expect(await cenoToken.balanceOf(user.address)).to.equal(totalGet);
   });
 });
