@@ -34,6 +34,7 @@ interface ContractDeployAddressInterface {
   NFTForRewardPointsSilverBox?: ContractDeployAddress;
   NFTForRewardPointsGoldenBox?: ContractDeployAddress;
   NFTForRewardPointsAmethystBox?: ContractDeployAddress;
+  NFTMinterForRewardPoints?: ContractDeployAddress;
 }
 
 const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
@@ -79,6 +80,7 @@ const ContractDeployAddress_ETHTestNet: ContractDeployAddressInterface = {
   NFTForRewardPointsSilverBox: null,
   NFTForRewardPointsGoldenBox: null,
   NFTForRewardPointsAmethystBox: null,
+  NFTMinterForRewardPoints: null,
 };
 
 const ContractDeployAddress_ETHMainNet: ContractDeployAddressInterface = {};
