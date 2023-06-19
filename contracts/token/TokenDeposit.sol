@@ -26,6 +26,8 @@ contract TokenDeposit is
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     // admin role
     bytes32 public constant ADMIN = keccak256("ADMIN");
+    // deposit role, special game account
+    bytes32 public constant DEPOSIT_ROLE = keccak256("DEPOSIT_ROLE");
 
     IERCMINTExt20 public cenoToken;
 
@@ -34,7 +36,8 @@ contract TokenDeposit is
     mapping(address => uint256) private exchangeRates;
 
     event DepositERC20(
-        address indexed user,
+        address indexed caller,
+        address indexed receiver,
         uint256 amount,
         uint256 cenoTokenAmount
     );
@@ -101,35 +104,34 @@ contract TokenDeposit is
 
     function depositERC20(
         address tokenAddress,
+        address to,
         uint256 amount
-    ) public payable nonReentrant whenNotPaused {
+    ) public nonReentrant whenNotPaused onlyRole(DEPOSIT_ROLE) {
         uint256 rate = exchangeRates[tokenAddress];
 
         require(rate != 0, "Token not supported");
 
         IERC20Upgradeable erc20Token = IERC20Upgradeable(tokenAddress);
 
-        address cenoToAddr = _msgSender();
-
         // make sure the user has approved the transfer of USDT to this contract
         require(
-            erc20Token.allowance(cenoToAddr, address(this)) >= amount,
+            erc20Token.allowance(to, address(this)) >= amount,
             "Must approve ERC20Token first"
         );
 
         // transfer the USDT from the user to treasury contract
         SafeERC20Upgradeable.safeTransferFrom(
             erc20Token,
-            cenoToAddr,
+            to,
             treasuryAddress,
             amount
         );
 
-        uint256 mintAmount = amount * rate;
+        uint256 mintValue = amount * rate;
 
         // mint the equivalent amount of cenoToken to the user
-        cenoToken.mint(cenoToAddr, mintAmount);
+        cenoToken.mint(to, mintValue);
 
-        emit DepositERC20(cenoToAddr, amount, mintAmount);
+        emit DepositERC20(_msgSender(), to, amount, mintValue);
     }
 }

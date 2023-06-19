@@ -1,38 +1,33 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import "../../core/contract-upgradeable/VersionUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
+import "../core/contract-upgradeable/VersionUpgradeable.sol";
+import "./GameAccount.sol";
 
-contract GameCoffer is
+contract GameFactory is
     Initializable,
-    AccessControlEnumerableUpgradeable,
     ReentrancyGuardUpgradeable,
+    AccessControlEnumerableUpgradeable,
     PausableUpgradeable,
     UUPSUpgradeable,
-    VersionUpgradeable,
-    ERC20Upgradeable
+    VersionUpgradeable
 {
-    event TokenReceived(address from, uint256 amount);
-    event Withdraw(address to, uint256 amount);
-    event WithdrawERC20(
-        IERC20Upgradeable indexed token,
-        address indexed to,
-        uint256 amount
-    );
-
-    bytes32 public constant WITHDRAW = keccak256("WITHDRAW");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
+    event GameRegistered(address indexed caller, address indexed gameAccount);
+
+    address public gameAccountTemplate;
+    mapping(address => address) public gameAccounts;
+    uint256 private _totalRegistered;
 
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
@@ -55,7 +50,7 @@ contract GameCoffer is
         _disableInitializers();
     }
 
-    function initialize() public initializer {
+    function initialize(address template_) public initializer {
         __AccessControlEnumerable_init();
         __Pausable_init();
         __UUPSUpgradeable_init();
@@ -65,27 +60,36 @@ contract GameCoffer is
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-        _grantRole(WITHDRAW, msg.sender);
+
+        gameAccountTemplate = template_;
     }
 
-    receive() external payable {
-        emit TokenReceived(msg.sender, msg.value);
+    function register(
+        string memory gameName_
+    ) public whenNotPaused nonReentrant {
+        address caller = _msgSender();
+        require(gameAccounts[caller] == address(0), "already registered");
+
+        GameAccount gameAccount = GameAccount(
+            ClonesUpgradeable.cloneDeterministic(
+                gameAccountTemplate,
+                keccak256(abi.encode(caller))
+            )
+        );
+
+        gameAccount.initialize(gameName_);
+
+        gameAccounts[caller] = address(gameAccount);
+        _totalRegistered += 1;
+
+        emit GameRegistered(caller, address(gameAccount));
     }
 
-    function withdraw(
-        address payable to,
-        uint256 amount
-    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
-        AddressUpgradeable.sendValue(to, amount);
-        emit Withdraw(to, amount);
+    function getGameAccount() public view returns (address) {
+        return gameAccounts[_msgSender()];
     }
 
-    function withdrawERC20(
-        IERC20Upgradeable token,
-        address to,
-        uint256 value
-    ) public whenNotPaused nonReentrant onlyRole(WITHDRAW) {
-        SafeERC20Upgradeable.safeTransfer(token, to, value);
-        emit WithdrawERC20(token, to, value);
+    function totalRegistered() public view returns (uint256) {
+        return _totalRegistered;
     }
 }

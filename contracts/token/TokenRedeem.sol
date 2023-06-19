@@ -27,10 +27,12 @@ contract TokenRedeem is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant ADMIN = keccak256("ADMIN");
+    bytes32 public constant REDEEM_ROLE = keccak256("REDEEM_ROLE");
 
     event RedeemERC20(
         IERC20Upgradeable indexed token,
-        address indexed to,
+        address indexed caller,
+        address indexed receiver,
         uint256 amountX,
         uint256 amounY,
         uint256 reddemAmount
@@ -141,8 +143,9 @@ contract TokenRedeem is
         address tokenX,
         address tokenY,
         address redeemToken,
-        uint256 amountTokenX
-    ) public whenNotPaused nonReentrant {
+        uint256 amountTokenX,
+        address to_
+    ) public whenNotPaused nonReentrant onlyRole(REDEEM_ROLE) {
         require(amountTokenX > 0, "Amount must be greater than 0");
         require(
             hasRedeemTokenPair(tokenX, tokenY, redeemToken),
@@ -157,24 +160,18 @@ contract TokenRedeem is
         ERC20BurnableUpgradeable yToken = ERC20BurnableUpgradeable(tokenY);
 
         require(
-            xToken.allowance(_msgSender(), address(this)) >= amountTokenX,
+            xToken.allowance(to_, address(this)) >= amountTokenX,
             "Must approve XToken first"
         );
 
         require(
-            yToken.allowance(_msgSender(), address(this)) >= amountTokenY,
+            yToken.allowance(to_, address(this)) >= amountTokenY,
             "Must approve YToken first"
         );
 
-        require(
-            xToken.balanceOf(_msgSender()) >= amountTokenX,
-            "Not enough X token"
-        );
+        require(xToken.balanceOf(to_) >= amountTokenX, "Not enough X token");
 
-        require(
-            yToken.balanceOf(_msgSender()) >= amountTokenY,
-            "Not enough Y token"
-        );
+        require(yToken.balanceOf(to_) >= amountTokenY, "Not enough Y token");
 
         // TODO: XY->U usdtAmount need oracle to get
         // set Y default price is 0.1 U
@@ -191,20 +188,17 @@ contract TokenRedeem is
         );
 
         // burnXY
-        xToken.burnFrom(_msgSender(), amountTokenX);
-        yToken.burnFrom(_msgSender(), amountTokenY);
+        xToken.burnFrom(to_, amountTokenX);
+        yToken.burnFrom(to_, amountTokenY);
 
         ITokenVault tokenTreasury = ITokenVault(_tokenVault);
 
-        tokenTreasury.withdrawERC20(
-            tokenRedeem,
-            _msgSender(),
-            redeemTokenAmount
-        );
+        tokenTreasury.withdrawERC20(tokenRedeem, to_, redeemTokenAmount);
 
         emit RedeemERC20(
             tokenRedeem,
             _msgSender(),
+            to_,
             amountTokenX,
             amountTokenY,
             redeemTokenAmount

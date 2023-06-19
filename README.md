@@ -139,3 +139,9 @@ About the `abi/` directory, you can also use the `npm run compile` command to ge
 ```shell
 npx ganache-cli --fork https://rpc.ankr.com/eth_goerli/ --networkId 1337
 ```
+
+### Foundry test
+
+```
+forge test
+```
